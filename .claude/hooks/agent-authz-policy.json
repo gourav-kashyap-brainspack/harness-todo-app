@@ -1,0 +1,47 @@
+{
+  "$comment": "Single machine-readable source for per-agent action×resource authorization. The human-readable mirror + rationale lives in .claude/harness.config.md → 'Agent Authorization'. Flip 'mode' to 'enforce' only AFTER a warn-only trial shows the log catches ONLY real violations. See ADR-0020. Scope: RN-frontend harness (devops/backend/db roles removed — ADR-0036).",
+  "mode": "warn",
+  "rules": [
+    {
+      "id": "reviewers-read-only",
+      "agents": [
+        "code-reviewer",
+        "security-reviewer",
+        "mr-reviewer",
+        "design-reviewer"
+      ],
+      "deny": {
+        "writePaths": [
+          "**"
+        ],
+        "bashMutations": true
+      },
+      "reason": "Reviewers are READ-ONLY — they emit findings; builders fix. No file writes, no mutating shell commands."
+    },
+    {
+      "id": "builders-not-planning-artifacts",
+      "agents": [
+        "frontend"
+      ],
+      "deny": {
+        "writePaths": [
+          "docs/specs/**",
+          "docs/graph/**"
+        ]
+      },
+      "reason": "Builders implement to spec; specs & the task graph are architect / orchestrator / librarian territory."
+    },
+    {
+      "id": "design-not-app-source",
+      "agents": [
+        "design"
+      ],
+      "deny": {
+        "writePaths": [
+          "mobile/src/**"
+        ]
+      },
+      "reason": "The design agent owns tokens / specs / visual direction and hands implementation to frontend; it should not write application source. (warn-mode: tune for the NativeWind token files mobile/tailwind.config.js, mobile/global.css, mobile/src/theme/** during the trial — ADR-0025.)"
+    }
+  ]
+}

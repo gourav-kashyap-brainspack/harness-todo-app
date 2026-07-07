@@ -1,0 +1,4 @@
+# Generated telemetry artifacts — regenerate on demand via /harness-report.
+# REPORT.md embeds a machine-specific transcript slug; summary.json is a local trend log.
+REPORT.md
+summary.json

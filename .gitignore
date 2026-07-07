@@ -1,0 +1,51 @@
+# Logs
+/logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+# NOTE: package-lock.json IS committed per the Dependency Version Policy (pin what you resolve).
+
+# Environment variables
+.env
+.env.local
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.gstack/
+
+# ── Engineering Harness ──────────────────────────────────────────────
+# Claude Code local overrides (may hold tokens) — never commit
+.claude/settings.local.json
+
+# Python venv for intake tooling (openpyxl)
+.venv/
+
+# Graphify codebase graph — regenerable build output (rebuilt per-branch)
+graphify-out/
+
+# Tool-output bounding logs — ephemeral per-task command logs (pruned by the librarian on task done)
+docs/graph/logs/*
+!docs/graph/logs/.gitkeep
+
+# Compaction-resilience run checkpoint — volatile run state (ADR 0017); durable truth is STATUS.md/modules.json
+docs/graph/CHECKPOINT.md
+
+# Keep .env.example tracked, ignore real env files
+!.env.example
+!.env.harness.example

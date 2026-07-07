@@ -1,0 +1,11 @@
+{
+  "_note": "Per-model USD per 1,000,000 tokens. VERIFY against current pricing before trusting the $ column — ccusage is the authoritative dollar anchor; this table is only the fallback estimate. Keys are matched as a prefix of message.model (so 'claude-sonnet-4-6-2026...' matches 'claude-sonnet-4-6').",
+  "_asOf": "2026-07-02",
+  "rates": {
+    "claude-opus-4":     { "input": 15.0, "output": 75.0, "cacheWrite": 18.75, "cacheRead": 1.5 },
+    "claude-fable-5":    { "input": 15.0, "output": 75.0, "cacheWrite": 18.75, "cacheRead": 1.5 },
+    "claude-sonnet-4":   { "input": 3.0,  "output": 15.0, "cacheWrite": 3.75,  "cacheRead": 0.3 },
+    "claude-haiku-4":    { "input": 1.0,  "output": 5.0,  "cacheWrite": 1.25,  "cacheRead": 0.1 }
+  },
+  "_default": { "input": 3.0, "output": 15.0, "cacheWrite": 3.75, "cacheRead": 0.3 }
+}

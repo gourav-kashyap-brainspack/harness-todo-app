@@ -1,0 +1,21 @@
+{
+  "project": "{{APP_DISPLAY_NAME}}",
+  "updated": "",
+  "note": "Empty skeleton — run /intake then /scope to populate modules, then /module <name> to add tasks. ClickUp IDs are filled after /clickup-sync creates the lists.",
+  "clickup": {
+    "workspaceId": "{{CLICKUP_WORKSPACE_ID}}",
+    "spaceId": "{{CLICKUP_SPACE_ID}}",
+    "statusMap": {
+      "started": "in progress",
+      "review": "in progress",
+      "done": "complete"
+    },
+    "statusNote": "Workspace list statuses: 'to do' | 'in progress' | 'complete'. No native review status — PR-open is tracked as 'in progress' + a PR comment.",
+    "mirroredAt": "",
+    "lists": {},
+    "tasks": {}
+  },
+  "modules": [],
+  "tasks": [],
+  "openQuestions": []
+}

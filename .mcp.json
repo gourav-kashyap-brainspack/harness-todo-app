@@ -1,0 +1,17 @@
+{
+  "_README": "STAGED HARNESS MCP CONFIG — review, then activate with:  mv .mcp.harness.json .mcp.json  (the auto-mode guard blocks the agent from adding MCP servers directly). Postgres was dropped (frontend-only RN client, no DB); add it back only if a backend module is scoped.",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${CLAUDE_PROJECT_DIR}"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "clickup": {
+      "type": "http",
+      "url": "https://mcp.clickup.com/mcp"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+# Lean CI (ADR-0038).
+# This workflow MUST live at the GitHub repo ROOT — GitHub only discovers workflows at
+# <repo-root>/.github/workflows/, never under a subdir like mobile/.github/.
+# CI tier is set by the Project Profile `ciTier` switch (resolved by /setup). Default = LEAN:
+#   ✅ typecheck · lint · promoted guards · traceability · Layer-0 token bridge  (fast, deterministic)
+#   ❌ NO native build · NO unit suite · NO E2E · NO device/visual jobs in CI
+# Those remain LOCAL gates: unit+coverage & build per task (gate-runner), E2E + visual parity
+# per module edge (Module DoD). CI here is a cheap regression tripwire, not the gate of record.
+# Flip `ciTier` to `standard` (adds the unit job) or `full` (adds the native build job) via /setup.
+#
+# Template self-guard: the `detect` job checks whether the mobile/ app has been instantiated
+# (mobile/package.json exists). On the bare template repo it hasn't, so `static` + `guards`
+# are SKIPPED (green, not red). They light up automatically once a project scaffolds mobile/.
+name: CI
+
+on:
+  push:
+    branches: [development]
+    paths-ignore: ['docs/**', '**.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**.md']
+
+jobs:
+  detect:
+    name: Detect app
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.check.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -f mobile/package.json ]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+            echo "✓ mobile/ app present — running the lean tier."
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ mobile/ app not instantiated yet (bare template) — skipping app jobs."
+          fi
+
+  static:
+    name: Typecheck + Lint (lean tier)
+    needs: detect
+    if: needs.detect.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Lint (import boundaries, zero warnings)
+        run: npx eslint . --max-warnings=0
+        env:
+          ESLINT_USE_FLAT_CONFIG: 'false'
+      - name: Traceability (features ↔ modules ↔ tasks)
+        run: npm run verify:traceability
+      - name: Visual token bridge (Layer 0, milliseconds — ADR-0056/visual-parity)
+        run: npm run visual:parity:tokens
+
+  guards:
+    name: Promoted guards (grep checks, dep-free)
+    needs: detect
+    if: needs.detect.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Promoted grep guards
+        run: |
+          shopt -s nullglob
+          guards=(scripts/check-*.sh)
+          if [ ${#guards[@]} -eq 0 ]; then echo "no promoted guards yet — nothing to run"; exit 0; fi
+          for g in "${guards[@]}"; do echo "→ $g"; bash "$g" || exit 1; done
+
+# Deliberately absent (Project Profile decides; /setup can re-enable):
+#   android-build / ios-build — native build is a LOCAL per-task gate (gate-runner step 4).
+#   unit — the Jest suite is minutes, not seconds; runs locally per task + module edge.
+#   e2e — module-edge, local-only, never CI (ADR-0012/0018).
+#   release-hardening — advisory, release-lane only until securityTier/releaseHardening flips (ADR-0038).

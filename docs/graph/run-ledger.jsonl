@@ -1,0 +1,1 @@
+{"_meta":"run-ledger","schema":"v1","doc":"ADR-0022 — append-only audit trail of completed task merges. One JSON object per line. Written via .claude/scripts/run-ledger.mjs (never hand-edited). Fields: ts, task, pr, mergeSha, initiator(auto|human), mode, iterations, gates{}, reviewer, note. Lines with _meta are skipped by readers."}
