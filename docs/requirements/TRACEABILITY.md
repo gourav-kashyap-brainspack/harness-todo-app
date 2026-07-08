@@ -1,4 +1,4 @@
-# Traceability Matrix — {{APP_DISPLAY_NAME}}
+# Traceability Matrix — Todo App
 
 > Every feature maps **feature → module → task → spec → status**. Seeded by `/intake`,
 > grown by `/scope` + `/module`, kept honest by the librarian. **No feature is ever dropped silently.**

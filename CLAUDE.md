@@ -1,4 +1,4 @@
-# {{APP_DISPLAY_NAME}} — Engineering Harness
+# Todo App — Engineering Harness
 
 > Loaded every session. Keep it tight. The single source of truth is `.claude/harness.config.md`.
 >

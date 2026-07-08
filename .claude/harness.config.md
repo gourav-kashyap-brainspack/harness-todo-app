@@ -2,7 +2,7 @@
 title: Harness Config — Single Source of Truth
 status: active
 created: 2026-06-30
-project: {{APP_DISPLAY_NAME}}
+project: Todo App
 ---
 
 # Harness Configuration
@@ -15,8 +15,8 @@ project: {{APP_DISPLAY_NAME}}
 > governs any new install (resolve current stable, don't recall).
 
 ## Project
-- **Name:** {{APP_DISPLAY_NAME}}
-- **Purpose:** React Native (iOS + Android) client. {{PRODUCT_DESCRIPTION}} — a frontend-only client consuming a remote backend API.
+- **Name:** Todo App
+- **Purpose:** React Native (iOS + Android) client. A cross-platform to-do / task-management app — create, organize, complete, filter, and track tasks. — a frontend-only client consuming a remote backend API.
 
 ## Tech Stack
 > The harness's target stack. **Target = the `mobile/` React Native app** (frontend-only client; no backend/DB in this repo).
@@ -81,20 +81,22 @@ Applies to **every** dependency install in **any** task (app deps, dev tooling, 
 ## Project Profile (per-project capability switches — ADR-0038)
 > The generalization of the Design Profile to **every** capability: one keyed table, resolved **once per project** by the **`/setup`** preflight (`.claude/skills/setup/SKILL.md`), consumed by gate-runner (active gates), orchestrator (Module-DoD composition, CI expectations), and CI. **After the questions are answered, `/setup` runs a PRUNE pass:** machinery behind an OFF switch is removed/disabled (CI jobs, skills, agent dispatch steps, always-loaded prose) and logged to `harness-debt.md` — the harness a project runs is only the harness it uses. Change a value here → re-run the matching prune/enable step; never leave a switch and its machinery disagreeing. **The `Default` column is the template default; `/setup` confirms/overrides it per project.**
 
-| Switch | Values | **Default** | Drives |
-|---|---|---|---|
-| `platforms` | android · ios · both | **both** (drop to `android` if no iOS toolchain) | build-gate targets, E2E/visual platforms, CI jobs, plist/gradle checks |
-| `ciTier` | lean · standard · full | **lean** — typecheck · lint · promoted guards · traceability · token bridge ONLY | root `ci.yml` job set. `standard` adds the unit suite; `full` adds native build. Never E2E (ADR-0012). |
-| `unitGate` | on(lines/branches) · off | **on (70/60)** — LOCAL per-task + module edge; **not in CI** when `ciTier: lean` | gate-runner step 3, jest floor |
-| `buildGate` | local · local+ci | **local** — per-task via gate-runner (JS-only short-circuit); full assembleDebug at module edge | gate-runner step 4, CI android/ios jobs |
-| `e2eGate` | on · off | **on** — module-edge, LOCAL only, never CI (ADR-0012/0018) | Module-DoD step 3, e2e-automator dispatch |
-| `visualParity` | mockup · pixel-only · off | **mockup** (= Design Profile `visualRegression`; module-edge, local; Layer-0 token bridge is the only CI-side piece) | visual-parity skill |
-| `releaseHardening` | advisory · enforced | **ask** (default `advisory` — NEVER silently enforced). `advisory` = hardening items (SSL pin values, ProGuard/R8, Hermes, release keystore, jail-monkey, plist keys) are a release-lane CHECKLIST, not a gate. `/setup` (and any `development → main` request) asks whether to flip to `enforced` (which adds `check-release-hardening.sh` as a blocking local release gate). | release lane |
-| `offlineTier` | none · read-cache · full-queue | **read-cache** — persistQueryClient + MMKV persister (Tier-1 pattern); never build `full-queue` unprompted | spec Offline section, Tier-1 pattern, offline flow tier |
-| `perfBudget` | on · off | **off** in lean CI; Hermes/ProGuard checks live in the advisory release checklist | CI bundle job |
-| `intakeMode` | full-upfront · incremental | **ask** — `incremental` lights up a thin `/require <text>` entry point (input-gated — built only when a project picks it) | intake path |
-| `timeTracking` | on · off | **on** — see Time Tracking & ETA below | estimate/startedAt/doneAt fields, ETA table |
-| `telemetryDashboard` | on · off | **on** — see Telemetry Dashboard below | `--dashboard` writes at safe moments |
+> **This project resolved 2026-07-07** (by varunprashar35@gmail.com, via `/setup`). Answered switches: `platforms=both`, `AUTONOMY_MODE=human-gated`, `releaseHardening=advisory`, `offlineTier=read-cache`; all others took template defaults. See `docs/graph/SETUP-COMPLETE.md`.
+
+| Switch | Values | **This project** | Default | Drives |
+|---|---|---|---|---|
+| `platforms` | android · ios · both | **both** ✅ answered | both | build-gate targets, E2E/visual platforms, CI jobs, plist/gradle checks |
+| `ciTier` | lean · standard · full | **lean** (default) | lean — typecheck · lint · promoted guards · traceability · token bridge ONLY | root `ci.yml` job set. `standard` adds the unit suite; `full` adds native build. Never E2E (ADR-0012). |
+| `unitGate` | on(lines/branches) · off | **on (80/70)** (default) | on — LOCAL per-task + module edge; **not in CI** when `ciTier: lean` | gate-runner step 3, jest floor |
+| `buildGate` | local · local+ci | **local** (default) | local — per-task via gate-runner (JS-only short-circuit); full assembleDebug at module edge | gate-runner step 4, CI android/ios jobs |
+| `e2eGate` | on · off | **on** (default) | on — module-edge, LOCAL only, never CI (ADR-0012/0018) | Module-DoD step 3, e2e-automator dispatch |
+| `visualParity` | mockup · pixel-only · off | **mockup** (default) | mockup (= Design Profile `visualRegression`; module-edge, local; Layer-0 token bridge is the only CI-side piece) | visual-parity skill |
+| `releaseHardening` | advisory · enforced | **advisory** ✅ answered | ask | `advisory` = hardening items (SSL pin values, ProGuard/R8, Hermes, release keystore, jail-monkey, plist keys) are a release-lane CHECKLIST, not a gate. Any `development → main` request re-asks whether to flip to `enforced`. |
+| `offlineTier` | none · read-cache · full-queue | **read-cache** ✅ answered | read-cache — persistQueryClient + MMKV persister (Tier-1 pattern); never build `full-queue` unprompted | spec Offline section, Tier-1 pattern, offline flow tier |
+| `perfBudget` | on · off | **off** (default) | off in lean CI; Hermes/ProGuard checks live in the advisory release checklist | CI bundle job |
+| `intakeMode` | full-upfront · incremental | **full-upfront** (default) | ask — `incremental` lights up a thin `/require <text>` entry point (input-gated) | intake path |
+| `timeTracking` | on · off | **on** (default) | on — see Time Tracking & ETA below | estimate/startedAt/doneAt fields, ETA table |
+| `telemetryDashboard` | on · off | **on** (default) | on — see Telemetry Dashboard below | `--dashboard` writes at safe moments |
 
 ## Time Tracking & ETA (ADR-0038) — active when `timeTracking: on`
 - **Schema (in `docs/graph/modules.json` tasks):** `estimate` (hours; architect sets at `/module`, mapping S=2 · M=4 · L=8 until real actuals exist) · `startedAt` · `doneAt` (ISO timestamps).

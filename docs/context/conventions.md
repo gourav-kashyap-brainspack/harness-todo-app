@@ -1,4 +1,4 @@
-# Conventions — {{APP_DISPLAY_NAME}}
+# Conventions — Todo App
 
 > Coding standards every agent follows. The librarian appends only conventions **actually used**.
 > Stack = **React Native** (`mobile/`).

@@ -1,4 +1,4 @@
-# Design System — {{APP_DISPLAY_NAME}}
+# Design System — Todo App
 
 > Owned by the **design** agent; implemented by **frontend**. Code is the source of truth
 > (NativeWind tokens: `mobile/tailwind.config.js` + `global.css` + `src/theme` + owned `src/components/ui`). Stub until the first UI module (UIF).
