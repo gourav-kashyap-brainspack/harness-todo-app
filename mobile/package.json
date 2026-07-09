@@ -7,7 +7,9 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "verify:traceability": "node ../.claude/scripts/verify-traceability.mjs",
+    "visual:parity:tokens": "echo 'visual token bridge: no design tokens yet (pending — wired by the foundation module)'"
   },
   "dependencies": {
     "react": "18.3.1",
