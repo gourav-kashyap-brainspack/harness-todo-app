@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** {{APP_DISPLAY_NAME}} · **Updated:** — · **Phase:** greenfield
+**Project:** Todo App · **Updated:** — · **Phase:** greenfield
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated

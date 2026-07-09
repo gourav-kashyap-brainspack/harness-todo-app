@@ -22,3 +22,15 @@
 | `setup-complete` gate on `/scope` + `/build` | Make onboarding a real gate, not a doc the operator may skip. | todo | Refuse to run until the marker exists (ADR-0036 §Gate). |
 | ClickUp workspace-grant confirmation in preflight | OAuth grant pointed at a different (reference) workspace than intended; lists were created in the wrong place before re-auth. | todo | Resolve + echo the authorized Workspace/Space for confirmation BEFORE any `createLists` (ADR-0036 §1). |
 | _(re-justify later)_ `setup-complete` marker + origin-guard | Per ADR-0028, new always-present machinery must be re-justified; the template-repo change alone may make some of this redundant. | watch | Ablate once template-repo distribution is proven. |
+
+## Prune pass — Todo App `/setup` (2026-07-07)
+
+> Ran the Phase-4 prune after resolving the Project Profile. Almost every capability resolved ON; the OFF/lean switches all map to machinery that is either already lean or input-gated (never built). No physical removals were required. Re-enable path for each = flip the switch in `harness.config.md` → Project Profile and re-run `/setup`.
+
+| Switch (resolved) | Machinery | Prune outcome |
+|---|---|---|
+| `ciTier: lean` | root `ci.yml` job set | already lean (`detect` · `static` · `guards`) — no unit/build/bundle jobs present to delete |
+| `perfBudget: off` | CI bundle-budget job | none present — nothing removed |
+| `releaseHardening: advisory` | `check-release-hardening.sh` blocking gate | never built (deferred until `enforced`); release-lane checklist retained |
+| `tasteReviewer: off` | design-reviewer dispatch | opt-in; not dispatched — no wiring to remove |
+| `intakeMode: full-upfront` | `/require` incremental entry point | input-gated; never built — no wiring to remove |

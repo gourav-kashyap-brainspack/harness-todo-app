@@ -1,4 +1,4 @@
-# Stack — {{APP_DISPLAY_NAME}}
+# Stack — Todo App
 
 > Living doc, maintained by the **librarian**. Records the **resolved** dependency versions + date.
 > Full stack rationale lives in `.claude/harness.config.md` → Tech Stack. This is the version-of-record table.

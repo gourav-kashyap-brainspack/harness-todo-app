@@ -1,4 +1,4 @@
-# Architecture — {{APP_DISPLAY_NAME}}
+# Architecture — Todo App
 
 > Living doc, owned by the **architect**, maintained by the **librarian**.
 > Grounded in the real `mobile/src` tree + the Graphify graph once code exists.
