@@ -1,7 +1,7 @@
 {
   "project": "Todo App",
-  "updated": "",
-  "note": "Empty skeleton — run /intake then /scope to populate modules, then /module <name> to add tasks. ClickUp IDs are filled after /clickup-sync creates the lists.",
+  "updated": "2026-07-09",
+  "note": "Modules populated by /scope (2026-07-09). Tasks are added per module by /module <name>. ClickUp IDs are filled after /clickup-sync creates the lists. Architecture: LOCAL-ONLY (offline-first, MMKV persistence, no backend, no auth) per PRD; Axios/React Query layer stays dormant for a future cloud-sync phase (OQ-1). Dark mode is IN MVP scope (OQ-10). Profile setup mandatory, name+email required (OQ-2).",
   "clickup": {
     "workspaceId": "{{CLICKUP_WORKSPACE_ID}}",
     "spaceId": "{{CLICKUP_SPACE_ID}}",
@@ -15,7 +15,155 @@
     "lists": {},
     "tasks": {}
   },
-  "modules": [],
-  "tasks": [],
+  "modules": [
+    {
+      "id": "FND",
+      "name": "Foundation & App Shell",
+      "order": 1,
+      "anchor": true,
+      "blockedBy": [],
+      "featureIds": ["F-030", "F-032", "F-039", "F-043", "F-044", "F-045", "F-046", "F-047", "F-048"],
+      "summary": "Install & wire the full stack into the RN 0.75 scaffold (NativeWind, React Navigation, Zustand, Zod, RHF, eslint-plugin-boundaries); establish the design system with light+dark theming tokens; bottom-tab + native-stack navigation; splash screen; first-launch detection; offline app shell; responsive layout primitives; shared UI primitives (empty state, loading indicator) and accessibility-label conventions. Anchor module — sets the Tier-1 mechanics for every later module.",
+      "coherenceChecks": [
+        "Every feature module consumes the shared theme tokens (light+dark) from src/theme — none hardcodes hex colors or rolls its own palette.",
+        "All screens are mounted through the single navigation tree in src/app/navigation — no ad-hoc navigators.",
+        "Shared UI primitives (empty state, loading indicator) live in src/components/ui and are reused, not re-implemented per feature."
+      ],
+      "clickupListId": ""
+    },
+    {
+      "id": "STG",
+      "name": "Local Persistence",
+      "order": 2,
+      "anchor": true,
+      "blockedBy": ["FND"],
+      "featureIds": ["F-006", "F-036", "F-037", "F-038"],
+      "summary": "Local-only persistence layer built on react-native-mmkv (the modern AsyncStorage replacement per OQ-1): a typed storage service, persist/restore of profile + tasks across app restarts, hydration on startup, and graceful recovery from corrupted/invalid local data (Zod-guarded reads, safe fallbacks). Anchor module — establishes the Tier-1 storage/store-hydration pattern that PRO and TSK reuse. No backend, no network.",
+      "coherenceChecks": [
+        "Both Profile and Tasks persist through the single MMKV storage service — neither writes to MMKV/AsyncStorage directly or rolls its own persistence.",
+        "Every persisted read is Zod-guarded with a safe fallback, so corrupted local data never crashes startup (F-038).",
+        "Zustand stores hydrate from the storage service on startup exactly once, via the shared hydration pattern."
+      ],
+      "clickupListId": ""
+    },
+    {
+      "id": "PRO",
+      "name": "Profile",
+      "order": 3,
+      "anchor": false,
+      "blockedBy": ["FND", "STG"],
+      "featureIds": ["F-001", "F-002", "F-003", "F-004", "F-005", "F-033"],
+      "summary": "User profile: mandatory first-launch setup (name AND email both required per OQ-2; photo optional per OQ-3), edit profile, view profile, add/change profile photo, remove profile photo, and form validation (RHF + Zod, surfacing validation errors — F-033). One profile per device, persisted locally via the STG service. First module with a form — anchors the RHF+Zod form pattern.",
+      "coherenceChecks": [
+        "Profile forms use the shared RHF + Zod validation pattern (established here) — the same pattern Tasks reuse for task validation.",
+        "Profile persists only through the STG storage service; no direct MMKV access.",
+        "Mandatory-setup gating (first launch -> Profile Setup before Home) is driven by the first-launch detection from FND, not a second source of truth."
+      ],
+      "clickupListId": ""
+    },
+    {
+      "id": "TSK",
+      "name": "Task Management",
+      "order": 4,
+      "anchor": false,
+      "blockedBy": ["FND", "STG"],
+      "sequencePreference": "after PRO (human build-order preference; technically parallel with PRO)",
+      "featureIds": ["F-007", "F-008", "F-009", "F-010", "F-011", "F-012", "F-013", "F-014", "F-015", "F-016", "F-017", "F-018", "F-019", "F-034", "F-035", "F-040", "F-041", "F-042"],
+      "summary": "Core task lifecycle: create, list, view details, edit, delete (with confirmation), mark completed / restore to pending, duplicate; task fields (title required, description, status, optional due date add/remove, creation + last-updated timestamps); navigation to task detail and edit; pull-to-refresh; task validation (require title F-034, prevent duplicate submission F-035). The product's core value module. Reuses the STG store pattern and the PRO form pattern.",
+      "coherenceChecks": [
+        "Task validation reuses the shared RHF + Zod form pattern from PRO — it does not roll a second validation approach.",
+        "Tasks persist only through the STG storage service; the last-updated timestamp is computed in one place and reused (not recomputed per screen).",
+        "Task list/detail/edit screens all read from the single Tasks store slice — no duplicated task state."
+      ],
+      "clickupListId": ""
+    },
+    {
+      "id": "ORG",
+      "name": "Search, Filter, Sort",
+      "order": 5,
+      "anchor": false,
+      "blockedBy": ["TSK"],
+      "featureIds": ["F-020", "F-021", "F-022", "F-023", "F-024", "F-025", "F-026", "F-027", "F-028", "F-029", "F-031"],
+      "summary": "Organize the task list: search by title and description with real-time (as-you-type) results; filter by All / Active / Completed; sort by due date, creation date, alphabetically, and recently updated; no-search-results empty state (F-031). Operates on the Tasks store from TSK — a derived/selector layer over the existing task data, no new persistence.",
+      "coherenceChecks": [
+        "Search/filter/sort are derived selectors over the single Tasks store from TSK — they do not copy or duplicate task data.",
+        "Search applies to the same task collection users see elsewhere (same ownership/visibility rules — trivially all local tasks here).",
+        "The no-results empty state (F-031) reuses the shared empty-state primitive from FND, not a bespoke one."
+      ],
+      "clickupListId": ""
+    }
+  ],
+  "tasks": [
+    {
+      "id": "FND-001",
+      "module": "FND",
+      "title": "Stack install & feature-sliced scaffolding",
+      "featureIds": [],
+      "blockedBy": [],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/FND/FND-001.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "FND-002",
+      "module": "FND",
+      "title": "Design system + theming (light + dark)",
+      "featureIds": ["F-045"],
+      "blockedBy": ["FND-001"],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/FND/FND-002.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "FND-003",
+      "module": "FND",
+      "title": "Navigation shell (bottom-tabs + native-stack)",
+      "featureIds": ["F-039"],
+      "blockedBy": ["FND-001", "FND-002"],
+      "parallelGroup": "FND-pg1",
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/FND/FND-003.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "FND-004",
+      "module": "FND",
+      "title": "App bootstrap — splash · first-launch · offline shell",
+      "featureIds": ["F-043", "F-044", "F-048"],
+      "blockedBy": ["FND-001", "FND-002", "FND-003"],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/FND/FND-004.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "FND-005",
+      "module": "FND",
+      "title": "Shared UI primitives — empty state · loader · responsive · a11y",
+      "featureIds": ["F-030", "F-032", "F-046", "F-047"],
+      "blockedBy": ["FND-002"],
+      "parallelGroup": "FND-pg1",
+      "complexity": "S",
+      "estimate": 2,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/FND/FND-005.spec.md",
+      "clickupTaskId": ""
+    }
+  ],
   "openQuestions": []
 }

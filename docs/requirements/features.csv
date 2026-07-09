@@ -1,1 +1,49 @@
 feature_id,title,priority,area,description,acceptance,status
+F-001,Create User Profile,P0,Profile,Allow the user to create a personal profile on first launch.,,unmapped
+F-002,Edit User Profile,P0,Profile,Allow the user to update profile information.,,unmapped
+F-003,Update Profile Picture,P2,Profile,Allow the user to add or change a profile picture.,,unmapped
+F-004,Remove Profile Picture,P2,Profile,Allow the user to remove the current profile picture.,,unmapped
+F-005,View User Profile,P0,Profile,Display the user's profile information.,,unmapped
+F-006,Persist Profile Data,P0,Storage,Store profile data locally across app restarts.,,unmapped
+F-007,Create Task,P0,Tasks,Allow users to create a new task.,,unmapped
+F-008,View Task List,P0,Tasks,Display all tasks in a scrollable list.,,unmapped
+F-009,View Task Details,P0,Tasks,Display detailed information for a selected task.,,unmapped
+F-010,Edit Task,P0,Tasks,Allow users to modify an existing task.,,unmapped
+F-011,Delete Task,P0,Tasks,Allow users to permanently delete a task.,,unmapped
+F-012,Confirm Task Deletion,P1,Tasks,Ask for confirmation before deleting a task.,,unmapped
+F-013,Mark Task as Completed,P0,Tasks,Allow users to mark a task as completed.,,unmapped
+F-014,Mark Task as Pending,P0,Tasks,Allow users to restore a completed task.,,unmapped
+F-015,Duplicate Task,P2,Tasks,Allow users to duplicate an existing task.,,unmapped
+F-016,Assign Due Date,P1,Tasks,Allow users to assign an optional due date.,,unmapped
+F-017,Remove Due Date,P2,Tasks,Allow users to remove an assigned due date.,,unmapped
+F-018,Display Task Creation Date,P2,Tasks,Show when the task was created.,,unmapped
+F-019,Display Last Updated Date,P2,Tasks,Show when the task was last modified.,,unmapped
+F-020,Search Tasks by Title,P0,Search,Allow searching tasks using the title.,,unmapped
+F-021,Search Tasks by Description,P1,Search,Allow searching tasks using the description.,,unmapped
+F-022,Real-Time Search,P1,Search,Update search results while typing.,,unmapped
+F-023,Filter All Tasks,P0,Filter,Display every task.,,unmapped
+F-024,Filter Active Tasks,P0,Filter,Display only pending tasks.,,unmapped
+F-025,Filter Completed Tasks,P0,Filter,Display only completed tasks.,,unmapped
+F-026,Sort by Due Date,P1,Sorting,Sort tasks using due dates.,,unmapped
+F-027,Sort by Creation Date,P1,Sorting,Sort tasks by creation date.,,unmapped
+F-028,Sort Alphabetically,P2,Sorting,Sort tasks alphabetically.,,unmapped
+F-029,Sort by Recently Updated,P2,Sorting,Sort tasks using the latest updated timestamp.,,unmapped
+F-030,Display Empty State,P1,UI,Show an illustration and message when there are no tasks.,,unmapped
+F-031,Display No Search Results,P1,UI,Show a message when search returns no results.,,unmapped
+F-032,Show Loading Indicator,P1,UI,Display a loading indicator while loading local data.,,unmapped
+F-033,Display Validation Errors,P0,Validation,Show validation messages for invalid inputs.,,unmapped
+F-034,Require Task Title,P0,Validation,Prevent creating a task without a title.,,unmapped
+F-035,Prevent Duplicate Submission,P1,Validation,Prevent duplicate task creation from multiple taps.,,unmapped
+F-036,Persist Task Data,P0,Storage,Store tasks locally using persistent storage.,,unmapped
+F-037,Restore Local Data,P0,Storage,Load saved tasks and profile during app startup.,,unmapped
+F-038,Handle Corrupted Local Data,P1,Storage,Recover gracefully from corrupted local storage.,,unmapped
+F-039,Bottom Tab Navigation,P0,Navigation,Provide navigation between Home and Profile screens.,,unmapped
+F-040,Navigate to Task Details,P0,Navigation,Open task details from the task list.,,unmapped
+F-041,Navigate to Edit Task,P0,Navigation,Open the edit screen from task details.,,unmapped
+F-042,Pull to Refresh,P2,Tasks,Allow manual refresh of locally stored task data.,,unmapped
+F-043,Application Splash Screen,P1,Application,Display splash screen while initializing the application.,,unmapped
+F-044,First Launch Detection,P0,Application,Detect first launch and open profile setup.,,unmapped
+F-045,Light Theme,P0,UI,Provide a clean light theme for the application.,,unmapped
+F-046,Responsive Layout,P0,UI,Support multiple mobile screen sizes.,,unmapped
+F-047,Accessibility Labels,P2,Accessibility,Provide accessibility labels for interactive elements.,,unmapped
+F-048,Offline Operation,P0,Application,Allow complete application usage without internet.,,unmapped
