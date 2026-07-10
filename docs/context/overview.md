@@ -20,4 +20,4 @@ _(empty — `/scope` fills this in with the confirmed feature slices from `mobil
 _(empty — the librarian appends domain terms as they are confirmed.)_
 
 ## Current status
-**Greenfield** — run `/intake` (ingest the PRD + feature list) then `/scope` (module breakdown) to begin.
+**FND in progress.** Foundation stack installed and scaffolded (FND-001, PR #3, all gates green; `status: review`, awaiting human merge-go). The feature-sliced `src/` tree, NativeWind 4, navigation/state/form libs, and `eslint-plugin-boundaries` are now real — see `docs/context/architecture.md`. Next runnable: FND-002 (design system + theming).
