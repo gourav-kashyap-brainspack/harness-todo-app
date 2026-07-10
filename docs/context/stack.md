@@ -35,8 +35,13 @@ Installed **2026-07-10** by FND-001 (`feat/FND-FND-001`). Sourced from `mobile/p
 **Dormant deps** (axios, react-query, jwt-decode, date-fns, keychain): installed for a future cloud-sync phase per OQ-1; must stay unimported by feature code until that phase is scoped.
 
 ## Spec-gap notes (flagged during FND-001, action for later tasks)
-- **react-native-reanimated is a hard NativeWind-4 peer requirement** that FND-001's FR1 didn't list explicitly (NativeWind 4's babel preset depends on Reanimated's worklet transform). It is installed. **Forward action for FND-002+:** when any task first uses an animation/worklet, register `react-native-reanimated/plugin` as the **last** plugin in `babel.config.js` (`mobile/babel.config.js` currently only has `module-resolver`) — Reanimated's docs require it to be last.
+- **✅ RESOLVED (FND-002):** `react-native-reanimated/plugin` is now registered as the **last** plugin in `mobile/babel.config.js` (NativeWind 4's babel preset depends on Reanimated's worklet transform; Reanimated requires it last). Was flagged during FND-001, fixed as a carry-forward in FND-002.
 - **react-native-vector-icons (10.3.0, unscoped) is deprecated upstream** in favor of the scoped `@react-native-vector-icons/*` packages at v12+. 10.3.0 is still the current-stable unscoped release and is RN-0.75-safe, so FND-001 kept it. Flag for a future icon-library decision if/when this project upgrades past RN 0.75 or wants the scoped packages.
+
+## Spec-gap notes (flagged during FND-002, action for later tasks)
+- **Custom font face is out of FND-002 scope** — the type scale (`tailwind.config.js` `fontSize`) uses the system font; no `expo-font`/custom-typeface pipeline was added. Flagged by the design agent as a future typography follow-up if/when the product needs a branded typeface.
+- **Cold-boot dark-flash (non-blocking review nit):** on a device already in dark mode, the very first frame can briefly render the light palette before `ThemeProvider`'s effect pushes `colorScheme.set('dark')`. Not a gate failure. **Forward action:** validate visually at the FND module-edge visual gate; if it's perceptible, fix is likely reading `Appearance.getColorScheme()` synchronously before first paint (already done in `themeStore`'s `initialMode`/`resolvedScheme` init) or an `Appearance`-driven `colorScheme.set` at module load rather than only in the provider effect.
+- **`ThemeProvider.test.tsx` title overpromises (non-blocking review nit):** a test title reads more broadly than what it actually asserts (it asserts the `colorScheme.set` call, not full theming behavior). No functional impact — a future FND-002-adjacent task should tighten the title to match the assertion.
 
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.

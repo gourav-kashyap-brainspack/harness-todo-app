@@ -29,7 +29,7 @@ import either until a future cloud-sync phase is scoped.
 _(to be filled — app bootstrap and any dynamic config resolution before the first screen renders.)_
 
 ## core/store — Zustand
-_(to be filled — UI-state stores. Server state lives in React Query hooks, never duplicated into Zustand. `zustand@5.0.14` installed, no store created yet.)_
+**`themeStore` lands (FND-002)** — the first UI-state store, and the reference for the pattern: `mode: 'system'|'light'|'dark'` + derived `resolvedScheme`, MMKV-persisted (`theme.mode` raw key), restored synchronously at module load. Server state still lives in React Query hooks only, never duplicated here. See patterns-registry → "Theme store + provider".
 
 ## core/hooks — React Query wrappers
 _(to be filled — dormant until the API client is wired; no hooks exist yet.)_
@@ -41,7 +41,7 @@ _(to be filled — empty scaffold. `@react-navigation/native@6.1.18` + `native-s
 _(to be filled — empty scaffold. `react-native-mmkv@2.12.2` (v2, old-arch) installed; no storage service yet (owned by a future STG task). `react-native-keychain` installed dormant.)_
 
 ## src/theme — design tokens
-_(to be filled — empty scaffold; FND-002 owns the ThemeProvider + tokens. NativeWind 4 is wired at the build level: `tailwind.config.js` content globs `./src/**/*.{ts,tsx}` + `./App.tsx`, presets `nativewind/preset`; `babel.config.js` preset `nativewind/babel`; `metro.config.js` wrapped with `withNativeWind` reading `global.css`.)_
+**Live (FND-002).** `ThemeProvider` + `useTheme()` implement light+dark theming: semantic color tokens as CSS vars in `tailwind.config.js`/`global.css` (`:root` = light, `.dark` = dark, `darkMode: 'class'`), `themeStore` (above) resolves the active scheme, `ThemeProvider` pushes it into NativeWind's `colorScheme.set(...)` and reacts live to OS scheme changes while `mode === 'system'`. Mounted in `AppProviders` (`mobile/src/app/AppProviders.tsx`) between `SafeAreaProvider` and the (FND-003) navigation slot. Type scale + border-radius tokens also land here. See patterns-registry → "Semantic design-token theming". `mobile/babel.config.js` now also registers `react-native-reanimated/plugin` (last, per Reanimated's requirement — carry-forward fix from FND-001).
 
 ## External integrations
 **None wired.** No backend API call is made anywhere in the app yet — the app boots and runs fully offline (F-048 groundwork). This is deliberate per OQ-1, not a gap.
