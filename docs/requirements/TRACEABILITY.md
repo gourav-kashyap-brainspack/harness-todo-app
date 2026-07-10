@@ -51,7 +51,7 @@
 | F-042 | Pull to Refresh | P2 | Tasks | TSK | | | mapped |
 | F-043 | Application Splash Screen | P1 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | ready |
 | F-044 | First Launch Detection | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | ready |
-| F-045 | Light Theme (+dark) | P0 | UI | FND | FND-002 | Design system + theming | ready |
+| F-045 | Light Theme (+dark) | P0 | UI | FND | FND-002 | Design system + theming | review |
 | F-046 | Responsive Layout | P0 | UI | FND | FND-005 | Shared UI primitives | ready |
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | ready |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | ready |

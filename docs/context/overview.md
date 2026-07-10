@@ -20,4 +20,4 @@ _(empty — `/scope` fills this in with the confirmed feature slices from `mobil
 _(empty — the librarian appends domain terms as they are confirmed.)_
 
 ## Current status
-**FND in progress.** Foundation stack installed and scaffolded (FND-001, PR #3, all gates green; `status: review`, awaiting human merge-go). The feature-sliced `src/` tree, NativeWind 4, navigation/state/form libs, and `eslint-plugin-boundaries` are now real — see `docs/context/architecture.md`. Next runnable: FND-002 (design system + theming).
+**FND in progress.** FND-001 (stack + scaffolding) merged (PR #3). FND-002 (design system + theming, light + dark) done, all gates green — PR #4, `status: review`, awaiting human merge-go. Light/dark token system (`tailwind.config.js` + `global.css`), the `themeStore` (Zustand + MMKV) and `ThemeProvider`/`useTheme()` are now real — see `docs/context/architecture.md`. Next runnable after merge: **FND-003 ∥ FND-005** (both depend on FND-002).
