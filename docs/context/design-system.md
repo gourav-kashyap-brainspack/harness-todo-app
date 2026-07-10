@@ -111,9 +111,11 @@ Radius tokens (`borderRadius`):
 
 ## Component inventory
 
-> Seeded by FND-005 (the anchor `src/components/ui` task — code-reviewer blocks any feature re-implementing these). All three are theme-agnostic: author with plain semantic `className` tokens only (no `dark:` color variants — the `.dark` root swap handles both themes automatically, per Implementation handoff above).
+> **Built (FND-005, PR #7).** All three are theme-agnostic: author with plain semantic `className` tokens only (no `dark:` color variants — the `.dark` root swap handles both themes automatically, per Implementation handoff above). Registered as Tier-1 reuse-or-block patterns — see `patterns-registry.md`.
 
 ### `EmptyState` (F-030)
+
+**Built:** `mobile/src/components/ui/EmptyState.tsx` (exported via `index.ts`).
 
 | | |
 |---|---|
@@ -129,6 +131,8 @@ Radius tokens (`borderRadius`):
 
 ### `LoadingIndicator` (F-032)
 
+**Built:** `mobile/src/components/ui/LoadingIndicator.tsx` (exported via `index.ts`).
+
 | | |
 |---|---|
 | **Purpose** | Themed spinner shown while local data hydrates, and reused for pull-to-refresh (F-042). |
@@ -140,6 +144,8 @@ Radius tokens (`borderRadius`):
 | **Light/Dark** | Text label automatic via tokens; spinner color resolved per-scheme as above (the one native-prop exception in this inventory). |
 
 ### `Screen` / `Container` (F-046)
+
+**Built:** `mobile/src/components/ui/Screen.tsx` (exported via `index.ts`).
 
 | | |
 |---|---|
@@ -222,4 +228,5 @@ Grounded against current NativeWind 4.x docs (Context7) — installed pins: `nat
 
 ## Changelog
 - 2026-07-10 — design agent: initial tokens (light+dark), type/spacing/radius scales, anti-patterns, and NativeWind 4 CSS-variable handoff written for FND-002.
-- 2026-07-10 — design agent: seeded the Component Inventory (`EmptyState`, `LoadingIndicator`, `Screen`/`Container`) and the Accessibility baseline (F-047) for FND-005. No new tokens introduced — all three primitives reuse the FND-002 palette/type/spacing/radius set + Tailwind's default `max-w-*`/breakpoint/opacity-modifier scales. First use of `react-native-vector-icons/Feather` as the app's icon family (established here, not yet in the patterns registry — flagged for librarian promotion if it recurs).
+- 2026-07-10 — design agent: seeded the Component Inventory (`EmptyState`, `LoadingIndicator`, `Screen`/`Container`) and the Accessibility baseline (F-047) for FND-005. No new tokens introduced — all three primitives reuse the FND-002 palette/type/spacing/radius set + Tailwind's default `max-w-*`/breakpoint/opacity-modifier scales. First use of `react-native-vector-icons/Feather` as the app's icon family.
+- 2026-07-10 — librarian (FND-005, PR #7): all three primitives implemented and gates green; **promoted** to the Canonical patterns registry (reuse-or-block Tier-1) — see `patterns-registry.md`. `react-native-vector-icons/Feather` + the `FeatherIconName` alias also promoted as the app-wide icon-family convention. Native-prop color resolution generalized from the FND-003 nav-chrome row to cover any native color prop (`ActivityIndicator`, icon `color`).
