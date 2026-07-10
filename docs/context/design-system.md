@@ -111,7 +111,59 @@ Radius tokens (`borderRadius`):
 
 ## Component inventory
 
-_(empty — no `src/components/ui` primitives built yet; grown per UI task starting the next module.)_
+> Seeded by FND-005 (the anchor `src/components/ui` task — code-reviewer blocks any feature re-implementing these). All three are theme-agnostic: author with plain semantic `className` tokens only (no `dark:` color variants — the `.dark` root swap handles both themes automatically, per Implementation handoff above).
+
+### `EmptyState` (F-030)
+
+| | |
+|---|---|
+| **Purpose** | Centered "nothing here" surface — no tasks, no completed tasks, no search results. Reused everywhere a list can be empty (ORG's F-031 reuses this; never forked). |
+| **Props** | `{ title: string; message?: string; icon?: FeatherIconName; action?: { label: string; onPress: () => void } }` |
+| **Layout** | `flex-1 items-center justify-center px-8`. Icon chip → `gap` of spacing step **6** (24dp) → title → step **2** (8dp) → message → step **6** (24dp) → action button. |
+| **Icon treatment** | 64dp circular chip, `bg-primary/10` (opacity-modifier on the `primary` token — no new color), `rounded-full` (`radius-full` token). Inside: a **Feather** icon (`react-native-vector-icons/Feather`, already installed — first use in the app; establishes the app-wide icon-family convention), 28dp, colored `primary`. Decorative — hide from the accessibility tree (`accessibilityElementsHidden` / `importantForAccessibility="no-hide-descendants"`); the title+message carry the meaning, not the icon. This is a soft-chip-with-line-icon, deliberately **not** a bare floating glyph (default-RN-slop) and **not** a cutesy mascot illustration (no illustration/SVG/Lottie lib is installed — out of scope; a custom illustration set is a future foundation task, not invented here). |
+| **Title** | `text-lg` (18/26, 600) `text-text`, centered, `max-w-xs` (Tailwind default scale — not a new value). |
+| **Message** | `text-sm` (14/20, 400) `text-text-muted`, centered, `max-w-xs`. |
+| **Action button** (optional) | `min-h-12 px-4 py-3 rounded-md bg-primary items-center justify-center` (48dp tall — `py-3`(12)+`text-base` line-height(24)+`py-3`(12) = 48, `min-h-12` as a floor); label `text-base font-semibold text-primary-fg`. `accessibilityRole="button"`, `accessibilityLabel={action.label}`. |
+| **Tokens used** | `primary`, `primary/10`, `primary-fg`, `text`, `text-muted`, `radius-full`, `radius-md`, spacing steps 2/4/6/8, `text-lg`/`text-sm`/`text-base`. **No new tokens.** |
+| **Light/Dark** | Fully automatic via the existing `.dark` variable swap — no conditional styling needed in the component. |
+
+### `LoadingIndicator` (F-032)
+
+| | |
+|---|---|
+| **Purpose** | Themed spinner shown while local data hydrates, and reused for pull-to-refresh (F-042). |
+| **Props** | `{ label?: string }` — visible label is optional; the **screen-reader label is not** (always announces, default `"Loading…"`). |
+| **Layout** | `items-center justify-center py-6` (spacing step 6/24dp). RN's `ActivityIndicator`, `size="large"`, then (only if `label` passed) `text-sm text-text-muted` below it with a step-2 (8dp) gap. |
+| **Color** | `ActivityIndicator`'s `color` prop is a **native prop, not a style** — NativeWind `className` cannot reach it (same class of escape-hatch as the `StyleSheet` exception already in the patterns registry for third-party native wrappers). Resolve the **exact, already-documented** `primary` RGB triplet for the active `resolvedScheme` from `useTheme()` (light `rgb(11,110,127)` / dark `rgb(23,120,111)` — the same two values in the Color tokens table above) and pass it as `color={...}`. This is not a new hardcoded value and not a second source of truth — it is the one documented `primary` pair, just read where `className` can't apply. Do not invent a third value. |
+| **A11y** | Wrapping `View` gets `accessible accessibilityRole="progressbar"` `accessibilityLabel={label ?? 'Loading…'}` `accessibilityLiveRegion="polite"` (Android) — announced without stealing focus, present even when no visible label is rendered. |
+| **Tokens used** | `primary` (as a resolved value per above), `text-muted`, `text-sm`, spacing steps 2/6. **No new tokens.** |
+| **Light/Dark** | Text label automatic via tokens; spinner color resolved per-scheme as above (the one native-prop exception in this inventory). |
+
+### `Screen` / `Container` (F-046)
+
+| | |
+|---|---|
+| **Purpose** | The responsive layout root every screen mounts once — SafeArea insets + gutter + width capping. Establishes the app's one responsive convention; features consume it, never re-derive insets/gutters per screen. |
+| **Props** | `{ children: ReactNode; edges?: Edge[]; scroll?: boolean; className?: string }` — `edges` defaults to all four (`['top','right','bottom','left']`; a screen under a nav-stack header can pass `edges={['bottom','left','right']}` to skip the top inset). `className` passthrough for screen-specific additions (keeps this a Tier-1 primitive, not a fork point). |
+| **Layout** | `SafeAreaView` from **`react-native-safe-area-context`** (already installed — NOT the RN-core component), `edges={edges}`, `className={\`flex-1 bg-bg ${className ?? ''}\`}`. Inner content wrapper: `className="flex-1 w-full px-4 sm:max-w-2xl sm:self-center"` — `px-4` (16dp, the documented "screen horizontal margin" spacing step) is the gutter on any phone width; at the `sm:` breakpoint (Tailwind default 640dp — wider than any phone portrait width, so phones stay full-bleed) content caps at `max-w-2xl` and centers, so a large-screen/landscape/tablet viewport (PRD §11 "multiple mobile screen sizes") never stretches text edge-to-edge. Both `max-w-2xl` and the `sm:` breakpoint are **Tailwind's own default scale**, not arbitrary invented values. |
+| **Scroll** | `scroll` prop (default `false`) wraps `children` in a `ScrollView` (`contentContainerClassName="flex-grow"`) instead of a plain `View` — for screens whose content can exceed viewport height. Keyboard-avoidance is a form concern, out of this primitive's scope. |
+| **Orientation / resize** | No fixed pixel dimensions anywhere in the primitive — flex + relative widths handle rotation automatically. `useWindowDimensions()` (from `react-native`) is available for feature screens that need a conditional layout decision beyond what the `sm:` className breakpoint expresses (e.g. a landscape two-pane split) — the `Screen` primitive itself doesn't need it for the base case. |
+| **Tokens used** | `bg` (canvas), spacing step 4 (`px-4`), Tailwind default `max-w-2xl`/`sm:` breakpoint. **No new tokens.** |
+| **Light/Dark** | Automatic via `bg-bg`. |
+
+**Missing tokens check:** none. All three primitives are fully expressible with the existing FND-002 palette/type/spacing/radius tokens plus Tailwind's own default `max-w-*`/opacity-modifier/breakpoint scales (framework defaults, not new invented values). The two native-prop color reads (`ActivityIndicator`, and the `Feather` icon if NativeWind `cssInterop` isn't wired for it) resolve to the *existing* `primary` RGB pair — never a new value.
+
+## Accessibility baseline (F-047)
+
+> The reference a11y contract every interactive primitive follows — `EmptyState`'s action button and `Screen`'s implicit "don't clip on large fontScale" are the first two applications; every later interactive component (buttons, checkboxes, tabs, inputs) in every feature module reuses this contract rather than re-deciding it.
+
+1. **Every interactive element** (button, pressable, checkbox, tab, link) sets **both** `accessibilityRole` (RN's enum — `button`/`checkbox`/`tab`/`link`/…, matched to what it actually is) **and** `accessibilityLabel` (a human-readable string — never derived from an icon name or left to fall back on visible text alone when that text is absent/ambiguous). This is also the Maestro E2E anchor convention (`conventions.md`) — a missing label breaks both accessibility and the flow scripts.
+2. **Minimum touch target ≥44pt (iOS) / 48dp (Android).** Use **48dp as the universal floor** — expressed with the *existing* spacing scale, not an arbitrary literal: `min-h-12 min-w-12` (spacing step **12** = 48dp, already documented). For visually smaller controls (icon-only buttons), pad the *tappable* region with `hitSlop` rather than inflating the visual size — compliance without breaking visual density.
+3. **Dynamic Type / `fontScale`:** never set `allowFontScaling={false}` on any text, interactive or not (already the Type-scale rule above — restated here for interactive labels specifically). Containers must reflow, not clip — no fixed-height wrappers around text; `Screen`'s scroll mode exists for exactly this.
+4. **Never color-alone for state.** Selected/active/error/disabled always pairs a color change with an icon, text, weight, or border change (anti-pattern #3, restated as the interactive corollary) — e.g., a selected tab changes icon fill *and* label weight, not just tint.
+5. **Contrast AA in both themes.** Any new interactive surface is checked against its theme's `bg`/`surface`/`card` using the already-verified pairings table above — reuse those combinations; a genuinely new pairing gets verified and recorded here before shipping, never assumed.
+6. **Focus/active indicator:** reuse the `primary` token as the visible ring/border color for focus and pressed states (its usage column already includes "focus ring") — never invent a second interaction-state color.
+7. **Role reference (for later interactive components):** primary action → `button`; toggle → `checkbox` + `accessibilityState={{checked}}`; segmented/tab control → `tab` + `accessibilityState={{selected}}`; loading → `progressbar` (see `LoadingIndicator` above, the reference implementation).
 
 ## Anti-patterns / banned defaults
 
@@ -170,3 +222,4 @@ Grounded against current NativeWind 4.x docs (Context7) — installed pins: `nat
 
 ## Changelog
 - 2026-07-10 — design agent: initial tokens (light+dark), type/spacing/radius scales, anti-patterns, and NativeWind 4 CSS-variable handoff written for FND-002.
+- 2026-07-10 — design agent: seeded the Component Inventory (`EmptyState`, `LoadingIndicator`, `Screen`/`Container`) and the Accessibility baseline (F-047) for FND-005. No new tokens introduced — all three primitives reuse the FND-002 palette/type/spacing/radius set + Tailwind's default `max-w-*`/breakpoint/opacity-modifier scales. First use of `react-native-vector-icons/Feather` as the app's icon family (established here, not yet in the patterns registry — flagged for librarian promotion if it recurs).
