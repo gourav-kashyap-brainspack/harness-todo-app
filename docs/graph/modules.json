@@ -247,7 +247,8 @@
       "complexity": "M",
       "estimate": 4,
       "dynamicWorkflow": false,
-      "status": "ready",
+      "status": "review",
+      "startedAt": "2026-07-10",
       "spec": "docs/specs/FND/FND-004.spec.md",
       "clickupTaskId": "86d3ngnj6",
       "clickupUrl": "https://app.clickup.com/t/86d3ngnj6"

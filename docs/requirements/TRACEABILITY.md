@@ -45,16 +45,16 @@
 | F-036 | Persist Task Data | P0 | Storage | STG | | | mapped |
 | F-037 | Restore Local Data | P0 | Storage | STG | | | mapped |
 | F-038 | Handle Corrupted Local Data | P1 | Storage | STG | | | mapped |
-| F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | review |
+| F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | done |
 | F-040 | Navigate to Task Details | P0 | Navigation | TSK | | | mapped |
 | F-041 | Navigate to Edit Task | P0 | Navigation | TSK | | | mapped |
 | F-042 | Pull to Refresh | P2 | Tasks | TSK | | | mapped |
-| F-043 | Application Splash Screen | P1 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | ready |
-| F-044 | First Launch Detection | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | ready |
-| F-045 | Light Theme (+dark) | P0 | UI | FND | FND-002 | Design system + theming | review |
+| F-043 | Application Splash Screen | P1 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | review |
+| F-044 | First Launch Detection | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | review |
+| F-045 | Light Theme (+dark) | P0 | UI | FND | FND-002 | Design system + theming | done |
 | F-046 | Responsive Layout | P0 | UI | FND | FND-005 | Shared UI primitives | ready |
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | ready |
-| F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | ready |
+| F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | review |
 
 **Coverage:** 48 features · 48 mapped to a module · **9 mapped to a task (FND)** · 0 orphans · FND fully covered by 5 tasks
 
