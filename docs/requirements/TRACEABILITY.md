@@ -36,9 +36,9 @@
 | F-027 | Sort by Creation Date | P1 | Sorting | ORG | | | mapped |
 | F-028 | Sort Alphabetically | P2 | Sorting | ORG | | | mapped |
 | F-029 | Sort by Recently Updated | P2 | Sorting | ORG | | | mapped |
-| F-030 | Display Empty State | P1 | UI | FND | FND-005 | Shared UI primitives | ready |
+| F-030 | Display Empty State | P1 | UI | FND | FND-005 | Shared UI primitives | review |
 | F-031 | Display No Search Results | P1 | UI | ORG | | | mapped |
-| F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | ready |
+| F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | review |
 | F-033 | Display Validation Errors | P0 | Validation | PRO | | | mapped |
 | F-034 | Require Task Title | P0 | Validation | TSK | | | mapped |
 | F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | | | mapped |
@@ -49,14 +49,14 @@
 | F-040 | Navigate to Task Details | P0 | Navigation | TSK | | | mapped |
 | F-041 | Navigate to Edit Task | P0 | Navigation | TSK | | | mapped |
 | F-042 | Pull to Refresh | P2 | Tasks | TSK | | | mapped |
-| F-043 | Application Splash Screen | P1 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | review |
-| F-044 | First Launch Detection | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | review |
+| F-043 | Application Splash Screen | P1 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
+| F-044 | First Launch Detection | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 | F-045 | Light Theme (+dark) | P0 | UI | FND | FND-002 | Design system + theming | done |
-| F-046 | Responsive Layout | P0 | UI | FND | FND-005 | Shared UI primitives | ready |
-| F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | ready |
-| F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | review |
+| F-046 | Responsive Layout | P0 | UI | FND | FND-005 | Shared UI primitives | review |
+| F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | review |
+| F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **9 mapped to a task (FND)** · 0 orphans · FND fully covered by 5 tasks
+**Coverage:** 48 features · 48 mapped to a module · **9 mapped to a task (FND)** · 0 orphans · FND fully covered by 5 tasks — all 5 tasks task-complete (5 features `done`/merged: F-039, F-043, F-044, F-045, F-048; 4 features `review` pending FND-005 merge: F-030, F-032, F-046, F-047)
 
 ### Per-module coverage
 | Module | Features | IDs |

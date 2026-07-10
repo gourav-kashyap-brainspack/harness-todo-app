@@ -14,7 +14,7 @@ in `babel.config.js`):
 - `src/core/{api,config,hooks,lib,services,store,types}` — cross-feature primitives. Only `core/lib` has real content
   (`constants.ts` + barrel); the rest are `.gitkeep` scaffolds awaiting their owning task.
 - `src/features/` — empty scaffold; first feature slice lands post-FND.
-- `src/components/ui/`, `src/platform/`, `src/theme/` — empty scaffolds (FND-002/004/005 populate these).
+- `src/components/ui/` — **live (FND-005).** `EmptyState`, `LoadingIndicator`, `Screen` (barrel `@/components/ui`) — see below. `src/platform/`, `src/theme/` — `theme/` live (FND-002/003); `platform/` still an empty scaffold.
 
 **Enforced import direction:** `app → features → core|components|theme|platform`; no cross-feature imports (same-feature
 siblings allowed). Enforced by `eslint-plugin-boundaries` in `mobile/.eslintrc.js` (`--max-warnings=0` gate — a
@@ -44,6 +44,9 @@ Route set (`RootStackParamList`):
 - `AddTask` (`undefined`), `EditTask` (`{taskId}`), `TaskDetail` (`{taskId}`) — pushed stack screens, headers shown with real titles; placeholders, built out in **TSK**.
 
 Typed-navigation, nav-theming, themed-StatusBar, and placeholder/jest-setup patterns are now Tier-1 — see patterns-registry.md. No deep-linking config wired (spec: none in MVP; shape supports adding one later without restructuring).
+
+## src/components/ui — shared presentational primitives
+**Live (FND-005).** `EmptyState` (F-030), `LoadingIndicator` (F-032), `Screen`/`Container` (F-046) — the a11y baseline (F-047) is baked into all three (roles/labels, ≥48dp targets, `fontScale`-safe). **Reuse contract:** features import via `@/components/ui`; re-implementing any of the three is a `[blocking]` code-review finding (ORG's F-031 reuses `EmptyState`, TSK's F-042 reuses `LoadingIndicator` — see patterns-registry). Native-only color props (`ActivityIndicator`/icon `color`) resolve from `src/theme/nativeChromeColors.ts`, the same source `TabNavigator`/`ThemeProvider` already use — see patterns-registry.
 
 ## src/platform — native-bridge adapters
 _(to be filled — empty scaffold. `react-native-mmkv@2.12.2` (v2, old-arch) installed; no storage service yet (owned by a future STG task). `react-native-keychain` installed dormant.)_

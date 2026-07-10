@@ -7,10 +7,13 @@
     "spaceId": "90167430002",
     "statusMap": {
       "started": "in progress",
+      "in-progress": "in progress",
       "review": "in progress",
+      "ready": "to do",
+      "planned": "to do",
       "done": "complete"
     },
-    "statusNote": "Workspace list statuses: 'to do' | 'in progress' | 'complete'. No native review status — PR-open is tracked as 'in progress' + a PR comment.",
+    "statusNote": "Workspace now has to do | in progress | complete (in-progress added 2026-07-10).",
     "mirroredAt": "2026-07-10T11:56:58.749Z",
     "lists": {
       "FND": "901615807764",
@@ -271,7 +274,8 @@
       "complexity": "S",
       "estimate": 2,
       "dynamicWorkflow": false,
-      "status": "ready",
+      "status": "review",
+      "startedAt": "2026-07-10",
       "spec": "docs/specs/FND/FND-005.spec.md",
       "clickupTaskId": "86d3ngnj8",
       "clickupUrl": "https://app.clickup.com/t/86d3ngnj8"
