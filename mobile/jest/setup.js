@@ -16,3 +16,26 @@
 jest.mock('react-native-safe-area-context', () =>
   require('react-native-safe-area-context/jest/mock').default,
 );
+
+// react-native-bootsplash's JS wraps a TurboModule via
+// `TurboModuleRegistry.getEnforcing("RNBootSplash")` (see node_modules/
+// react-native-bootsplash/src/specs/NativeRNBootSplash.ts) — that throws
+// under Jest (no native module registered, old-arch project). FND-004 wires
+// a real `BootSplash.hide()` call into the RootStack's `Splash` route, so
+// every test that mounts through `RootNavigator` (not just this task's own
+// tests) now needs a working mock — wired globally for the same reason the
+// safe-area-context mock above is: it must hold for any current or future
+// test that mounts the app's real navigation tree, not just the file that
+// happens to introduce the need.
+jest.mock('react-native-bootsplash', () => ({
+  __esModule: true,
+  default: {
+    hide: jest.fn(() => Promise.resolve()),
+    isVisible: jest.fn(() => false),
+    useHideAnimation: jest.fn(() => ({
+      container: {style: {}, onLayout: jest.fn()},
+      logo: {source: -1},
+      brand: {source: -1},
+    })),
+  },
+}));

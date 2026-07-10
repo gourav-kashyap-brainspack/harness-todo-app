@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Native splash background (FND-004, FR1) — the light-theme `bg` design
+      token (#F6F4F1, see docs/context/design-system.md). The native splash
+      can't follow the resolved app scheme dynamically, so the static light
+      background is the deliberate spec choice (FR1) until a themed asset
+      pipeline exists.
+    -->
+    <color name="bootsplash_background">#F6F4F1</color>
+</resources>

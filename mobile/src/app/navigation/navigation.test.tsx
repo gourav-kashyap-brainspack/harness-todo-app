@@ -46,10 +46,21 @@ describe('navigation shell (FND-003)', () => {
     jest.useRealTimers();
   });
 
-  it('renders RootStack and lands on Splash by default', () => {
+  it('renders RootStack starting from Splash, which boots straight through to a landed screen', () => {
+    // FND-004 made `Splash` a real boot gate (BootstrapScreen) instead of a
+    // dead-end placeholder — it navigates away the instant its effect runs,
+    // so by the time pending timers flush there is no longer a `Splash`
+    // screen to find. Routing correctness (fresh install -> ProfileSetup,
+    // `hasLaunched` -> Tabs) is covered in BootstrapScreen.test.tsx; this
+    // test only guards that the stack still starts from `Splash` and boots
+    // to *some* landed screen without hanging or crashing.
     const {tree} = renderRootNavigator();
 
-    expect(tree.root.findByProps({accessibilityLabel: 'Splash'})).toBeTruthy();
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(tree.root.findByProps({accessibilityLabel: 'Profile Setup'})).toBeTruthy();
   });
 
   it('navigating to Tabs shows the Home and Profile tab labels', () => {

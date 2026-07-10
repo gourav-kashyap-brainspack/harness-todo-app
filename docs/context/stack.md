@@ -23,7 +23,7 @@ Installed **2026-07-10** by FND-001 (`feat/FND-FND-001`). Sourced from `mobile/p
 | @hookform/resolvers | 5.4.0 | RHF↔Zod bridge |
 | react-native-mmkv | 2.12.2 | **pinned to v2 (old-arch)** — v3+ requires the New Architecture; `newArchEnabled=false` in this project |
 | react-native-vector-icons | 10.3.0 | unscoped package; see deprecation note below |
-| react-native-bootsplash | 7.3.2 | native splash, config deferred to FND-004 |
+| react-native-bootsplash | 7.3.2 | **configured (FND-004)** — both platforms wired (Android theme/manifest/MainActivity, iOS storyboard/AppDelegate/Info.plist); see patterns-registry → "Native splash config". Still using the library's placeholder mark — real logo asset + `bootsplash generate` remains a deferred design follow-up |
 | eslint-plugin-boundaries | ^7.0.2 (dev) | layer-boundary lint, see patterns-registry |
 | babel-plugin-module-resolver | ^5.0.3 (dev) | `@/*` alias at bundle/test time |
 | axios | 1.18.1 | **dormant** — no API client wired (OQ-1); not imported by feature code |
@@ -46,6 +46,10 @@ Installed **2026-07-10** by FND-001 (`feat/FND-FND-001`). Sourced from `mobile/p
 ## Spec-gap notes (flagged during FND-003, action for later tasks)
 - **FR4 was under-specified in the original spec** — the clause "status-bar style flips with the resolved scheme" was easy to miss alongside the more prominent nav-container theming clause; the code-review caught it as unimplemented in the first iteration. Fixed by homing a themed `<StatusBar>` in `ThemeProvider` (not the navigator — `NavigationContainer`'s `theme.dark` never drives the OS status bar). This is now the reference — see patterns-registry.md → "Themed StatusBar". Future specs with a similar "theme X AND OS-chrome Y" requirement should call out the OS-chrome clause as its own FR/sub-bullet, not a trailing clause.
 - **FND-005's design inventory (EmptyState/LoadingIndicator/Screen component work) is preserved in `git stash@{0}` ("fnd005-design-inventory")** from an earlier interrupted parallel-group overlap — NOT lost, but also not yet applied to any branch. **Restore it (`git stash apply stash@{0}`) when FND-005 actually builds**; do not let it silently age out or get dropped by an unrelated `git stash clear`.
+
+## Spec-gap notes (flagged during FND-004, action for later tasks)
+- **Deferred logo asset:** `react-native-bootsplash` is now fully configured on both platforms (FND-004) but still shows the library's placeholder mark — swapping in the real app logo + re-running `bootsplash generate` is a design-owned follow-up, not yet scheduled to a task.
+- **2 non-blocking test-robustness nits (code review, FND-004):** (1) `BootstrapScreen.test.tsx`'s corrupted-flag case duplicates the fresh-install assertion rather than independently exercising a throwing/non-boolean MMKV read; (2) the no-network boot assertion spies on `fetch` only, not `XMLHttpRequest` — a library that boots via XHR wouldn't be caught. Neither blocks FND-004 (the guarded-read behavior itself is unit-tested in `launchStore.test.ts`, and nothing in the boot path currently uses XHR). Fold both into FND-005 or the FND module-edge E2E hardening pass.
 
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.

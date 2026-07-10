@@ -8,11 +8,12 @@ import {PlaceholderScreen} from './PlaceholderScreen';
  * (FND-003). Feature modules (PRO/TSK) replace these one at a time; the
  * navigator wiring (RootNavigator/TabNavigator) never has to change when
  * that happens since it only imports the screen component, not its guts.
+ *
+ * `Splash` is the first swap (FND-004) — re-exported here (rather than
+ * defined inline like the stubs below) because it now carries real boot
+ * logic + its own test file; see `BootstrapScreen.tsx`.
  */
-
-export function SplashScreen(): React.JSX.Element {
-  return <PlaceholderScreen name="Splash" />;
-}
+export {BootstrapScreen as SplashScreen} from './BootstrapScreen';
 
 export function ProfileSetupScreen(): React.JSX.Element {
   return <PlaceholderScreen name="Profile Setup" />;
