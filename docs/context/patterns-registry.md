@@ -8,4 +8,7 @@
 
 | pattern | rule (one line) | ref (file:symbol) | established by | ADR |
 |---|---|---|---|---|
-| _(none yet — populated by the librarian as foundation modules land)_ | | | | |
+| Feature-sliced folder structure + `@/*` alias | `mobile/src/{app,core,features,components/ui,platform,theme}`; import via `@/…`, never deep-relative `../../..` | `mobile/tsconfig.json` (`paths`) + `mobile/babel.config.js` (`module-resolver`) | FND-001 | — |
+| eslint-plugin-boundaries layer config | Element types `app/feature/core/components/theme/platform` by path; allowed direction `app→feature→core|components|theme|platform`, no cross-feature imports, default `disallow`, violation = `error` (gate is `--max-warnings=0`) | `mobile/.eslintrc.js` (`settings['boundaries/elements']`, `rules['boundaries/dependencies']`) | FND-001 | — |
+| NativeWind `className` styling | Style via Tailwind `className`; `StyleSheet.create` only as an escape hatch for third-party native wrappers NativeWind can't intercept (e.g. `GestureHandlerRootView`) | `mobile/tailwind.config.js` (content globs + `nativewind/preset`) + `mobile/babel.config.js` (`nativewind/babel`) + `mobile/metro.config.js` (`withNativeWind`) + `mobile/src/app/AppProviders.tsx` (StyleSheet escape-hatch example) | FND-001 | — |
+| AppProviders composition root | One root component in `src/app/` wraps the provider stack (`GestureHandlerRootView` → `SafeAreaProvider` → …); later foundation tasks (theme, nav) add a layer each rather than each screen mounting its own providers; no network/query provider mounted while local-only (OQ-1) | `mobile/src/app/AppProviders.tsx:AppProviders` | FND-001 | — |

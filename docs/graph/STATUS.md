@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-09 · **Phase:** FND planned (tasks + specs `ready`)
+**Project:** Todo App · **Updated:** 2026-07-10 · **Phase:** FND in progress — FND-001 gates green, PR #3 awaiting merge
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -15,7 +15,7 @@
 
 | Order | Module | Features | Tasks | Depends on | Status |
 |---|---|---|---|---|---|
-| 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 planned | — | 🔵 ready to build |
+| 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 planned | — | 🟡 in progress (FND-001 in review) |
 | 2 | **STG** — Local Persistence (⚓) | 4 | — | FND | ⚪ blocked · run `/module STG` |
 | 3 | **PRO** — Profile | 6 | — | FND, STG | ⚪ blocked |
 | 4 | **TSK** — Task Management | 18 | — | FND, STG | ⚪ blocked |
@@ -25,7 +25,7 @@
 
 | Task | Title | Feat. | Cplx | Est | blockedBy | Group | Status |
 |---|---|---|---|---|---|---|---|
-| **FND-001** | Stack install & feature-sliced scaffolding | _(enable)_ | M | 4h | — | — | 🔵 ready |
+| **FND-001** | Stack install & feature-sliced scaffolding | _(enable)_ | M | 4h | — | — | 🟡 review — PR #3, all gates green |
 | **FND-002** | Design system + theming (light + dark) ⚓ | F-045 | M | 4h | FND-001 | — | ⚪ blocked |
 | **FND-003** | Navigation shell (tabs + native-stack) | F-039 | M | 4h | FND-001, FND-002 | FND-pg1 | ⚪ blocked |
 | **FND-004** | Bootstrap: splash · first-launch · offline | F-043/044/048 | M | 4h | FND-001/002/003 | — | ⚪ blocked |
@@ -36,4 +36,4 @@
 
 **Architecture:** LOCAL-ONLY (offline-first, MMKV, no backend/auth) · dark mode IN scope (system+toggle) · Add/Edit/Detail = pushed stack screens · profile mandatory (name+email).
 
-**Next:** `/build FND-001` to start the loop, or `/build FND` to walk the module.
+**Next:** human merge-go on PR #3 (`feat/FND-FND-001`), then `/build FND-002`.
