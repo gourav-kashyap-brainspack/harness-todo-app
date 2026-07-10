@@ -104,8 +104,9 @@
       "complexity": "M",
       "estimate": 4,
       "dynamicWorkflow": false,
-      "status": "review",
+      "status": "done",
       "startedAt": "2026-07-09",
+      "doneAt": "2026-07-10",
       "spec": "docs/specs/FND/FND-001.spec.md",
       "clickupTaskId": ""
     },
