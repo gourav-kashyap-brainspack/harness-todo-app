@@ -1,3 +1,45 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Design tokens (FND-002) — semantic color CSS variables, space-separated RGB
+ * triplets so Tailwind's `rgb(var(--color-x) / <alpha-value>)` pattern gets
+ * opacity-modifier support for free (e.g. `bg-primary/10`).
+ *
+ * Values are the design agent's resolved palette — see
+ * docs/context/design-system.md (source of truth for intent + contrast
+ * verification). Do NOT hand-edit these values without a design-agent
+ * decision recorded there first.
+ *
+ * `.dark` is toggled at runtime by `src/theme/ThemeProvider.tsx` via
+ * NativeWind's `colorScheme.set(...)` (tailwind.config.js sets
+ * `darkMode: 'class'` so the manual override is enabled).
+ */
+:root {
+  --color-bg: 246 244 241;
+  --color-surface: 250 248 245;
+  --color-card: 255 255 255;
+  --color-text: 30 27 24;
+  --color-text-muted: 91 86 79;
+  --color-border: 228 223 216;
+  --color-primary: 11 110 127;
+  --color-primary-fg: 255 255 255;
+  --color-success: 46 125 79;
+  --color-danger: 179 38 30;
+  --color-warning: 138 90 0;
+}
+
+.dark {
+  --color-bg: 18 24 26;
+  --color-surface: 26 34 36;
+  --color-card: 36 47 50;
+  --color-text: 237 239 239;
+  --color-text-muted: 154 166 168;
+  --color-border: 44 55 58;
+  --color-primary: 23 120 111;
+  --color-primary-fg: 255 255 255;
+  --color-success: 79 174 114;
+  --color-danger: 229 100 90;
+  --color-warning: 224 165 38;
+}
