@@ -1,13 +1,16 @@
 import React, {useEffect, type PropsWithChildren} from 'react';
-import {useColorScheme as useSystemColorScheme} from 'react-native';
+import {StatusBar, useColorScheme as useSystemColorScheme} from 'react-native';
 import {colorScheme as nativeWindColorScheme} from 'nativewind';
 
 import {useThemeStore} from '@/core/store/themeStore';
 
+import {NATIVE_CHROME_RGB, rgbFromTriplet} from './nativeChromeColors';
+
 /**
- * ThemeProvider (FND-002).
+ * ThemeProvider (FND-002; status bar added FND-003 FR4).
  *
- * Mounted once in AppProviders (the composition root). Two responsibilities:
+ * Mounted once in AppProviders (the composition root). Three
+ * responsibilities:
  *  1. Forward live OS scheme changes into the themeStore while
  *     `mode === 'system'` (FR5) — sourced from React Native's own
  *     `useColorScheme()` hook, which already subscribes to `Appearance` on
@@ -16,6 +19,17 @@ import {useThemeStore} from '@/core/store/themeStore';
  *  2. Push the store's resolved scheme into NativeWind's runtime
  *     (`colorScheme.set`) so the `.dark` root class actually flips and
  *     `bg-bg` / `text-text` / … utilities resolve per theme (FR4).
+ *  3. Render a themed `<StatusBar>` so the OS status-bar glyphs (clock,
+ *     battery, …) flip with `resolvedScheme` (FND-003 FR4's second clause —
+ *     `NavigationContainer`'s `theme.dark` only styles React Navigation's
+ *     own chrome; it does NOT drive the OS status bar). Homed here rather
+ *     than in `NavigationRoot` because it's a theme-wide OS-chrome concern,
+ *     not a navigation one — it must hold even before/without a navigator
+ *     mounted, same reasoning as the NativeWind `colorScheme.set` push
+ *     above. `backgroundColor` (Android-only; iOS ignores it) reuses the
+ *     same `NATIVE_CHROME_RGB`/`rgbFromTriplet` source `navigationTheme.ts`
+ *     and `TabNavigator.tsx` consume, so there is one place to update on a
+ *     palette change.
  *
  * `colorScheme` is NativeWind's imperative color-scheme setter, re-exported
  * from `nativewind` (backed by `react-native-css-interop`). Verified against
@@ -46,5 +60,14 @@ export function ThemeProvider({children}: PropsWithChildren): React.JSX.Element 
     nativeWindColorScheme.set(resolvedScheme);
   }, [resolvedScheme]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <StatusBar
+        animated
+        barStyle={resolvedScheme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={rgbFromTriplet(NATIVE_CHROME_RGB[resolvedScheme].bg)}
+      />
+      {children}
+    </>
+  );
 }
