@@ -9,9 +9,12 @@ import {ThemeProvider} from '@/theme';
 /**
  * AppProviders — the composition root (FND-001).
  *
- * Wraps the app in the provider stack every screen depends on. One slot is
- * still a pass-through placeholder for a later foundation task:
- *   - Navigation container (FND-003)
+ * Wraps `children` in the provider stack every screen depends on:
+ * GestureHandlerRootView -> SafeAreaProvider -> ThemeProvider -> children.
+ * `App.tsx` supplies the navigation shell (FND-003's `NavigationRoot`) as
+ * `children`, so it renders inside SafeArea + Theme as required by FND-003
+ * FR6 — this component itself stays a generic, reusable wrapper (also usable
+ * to wrap a subtree under test) rather than hardcoding the app's content.
  *
  * No network/query provider is mounted here — this is a local-only build
  * (OQ-1); react-query is installed dormant and stays un-wired until a future
@@ -21,10 +24,7 @@ export function AppProviders({children}: PropsWithChildren): React.JSX.Element {
   return (
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
-        <ThemeProvider>
-          {/* TODO(FND-003): mount the navigation container here */}
-          {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

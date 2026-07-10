@@ -45,7 +45,7 @@
 | F-036 | Persist Task Data | P0 | Storage | STG | | | mapped |
 | F-037 | Restore Local Data | P0 | Storage | STG | | | mapped |
 | F-038 | Handle Corrupted Local Data | P1 | Storage | STG | | | mapped |
-| F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | ready |
+| F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | review |
 | F-040 | Navigate to Task Details | P0 | Navigation | TSK | | | mapped |
 | F-041 | Navigate to Edit Task | P0 | Navigation | TSK | | | mapped |
 | F-042 | Pull to Refresh | P2 | Tasks | TSK | | | mapped |

@@ -1,0 +1,130 @@
+import React from 'react';
+import {NavigationContainer, createNavigationContainerRef} from '@react-navigation/native';
+import {act, create as createRenderer, type ReactTestRenderer} from 'react-test-renderer';
+import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals';
+
+import {RootNavigator} from './RootNavigator';
+import type {RootStackParamList} from './types';
+
+// Native-stack/bottom-tabs push a real screen-transition animation
+// (`Animated.timing` + `Easing.bezier`) on every navigate. Under Jest,
+// `react-native-screens`'s native module isn't linked, so the JS fallback's
+// bezier easing call throws, and — without fake timers — the animation's
+// real `setTimeout` fires after the test file's Jest environment has
+// already torn down. Fake timers + flushing them inside `act()` after each
+// navigation is the pattern the React Navigation docs prescribe
+// (reactnavigation.org/docs/testing → "Fake timers").
+jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+
+function renderRootNavigator(): {
+  tree: ReactTestRenderer;
+  ref: ReturnType<typeof createNavigationContainerRef<RootStackParamList>>;
+} {
+  const ref = createNavigationContainerRef<RootStackParamList>();
+  let tree!: ReactTestRenderer;
+
+  act(() => {
+    tree = createRenderer(
+      <NavigationContainer ref={ref}>
+        <RootNavigator />
+      </NavigationContainer>,
+    );
+  });
+
+  return {tree, ref};
+}
+
+describe('navigation shell (FND-003)', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    jest.useRealTimers();
+  });
+
+  it('renders RootStack and lands on Splash by default', () => {
+    const {tree} = renderRootNavigator();
+
+    expect(tree.root.findByProps({accessibilityLabel: 'Splash'})).toBeTruthy();
+  });
+
+  it('navigating to Tabs shows the Home and Profile tab labels', () => {
+    const {tree, ref} = renderRootNavigator();
+
+    act(() => {
+      ref.current?.navigate('Tabs');
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(tree.root.findAllByProps({accessibilityLabel: 'Home'}).length).toBeGreaterThan(0);
+    expect(tree.root.findAllByProps({accessibilityLabel: 'Profile'}).length).toBeGreaterThan(0);
+
+    // Bottom tabs mount lazily — switch to Profile so its screen (not just
+    // its tab-bar button) actually renders.
+    act(() => {
+      ref.current?.navigate('Tabs', {screen: 'Profile'});
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(tree.root.findAllByProps({accessibilityLabel: 'Profile'}).length).toBeGreaterThan(0);
+  });
+
+  it('pushes TaskDetail with {taskId} and the placeholder reads the param', () => {
+    const {tree, ref} = renderRootNavigator();
+
+    act(() => {
+      ref.current?.navigate('TaskDetail', {taskId: 'task-42'});
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(tree.root.findByProps({accessibilityLabel: 'Task Details'})).toBeTruthy();
+    const detailNode = tree.root.findByProps({children: 'taskId: task-42'});
+    expect(detailNode).toBeTruthy();
+  });
+
+  it('pushes ProfileSetup and AddTask (undefined-param stub screens)', () => {
+    const {tree, ref} = renderRootNavigator();
+
+    act(() => {
+      ref.current?.navigate('ProfileSetup');
+      jest.runOnlyPendingTimers();
+    });
+    expect(tree.root.findByProps({accessibilityLabel: 'Profile Setup'})).toBeTruthy();
+
+    act(() => {
+      ref.current?.navigate('AddTask');
+      jest.runOnlyPendingTimers();
+    });
+    expect(tree.root.findByProps({accessibilityLabel: 'Add Task'})).toBeTruthy();
+  });
+
+  it('pushes EditTask with {taskId} and the placeholder reads the param', () => {
+    const {tree, ref} = renderRootNavigator();
+
+    act(() => {
+      ref.current?.navigate('EditTask', {taskId: 'task-7'});
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(tree.root.findByProps({accessibilityLabel: 'Edit Task'})).toBeTruthy();
+    expect(tree.root.findByProps({children: 'taskId: task-7'})).toBeTruthy();
+  });
+
+  it('typed params compile: task screens declare {taskId}, others undefined (type + runtime check)', () => {
+    const params: RootStackParamList = {
+      Splash: undefined,
+      ProfileSetup: undefined,
+      Tabs: undefined,
+      AddTask: undefined,
+      EditTask: {taskId: 'task-1'},
+      TaskDetail: {taskId: 'task-1'},
+    };
+
+    expect(params.TaskDetail).toEqual({taskId: 'task-1'});
+    expect(params.EditTask).toEqual({taskId: 'task-1'});
+  });
+});
