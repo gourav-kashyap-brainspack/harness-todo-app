@@ -6,4 +6,21 @@
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     </style>
 
+    <!--
+      react-native-bootsplash (FND-004, FR1). `Theme.BootSplash` (v7,
+      edge-to-edge — see node_modules/react-native-bootsplash/android/src/
+      main/res/values/styles.xml) is the library's base theme. No brand-logo
+      asset exists yet (deferred design task — see this task's report), so
+      `bootSplashLogo` reuses the app's own launcher icon as the minimal
+      centered mark. `postBootSplashTheme` is the theme `RNBootSplash.init()`
+      switches the Activity to once initialized — AndroidManifest.xml
+      declares the Activity's theme as `BootTheme` so it's what's live at
+      cold start, before any Kotlin code runs.
+    -->
+    <style name="BootTheme" parent="Theme.BootSplash">
+        <item name="bootSplashBackground">@color/bootsplash_background</item>
+        <item name="bootSplashLogo">@mipmap/ic_launcher</item>
+        <item name="postBootSplashTheme">@style/AppTheme</item>
+    </style>
+
 </resources>
