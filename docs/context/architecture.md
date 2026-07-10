@@ -10,7 +10,7 @@ marked `(to be filled)` are genuinely empty scaffolds populated by later FND tas
 ## Layer diagram
 Feature-sliced `mobile/src/`, alias `@/* → mobile/src/*` (`tsconfig.json` `paths` + `babel-plugin-module-resolver`
 in `babel.config.js`):
-- `src/app/` — composition root: `AppProviders.tsx` (see Tier-1 pattern below). `navigation/` scaffolded, empty (FND-003).
+- `src/app/` — composition root: `AppProviders.tsx` (see Tier-1 pattern below); `navigation/` now live (FND-003, see below).
 - `src/core/{api,config,hooks,lib,services,store,types}` — cross-feature primitives. Only `core/lib` has real content
   (`constants.ts` + barrel); the rest are `.gitkeep` scaffolds awaiting their owning task.
 - `src/features/` — empty scaffold; first feature slice lands post-FND.
@@ -35,13 +35,21 @@ _(to be filled — app bootstrap and any dynamic config resolution before the fi
 _(to be filled — dormant until the API client is wired; no hooks exist yet.)_
 
 ## src/app/navigation
-_(to be filled — empty scaffold. `@react-navigation/native@6.1.18` + `native-stack@6.11.0` + `bottom-tabs@6.6.1` installed; screen manifest lands in FND-003.)_
+**Live (FND-003).** Boot path: `App.tsx` → `AppProviders` (GestureHandlerRootView → SafeAreaProvider → ThemeProvider) → `NavigationRoot` (mounts `NavigationContainer`, themed via `buildNavigationTheme(resolvedScheme)`, `enableScreens()` called once at module load) → `RootNavigator` (native-stack, `initialRouteName="Splash"`).
+
+Route set (`RootStackParamList`):
+- `Splash` — initial route; hands off to FND-004's bootstrap logic (placeholder here).
+- `ProfileSetup` — first-launch route; placeholder, built out in **PRO**.
+- `Tabs` — the bottom-tab navigator (`TabParamList`: `Home`, `Profile`), both placeholders; **Home** built out in **TSK**, **Profile** in **PRO**.
+- `AddTask` (`undefined`), `EditTask` (`{taskId}`), `TaskDetail` (`{taskId}`) — pushed stack screens, headers shown with real titles; placeholders, built out in **TSK**.
+
+Typed-navigation, nav-theming, themed-StatusBar, and placeholder/jest-setup patterns are now Tier-1 — see patterns-registry.md. No deep-linking config wired (spec: none in MVP; shape supports adding one later without restructuring).
 
 ## src/platform — native-bridge adapters
 _(to be filled — empty scaffold. `react-native-mmkv@2.12.2` (v2, old-arch) installed; no storage service yet (owned by a future STG task). `react-native-keychain` installed dormant.)_
 
 ## src/theme — design tokens
-**Live (FND-002).** `ThemeProvider` + `useTheme()` implement light+dark theming: semantic color tokens as CSS vars in `tailwind.config.js`/`global.css` (`:root` = light, `.dark` = dark, `darkMode: 'class'`), `themeStore` (above) resolves the active scheme, `ThemeProvider` pushes it into NativeWind's `colorScheme.set(...)` and reacts live to OS scheme changes while `mode === 'system'`. Mounted in `AppProviders` (`mobile/src/app/AppProviders.tsx`) between `SafeAreaProvider` and the (FND-003) navigation slot. Type scale + border-radius tokens also land here. See patterns-registry → "Semantic design-token theming". `mobile/babel.config.js` now also registers `react-native-reanimated/plugin` (last, per Reanimated's requirement — carry-forward fix from FND-001).
+**Live (FND-002).** `ThemeProvider` + `useTheme()` implement light+dark theming: semantic color tokens as CSS vars in `tailwind.config.js`/`global.css` (`:root` = light, `.dark` = dark, `darkMode: 'class'`), `themeStore` (above) resolves the active scheme, `ThemeProvider` pushes it into NativeWind's `colorScheme.set(...)` and reacts live to OS scheme changes while `mode === 'system'`. Mounted in `AppProviders` (`mobile/src/app/AppProviders.tsx`) between `SafeAreaProvider` and `NavigationRoot` (FND-003, passed in as `children` from `App.tsx`). As of FND-003, `ThemeProvider` also renders a themed `<StatusBar>` (OS chrome — flips with `resolvedScheme`, independent of the nav container's own `theme.dark`; see patterns-registry). Type scale + border-radius tokens also land here. See patterns-registry → "Semantic design-token theming". `mobile/babel.config.js` now also registers `react-native-reanimated/plugin` (last, per Reanimated's requirement — carry-forward fix from FND-001).
 
 ## External integrations
 **None wired.** No backend API call is made anywhere in the app yet — the app boots and runs fully offline (F-048 groundwork). This is deliberate per OQ-1, not a gap.
