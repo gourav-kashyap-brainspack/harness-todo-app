@@ -331,8 +331,9 @@
       "complexity": "M",
       "estimate": 4,
       "dynamicWorkflow": false,
-      "status": "review",
+      "status": "done",
       "startedAt": "2026-07-11",
+      "doneAt": "2026-07-11",
       "spec": "docs/specs/PRO/PRO-001.spec.md",
       "clickupTaskId": ""
     },
