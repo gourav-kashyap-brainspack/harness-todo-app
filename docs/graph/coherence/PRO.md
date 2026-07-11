@@ -47,11 +47,15 @@ Zero cross-module coherence defects in shipped PRO code. The forward spec-gaps b
 - Keep the no-network invariant until a backend module is deliberately scoped.
 - **Low / release-hygiene (not a PRO fix):** an empty `NSLocationWhenInUseUsageDescription` exists in `Info.plist` from the RN scaffold (the app never requests location) — remove or give a real rationale at the release-hardening lane (`releaseHardening: advisory`); a stray empty usage string can draw an App Store review nit.
 
-## E2E gate (behavioral half of Module DoD)
-_Pending human decision at the integration go (below). **PRO is the first module with a genuinely-runnable E2E** — a real user journey exists: fresh launch → Profile Setup → submit name+email → Home → Profile tab view/edit → theme toggle → (photo). `mobile/.maestro/` has no flows yet; e2e-automator would author them + drive an Android emulator. Constraint: disk is tight (~4.6GB), which may block the emulator/build. Recorded here when it runs._
+## E2E gate (behavioral half of Module DoD) — ⏭️ DEFERRED (human decision, 2026-07-11)
+**PRO is the first module with a genuinely-runnable E2E** (fresh launch → Profile Setup → submit → Home → view/edit → theme toggle), but the local E2E gate was **deferred by explicit human decision** at the integration go — the environment is disk-constrained (~4.6GB free) which would block the Android emulator + Maestro run (same shortage that blocked the iOS build).
+
+**Flows to author when E2E runs** (the accumulated FND+STG+PRO flows should run together at the next viable point, and are a mandatory local gate before `development → main`): first-launch setup (fresh → Profile Setup → submit valid name+email → Home; relaunch → Home); returning-launch; offline cold start; tab switch Home↔Profile; **profile view → edit name → save → see update**; **theme toggle Dark → persists across relaunch**; add/remove photo (picker is a native OS surface — drive the trigger + assert avatar/placeholder). Anchor on visible text / accessibilityLabel; no `clearState`.
+
+**DoD note:** PRO declared **done** on coherence PASS + all per-task gates green + human integration go, with local E2E **explicitly deferred**. The full E2E suite remains a **mandatory local gate before any `development → main` release**.
 
 ## Integration go
-_Awaiting human integration go. Module DONE only on: coherence PASS (✅) ∧ local E2E green-or-deferred ∧ human go._
+✅ **Human integration go given 2026-07-11.** PRO module = **DONE** (`status: done`, `coherenceStatus: pass`, `e2eStatus: deferred`). Unblocks TSK.
 
 ---
 _Structural verdict by the coherence-review skill. E2E verdict to be appended when the local gate runs._

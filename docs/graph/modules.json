@@ -115,8 +115,10 @@
         "Mandatory-setup gating (first launch -> Profile Setup before Home) is driven by the first-launch detection from FND, not a second source of truth."
       ],
       "clickupListId": "901615807766",
+      "status": "done",
       "coherenceStatus": "pass",
-      "e2eStatus": "pending"
+      "e2eStatus": "deferred",
+      "doneAt": "2026-07-11"
     },
     {
       "id": "TSK",
