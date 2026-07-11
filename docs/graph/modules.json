@@ -80,8 +80,10 @@
         "Every persisted read is Zod-guarded with a safe fallback, so corrupted local data never crashes startup (F-038).",
         "Zustand stores hydrate from the storage service on startup exactly once, via the shared hydration pattern."
       ],
+      "status": "done",
       "coherenceStatus": "pass",
-      "e2eStatus": "pending",
+      "e2eStatus": "deferred",
+      "doneAt": "2026-07-11",
       "clickupListId": "901615807765"
     },
     {

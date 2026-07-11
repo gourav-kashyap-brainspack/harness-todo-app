@@ -47,11 +47,11 @@ Zero cross-module coherence defects in shipped STG code. STG is a clean, consist
 - **Keep going through the service** — no repository may re-`JSON.parse` or import `react-native-mmkv` directly; no PII values in any log sink.
 - **Note (not a finding):** profile `email` is PII persisted **unencrypted** on the default MMKV instance — acceptable under the LOCAL-ONLY single-profile decision (OQ-1); re-evaluate if a backend/multi-tenant/device-loss threat model is ever introduced.
 
-## E2E gate (behavioral half of Module DoD)
-_Pending human decision at the integration go (below). The STG layer is **headless** — no screens to drive — so E2E flows for persistence are naturally exercised at the module edge of the first UI module that uses them (PRO/TSK): create → kill-relaunch → data restored; corrupted store still boots. Recorded here when it runs._
+## E2E gate (behavioral half of Module DoD) — ⏭️ DEFERRED (human decision, 2026-07-11)
+The STG layer is **headless** (no screens), so persistence E2E is deferred by explicit human decision — it is naturally exercised at the module edge of the first UI module that consumes it (PRO/TSK): create → kill-relaunch → data restored; corrupted store still boots. Full E2E remains a **mandatory local gate before any `development → main` release**.
 
 ## Integration go
-_Awaiting human integration go. Module marked DONE only on: coherence PASS (✅) ∧ local E2E green-or-deferred ∧ human go._
+✅ **Human integration go given 2026-07-11.** STG module = **DONE** (`status: done`, `coherenceStatus: pass`, `e2eStatus: deferred`). Unblocks PRO + TSK.
 
 ---
 _Structural verdict by the coherence-review skill. E2E verdict to be appended if/when the local gate runs._
