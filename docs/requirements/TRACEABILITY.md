@@ -12,7 +12,7 @@
 | F-003 | Update Profile Picture | P2 | Profile | PRO | | | mapped |
 | F-004 | Remove Profile Picture | P2 | Profile | PRO | | | mapped |
 | F-005 | View User Profile | P0 | Profile | PRO | | | mapped |
-| F-006 | Persist Profile Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | review |
+| F-006 | Persist Profile Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
 | F-007 | Create Task | P0 | Tasks | TSK | | | mapped |
 | F-008 | View Task List | P0 | Tasks | TSK | | | mapped |
 | F-009 | View Task Details | P0 | Tasks | TSK | | | mapped |
@@ -42,7 +42,7 @@
 | F-033 | Display Validation Errors | P0 | Validation | PRO | | | mapped |
 | F-034 | Require Task Title | P0 | Validation | TSK | | | mapped |
 | F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | | | mapped |
-| F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | review |
+| F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
 | F-037 | Restore Local Data | P0 | Storage | STG | STG-001 | Typed storage service | done |
 | F-038 | Handle Corrupted Local Data | P1 | Storage | STG | STG-001 | Typed storage service | done |
 | F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | done |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **13 mapped to a task (9 FND + 4 STG)** · 0 orphans · **FND module DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred) — all 9 FND features `done`. **STG task-complete, Module DoD next:** F-037/F-038 (STG-001) `done` — PR #8 merged; F-006/F-036 (STG-002) `review` — PR #9 open, gates green, awaiting human merge-go. Once PR #9 merges, all 4 STG features are `done` and the STG coherence + local-E2E review runs.
+**Coverage:** 48 features · 48 mapped to a module · **13 mapped to a task (9 FND + 4 STG)** · 0 orphans · **FND and STG modules both DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred for both) — all 9 FND features + all 4 STG features (F-006, F-036, F-037, F-038) `done`. Next: `/module PRO` and `/module TSK`, both unblocked (human sequence preference: PRO before TSK) — 6 forward spec-gaps from the STG coherence review recorded in `docs/context/stack.md` for that planning.
 
 ### Per-module coverage
 | Module | Features | IDs |

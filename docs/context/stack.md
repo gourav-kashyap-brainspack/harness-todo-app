@@ -66,14 +66,21 @@ downstream modules — none blocked FND, all are architect input for the named `
 
 Full justification for each lives in `docs/graph/coherence/FND.md` → "Spec-gaps to fix in downstream specs".
 
-## Forward contracts for TSK from STG-002 (read before `/module TSK`)
-STG-002 (`core/types/task.ts`, `core/services/taskRepository.ts`) fixes three behaviors TSK's task UI/forms must respect — not blocking, but a TSK spec that ignores them will misuse the repository:
+## Forward spec-gaps from the STG coherence review (2026-07-11) — read this before `/module PRO` and `/module TSK`
+Structural coherence review (`docs/graph/coherence/STG.md`) recorded 6 items as forward guidance for PRO/TSK/ORG
+planning — none blocked STG, all are architect input for the named `/module` run. Items a–c were first flagged
+during STG-002's per-task pass (superseded by this consolidated table); d–f are new from the module-edge review:
 
-| # | Contract | Why | Detail |
+| # | Gap | Fix at | One-line detail |
 |---|---|---|---|
-| a | `upsertTask` update = wholesale field replace | `taskRepository.ts:upsertTask` keeps `id`/`createdAt`, bumps `updatedAt`, but replaces `title`/`description`/`status`/`dueDate` wholesale — it does not merge/patch | TSK's edit-task form must submit the full set of business fields on every save, not just the field the user touched, or it will silently wipe the others |
-| b | `Task.dueDate` requires full ISO-8601, not a bare date | `taskSchema.dueDate` is `z.string().datetime()` (same format as `createdAt`/`updatedAt`), not `YYYY-MM-DD` | TSK's date-picker must normalize its selection via `.toISOString()` before calling `upsertTask`, or the Zod-validating write throws |
-| c | `newId()` is non-CSPRNG | `react-native-uuid` is `Math.random()`-backed | Fine for task ids (internal, non-security); do not reuse `newId()` if TSK ever needs a security-sensitive token |
+| a | `upsertTask` update = wholesale field replace, not a patch/merge | `/module TSK` | `taskRepository.ts:upsertTask` keeps `id`/`createdAt`, bumps `updatedAt`, but replaces `title`/`description`/`status`/`dueDate` wholesale — TSK's edit-task form must submit the FULL business-field set every save, or a partial submit silently blanks omitted fields. |
+| b | `Task.dueDate` requires full ISO-8601 (`z.string().datetime()`, UTC `Z`) | `/module TSK` | TSK's date-picker must serialize via `.toISOString()` before calling `upsertTask` — a bare `YYYY-MM-DD` fails Zod validation and the write throws. |
+| c | `newId()` is non-security (uuid v4, `Math.random()`-backed, not a CSPRNG) | TSK / any id use | Fine for entity/task ids; never reuse for a security token / session / reset nonce — use a keychain/crypto generator if a security-grade id is ever needed. |
+| d | `tasks` persists as one `Task[]` JSON blob (whole-collection read/rewrite per mutation) | later TSK/ORG | Fine for MVP; the "thousands of tasks" perf/pagination concern (PRD §17) is deferred, not solved. |
+| e | First-launch routing seam is cross-module | `/module PRO` | `launchStore.setHasLaunched()` (FND) is never called by FND by design — **PRO must call it once first-run Profile Setup completes**, or the app never leaves `ProfileSetup`. PRO owns this wiring. |
+| f | Write-time throws are unswallowed by contract | `/module PRO` + `/module TSK` | `saveProfile`/`saveTasks`/`upsertTask` **throw** on schema-invalid input (a programmer-error signal, deliberately not swallowed) — PRO/TSK must validate at the form boundary (RHF + `zodResolver`) so this path is never user-reachable. Also: PRO owns the `photo` image-picker/permission flow (STG persists only the file-uri string). |
+
+Full justification for each lives in `docs/graph/coherence/STG.md` → "Spec-gaps to fix in downstream specs".
 
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.

@@ -19,6 +19,31 @@ typed tree with no ad-hoc navigators, and the three shared UI primitives (`Empty
 This is the reference foundation every later module (STG, PRO, TSK, ORG) builds on — see the patterns registry
 for the specific Tier-1 mechanics and the Spec-gap notes in `docs/context/stack.md` for forward guidance.
 
+## STG — module complete (2026-07-11)
+Both STG tasks merged (PRs #8, #9); coherence review **PASS** (structural, zero findings, `docs/graph/coherence/STG.md`);
+human integration go given; local E2E **deferred** by explicit human decision (STG is headless — no screens — so
+persistence E2E is naturally exercised at the module edge of the first UI module that consumes it, PRO/TSK).
+**The complete persistence layer, one coherent picture, bottom-up:**
+1. **`core/services/storage.ts`** — the single MMKV service. `getItem<T>(key,schema,fallback)` / `setItem` / `removeItem` / `hasItem`
+   over one shared **default** `MMKV()` instance. Every value wrapped in a `{version,data}` envelope
+   (`core/types/storage.ts:StorageEnvelope`) with a `migrate()` seam. Every read is **total** — absent/corrupt/unmigratable
+   never throws, always falls back to the caller's default (F-038). `createPersistedValue(key,schema,fallback)` is the
+   store-hydration helper (`{hydrate,persist}`) every Zustand store with persisted state reuses.
+2. **`core/services/{profileRepository,taskRepository}.ts`** — the data-access API on top of the service. Reads total
+   (`null`/`[]` safe defaults), writes Zod-validate-then-throw (a caller bug, not corrupt storage — deliberately not
+   swallowed). `taskRepository.upsertTask` is a **wholesale field replace** on update, not a patch.
+3. **`core/types/{profile,task}.ts`** — the domain model, declared exactly once (Zod schema + `z.infer`). `Task.id` is
+   `z.string().uuid()`, `Task.dueDate` requires full ISO-8601 (`z.string().datetime()`).
+4. **`core/lib/id.ts:newId()`** — the one id-generation util (`react-native-uuid` v4, `Math.random()`-backed — non-CSPRNG,
+   internal ids only).
+- **Default-instance coexistence with FND:** STG's `storage.ts` deliberately opens the **same** default `MMKV()` instance
+  FND's `themeStore`/`launchStore` already use — their raw keys `theme.mode`/`app.hasLaunched` stay readable, unchanged,
+  un-migrated (coherence spec-gap b, now closed). `StorageKeys` (`profile`, `tasks`) are namespaced separately from those
+  two raw keys — no collision possible.
+This is the reference PRO/TSK read for any new persisted domain — see patterns-registry.md → "Typed storage service" /
+"Store hydration pattern" / "Persisted domain model" / "Repository pattern" / "ID generation", and
+`docs/context/stack.md` → "Forward spec-gaps from the STG coherence review" for the 6 items PRO/TSK must respect.
+
 ## Layer diagram
 Feature-sliced `mobile/src/`, alias `@/* → mobile/src/*` (`tsconfig.json` `paths` + `babel-plugin-module-resolver`
 in `babel.config.js`):

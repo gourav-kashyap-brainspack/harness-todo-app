@@ -1,6 +1,6 @@
 {
   "project": "Todo App",
-  "updated": "2026-07-09",
+  "updated": "2026-07-11",
   "note": "Modules populated by /scope (2026-07-09). Tasks are added per module by /module <name>. ClickUp IDs are filled after /clickup-sync creates the lists. Architecture: LOCAL-ONLY (offline-first, MMKV persistence, no backend, no auth) per PRD; Axios/React Query layer stays dormant for a future cloud-sync phase (OQ-1). Dark mode is IN MVP scope (OQ-10). Profile setup mandatory, name+email required (OQ-2).",
   "clickup": {
     "workspaceId": "90161694196",

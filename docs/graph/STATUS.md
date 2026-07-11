@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** **FND done.** STG task-complete — STG-001 merged (PR #8), STG-002 gates green, PR #9 open (`review`), awaiting human merge-go. Next: merge PR #9, then the STG Module DoD (coherence review + local E2E).
+**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** **FND and STG both done** (coherence PASS, E2E deferred, human integration go given for both). Next: `/module PRO` and `/module TSK` — both unblocked; human build-order preference is PRO before TSK.
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -16,9 +16,9 @@
 | Order | Module | Features | Tasks | Depends on | Status |
 |---|---|---|---|---|---|
 | 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 (5 done) | — | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
-| 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 review/done) | FND ✅ | 🟡 **task-complete** — STG-001 merged, STG-002 PR #9 open, awaiting merge; Module DoD next |
-| 3 | **PRO** — Profile | 6 | — | FND, STG | ⚪ blocked |
-| 4 | **TSK** — Task Management | 18 | — | FND, STG | ⚪ blocked |
+| 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 done) | FND ✅ | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
+| 3 | **PRO** — Profile | 6 | — | FND ✅, STG ✅ | 🔵 **ready** — `/module PRO` unblocked; human sequence preference: before TSK |
+| 4 | **TSK** — Task Management | 18 | — | FND ✅, STG ✅ | 🔵 **ready** — `/module TSK` unblocked; technically parallel with PRO, sequenced after per human preference |
 | 5 | **ORG** — Search, Filter, Sort | 11 | — | TSK | ⚪ blocked |
 
 ## FND tasks
@@ -41,7 +41,7 @@
 | Task | Title | Feat. | Cplx | Est | blockedBy | Status |
 |---|---|---|---|---|---|---|
 | **STG-001** ⚓ | Typed storage service (Zod-guarded MMKV · versioned · corrupt-recovery · hydration) | F-037, F-038 | M | 4h | — | 🟢 done — PR #8 merged |
-| **STG-002** | Profile + Task persisted schemas & repositories (+ hydration wiring) | F-006, F-036 | M | 4h | STG-001 ✅ | 🟡 review — PR #9, gates green (1-iteration loop), awaiting human merge-go |
+| **STG-002** | Profile + Task persisted schemas & repositories (+ hydration wiring) | F-006, F-036 | M | 4h | STG-001 ✅ | 🟢 done — PR #9 merged |
 
-**Critical path:** STG-001 → STG-002 (≈8h, both gate-green). **Next:** merge PR #9 (STG-002), then STG's **Module DoD** (coherence review + local E2E) — this is STG's last task.
-**STG decisions:** STG owns Profile/Task Zod schemas in `core/types` + repositories · light `{version,data}` envelope · corrupt→reset-to-safe-default · name+email in MMKV (non-sensitive) · Task `id` = uuid string · **adopts FND's existing MMKV keys on the default instance (no churn — coherence spec-gap b).**
+**Critical path:** STG-001 → STG-002 (≈8h, both gate-green). **STG Module DoD complete:** coherence review PASS (`docs/graph/coherence/STG.md`, zero findings) · local E2E deferred (human decision, headless module) · human integration go 2026-07-11. Unblocks PRO + TSK.
+**STG decisions:** STG owns Profile/Task Zod schemas in `core/types` + repositories · light `{version,data}` envelope · corrupt→reset-to-safe-default · name+email in MMKV (non-sensitive) · Task `id` = uuid string · **adopts FND's existing MMKV keys on the default instance (no churn — coherence spec-gap b).** 6 forward spec-gaps recorded in `docs/context/stack.md` for `/module PRO` + `/module TSK`.
