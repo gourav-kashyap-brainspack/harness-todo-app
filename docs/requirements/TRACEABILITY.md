@@ -43,8 +43,8 @@
 | F-034 | Require Task Title | P0 | Validation | TSK | | | mapped |
 | F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | | | mapped |
 | F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | ready |
-| F-037 | Restore Local Data | P0 | Storage | STG | STG-001 | Typed storage service | ready |
-| F-038 | Handle Corrupted Local Data | P1 | Storage | STG | STG-001 | Typed storage service | ready |
+| F-037 | Restore Local Data | P0 | Storage | STG | STG-001 | Typed storage service | review |
+| F-038 | Handle Corrupted Local Data | P1 | Storage | STG | STG-001 | Typed storage service | review |
 | F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | done |
 | F-040 | Navigate to Task Details | P0 | Navigation | TSK | | | mapped |
 | F-041 | Navigate to Edit Task | P0 | Navigation | TSK | | | mapped |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **9 mapped to a task (FND)** · 0 orphans · **FND module DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred) — all 9 FND features `done`: F-030, F-032, F-039, F-043, F-044, F-045, F-046, F-047, F-048. Next: `/module STG` to plan Local Persistence (unblocked).
+**Coverage:** 48 features · 48 mapped to a module · **12 mapped to a task (9 FND + 3 STG)** · 0 orphans · **FND module DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred) — all 9 FND features `done`. **STG in progress:** F-037/F-038 (STG-001) `review` — PR #8 open, awaiting merge; F-036 (STG-002) `ready`, blocked on STG-001 merge.
 
 ### Per-module coverage
 | Module | Features | IDs |
