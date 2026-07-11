@@ -88,7 +88,21 @@ Full justification for each lives in `docs/graph/coherence/STG.md` → "Spec-gap
 
 ## Spec-gap notes (flagged during PRO-003, action for later tasks)
 - **2 non-blocking code-review nits (PRO-003, PR #12, low priority):** (1) `AvatarPhotoField`'s camera-badge icon color is a literal `rgbFromTriplet('255 255 255')` constant rather than sourced from the `primary-fg` token (it happens to be the correct value — `primary-fg` is `255 255 255` in both themes, same reasoning `Button.tsx`'s `ACTIVITY_INDICATOR_COLOR` already documents — but reads as a fresh hardcode rather than a token reference); (2) `ActionSheet`'s options container uses `accessibilityRole="menu"` with per-option `accessibilityRole="menuitem"`, and the Cancel row's own `Pressable` has an empty `onPress={() => {}}` stub purely to stop backdrop-dismiss bubbling — both are functionally correct but could be polished (a named no-op helper instead of an inline empty arrow; confirm `menu`/`menuitem` is the best-matching RN a11y role pairing vs. `button`/`list`). Neither blocked PRO-003 (gate-green, code-review APPROVE, 0 fix loops). Fold into a future `components/ui` a11y-polish pass if a reviewer flags either again.
-- **iOS build environment watch item:** the full `xcodebuild` gate was blocked during PRO-003 by `ENOSPC` (disk ~4.6GB free) — an environment condition, not a code defect; Android `assembleDebug` and `pod install` both passed cleanly. Disk pressure could recur for future iOS-touching tasks (PRO-003 is native-surface); if it does, free space before assuming a build regression.
+- **iOS build environment watch item:** the full `xcodebuild` gate was blocked during PRO-003 by `ENOSPC` (disk ~4.6GB free) — an environment condition, not a code defect; Android `assembleDebug` and `pod install` both passed cleanly. Disk pressure could recur for future iOS-touching tasks (PRO-003 is native-surface); if it does, free space before assuming a build regression. **Recurred at the PRO module edge** (blocked the local E2E gate too, see below) — tracked as a standing watch item in `docs/context/harness-debt.md`.
+
+## Forward spec-gaps from the PRO coherence review (2026-07-11) — read this before `/module TSK` and `/module ORG`
+Structural coherence review (`docs/graph/coherence/PRO.md`) recorded 5 items as forward guidance for TSK/ORG
+planning — none blocked PRO, all are architect input for the named `/module` run:
+
+| # | Gap | Fix at | One-line detail |
+|---|---|---|---|
+| a | RHF+Zod is the established form anchor | `/module TSK` | TSK **MUST** reuse `zodResolver(schema)` + `Controller` + `FormField` + `Button` (`ProfileSetupScreen`/`ProfileScreen` pattern) — not roll a second form pattern. Code-reviewer blocks a second validation approach. |
+| b | `SegmentedControl<T>` is ORG-ready | `/module ORG` | Generic/tokened/a11y single-select control (first use: PRO-002's theme toggle) — reuse verbatim for filter-chip / sort-option controls (F-023–029), don't reinvent. |
+| c | `ActionSheet` is ready for confirm/menu | `/module TSK` | Reuse for TSK's delete-confirmation (F-012) rather than a new `Modal` — same reuse-or-block contract as the other `components/ui` primitives. |
+| d | 2 known non-blocking per-task nits | TSK/ORG reviewers | `AvatarPhotoField` badge `'255 255 255'` literal (= `primary-fg`, consistent w/ `Button` — cosmetic); `ActionSheet` `role=menu`/`menuitem` pairing — confirm it still reads as the best-matching a11y role on reuse. |
+| e | **`hasLaunched` is decoupled from "profile exists"** | any clear-profile/reset/logout feature (TSK/ORG or a future Settings) | The boot gate keys on `launchStore.hasLaunched`, NOT on a profile existing — today `hasLaunched=true && profile=null` is unreachable (nothing clears the profile). **If TSK/ORG ever add a reset/clear-profile/logout affordance, it MUST reconcile `hasLaunched` + the persisted profile together**, or the boot flow and the Profile tab will disagree. Flag explicitly in any such spec. |
+
+Full justification for each lives in `docs/graph/coherence/PRO.md` → "Spec-gaps to fix in downstream specs".
 
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.

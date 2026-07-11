@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** FND + STG done. **PRO task-complete, pending merge** — PRO-001 (PR #10) + PRO-002 (PR #11) merged; PRO-003 gate-green (0 fix loops), PR #12 `review` (awaiting human merge-go). All 6 PRO features implemented. Next: merge PR #12, then the PRO Module DoD (coherence + first local E2E).
+**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** FND + STG + PRO all **done** (coherence PASS, human integration go, local E2E deferred on all three). Next: `/module TSK` (unblocked, human sequence preference PRO-before-TSK now satisfied).
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -17,8 +17,8 @@
 |---|---|---|---|---|---|
 | 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 (5 done) | — | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 done) | FND ✅ | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
-| 3 | **PRO** — Profile | 6 | 3 (2 done, 1 review) | FND ✅, STG ✅ | 🟡 **task-complete, pending merge** — PRO-001 (PR #10) + PRO-002 (PR #11) merged; PRO-003 PR #12 review, awaiting merge-go |
-| 4 | **TSK** — Task Management | 18 | — | FND ✅, STG ✅ | 🔵 **ready** — `/module TSK` unblocked; technically parallel with PRO, sequenced after per human preference |
+| 3 | **PRO** — Profile | 6 | 3 (3 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (disk pressure), human integration go 2026-07-11 |
+| 4 | **TSK** — Task Management | 18 | — | FND ✅, STG ✅ | 🔵 **ready** — `/module TSK` unblocked; human sequence preference (PRO before TSK) now satisfied |
 | 5 | **ORG** — Search, Filter, Sort | 11 | — | TSK | ⚪ blocked |
 
 ## FND tasks
@@ -52,9 +52,10 @@
 |---|---|---|---|---|---|---|
 | **PRO-001** ⚓ | Profile store + RHF/Zod form pattern + Profile Setup (mandatory first-launch) | F-001, F-033 | M | 4h | — | 🟢 done — PR #10 merged |
 | **PRO-002** | Profile view + edit screen (+ theme toggle) | F-005, F-002 | M | 4h | PRO-001 ✅ | 🟢 done — PR #11 merged |
-| **PRO-003** | Profile photo — add/change/remove (image picker + permissions) | F-003, F-004 | M | 4h | PRO-001 ✅, PRO-002 ✅ | 🟡 review — PR #12, gates green (0 fix loops), awaiting human merge-go |
+| **PRO-003** | Profile photo — add/change/remove (image picker + permissions) | F-003, F-004 | M | 4h | PRO-001 ✅, PRO-002 ✅ | 🟢 done — PR #12 merged |
 
-**Critical path:** PRO-001 → PRO-002 → PRO-003 (≈12h). All 3 tasks built; PRO-003 completes the module — **PRO Module DoD (coherence + first local E2E) runs once PR #12 merges.**
+**Critical path:** PRO-001 → PRO-002 → PRO-003 (≈12h, all gate-green). **PRO Module DoD complete:** coherence review PASS (`docs/graph/coherence/PRO.md`, zero findings) · local E2E **deferred** (human decision — disk pressure, ~4.6GB free) · human integration go 2026-07-11. Unblocks TSK (ORG stays blocked on TSK).
 **PRO decisions:** photo via react-native-image-picker@8.2.1 (gallery+camera, PRO-003 — Android needs no manifest permissions, iOS needs 2 `Info.plist` strings + 1 `PrivacyInfo.xcprivacy` entry) · theme toggle on Profile screen (PRO-002, completes OQ-10) · name+email both editable · mandatory setup, no skip. **Applies STG gaps e/f — both RESOLVED:** PRO-001 calls `setHasLaunched()` on setup-complete (gap e closed); form-boundary validation via RHF+zodResolver established as the Tier-1 pattern, confirmed for an edit flow (PRO-002) — gap f closed for PRO (TSK still to apply it). PRO-002 promoted `Avatar` (F-005) and `SegmentedControl<T>` (F-003, generalized — **ORG will reuse it**); PRO-003 promoted `ActionSheet` (8th `components/ui` primitive) and the `photoPicker`/`AvatarPhotoField` native-picker pattern, and extended `Avatar` with its `photoUri` variant. PRO-003 is native-surface (image-picker + permissions → local build decisive; `MERGE_WAIT_FOR_CI=on`); iOS full `xcodebuild` was blocked locally by `ENOSPC` (disk pressure, environment not code — see `stack.md`), Android + `pod install` passed.
+**5 forward spec-gaps recorded** in `docs/context/stack.md` → "Forward spec-gaps from the PRO coherence review" for `/module TSK` + `/module ORG` (RHF+Zod anchor reuse, `SegmentedControl`/`ActionSheet` reuse, hasLaunched/profile-reset coupling).
 
-**Next:** merge PR #12, then the PRO Module DoD (coherence review + first local E2E), then `/module TSK`.
+**Next:** `/module TSK` (unblocked). Standing debt: local E2E deferred on 3 modules now (FND, STG, PRO) — combined suite should run before it stacks further, mandatory before any `development → main` release.

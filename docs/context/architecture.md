@@ -44,6 +44,29 @@ This is the reference PRO/TSK read for any new persisted domain — see patterns
 "Store hydration pattern" / "Persisted domain model" / "Repository pattern" / "ID generation", and
 `docs/context/stack.md` → "Forward spec-gaps from the STG coherence review" for the 6 items PRO/TSK must respect.
 
+## PRO — module complete (2026-07-11)
+All 3 PRO tasks merged (PRs #10, #11, #12); coherence review **PASS** (structural, zero findings); human
+integration go given; local E2E **deferred** (human decision — disk-constrained environment, ~4.6GB free, blocks
+the Android emulator + Maestro run). See `docs/graph/coherence/PRO.md` for the full verdict. **The complete
+Profile feature slice, bottom-up:** `features/profile/store/profileStore.ts` (Zustand, hydrates once from
+`profileRepository` — never raw MMKV) backs three screens/flows built on FND's nav+theme and STG's persistence:
+1. **`ProfileSetupScreen`** (PRO-001) — the mandatory first-launch form (name+email, RHF+Zod) that **anchors the
+   RHF+Zod form pattern** every later form (TSK) must reuse; on valid submit it is the single writer of
+   `setHasLaunched()` (closes FND coherence gap a).
+2. **`ProfileScreen`** (PRO-002) — view/inline-edit (same form anchor, `reset(profile)` seeds edit mode) +
+   the System/Light/Dark theme toggle (`SegmentedControl<T>`, wired to `themeStore`, completes OQ-10).
+3. **`AvatarPhotoField`** + **`lib/photoPicker.ts`** (PRO-003) — the single `react-native-image-picker` call
+   site (camera/library/remove via `ActionSheet`), normalizing cancel/permission/error into a closed result;
+   persists only a file-uri string through `profileStore`/`profileRepository` — the picker never persists.
+`components/ui` grew from 3 to **8 primitives** across the module (`Button`, `FormField`, `Avatar` +photo
+variant, `SegmentedControl<T>`, `ActionSheet`) — all barrel-exported, reuse-or-block for TSK/ORG. Zero direct
+MMKV access in the feature, zero PII logging, no new network surface — the no-backend invariant holds. The app
+now has a real first-run → mandatory setup → Home/Profile flow, in both light and dark, on a persisted profile.
+This is the reference PRO read for TSK/ORG — see patterns-registry.md for the 4 new Tier-1 patterns this module
+established (RHF+Zod form anchor, `Button`+`FormField`, feature-store-hydrates-from-repository, `SegmentedControl`,
+`ActionSheet`, native image-picker), and `docs/context/stack.md` → "Forward spec-gaps from the PRO coherence
+review" for the 5 items TSK/ORG must respect.
+
 ## Layer diagram
 Feature-sliced `mobile/src/`, alias `@/* → mobile/src/*` (`tsconfig.json` `paths` + `babel-plugin-module-resolver`
 in `babel.config.js`):

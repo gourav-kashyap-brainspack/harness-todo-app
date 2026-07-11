@@ -9,8 +9,8 @@
 |---|---|---|---|---|---|---|---|
 | F-001 | Create User Profile | P0 | Profile | PRO | PRO-001 | Profile store + setup form | done |
 | F-002 | Edit User Profile | P0 | Profile | PRO | PRO-002 | Profile view + edit | done |
-| F-003 | Update Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | review |
-| F-004 | Remove Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | review |
+| F-003 | Update Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | done |
+| F-004 | Remove Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | done |
 | F-005 | View User Profile | P0 | Profile | PRO | PRO-002 | Profile view + edit | done |
 | F-006 | Persist Profile Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
 | F-007 | Create Task | P0 | Tasks | TSK | | | mapped |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **17 mapped to a task (9 FND + 4 STG + 4 PRO)** · 0 orphans · **FND and STG modules both DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred for both) — all 9 FND features + all 4 STG features (F-006, F-036, F-037, F-038) `done`. **PRO task-complete, pending merges:** F-001, F-033 (PRO-001) and F-002, F-005 (PRO-002) `done` — PR #10, PR #11 merged; PRO-002 completed OQ-10 (dark-mode toggle). F-003, F-004 (PRO-003 — profile photo) now `review` — PR #12 gate-green (0 fix loops), awaiting human merge-go. **All 6 PRO features task-complete.** Next: merge PR #12 → PRO Module DoD (coherence + first local E2E), then `/module TSK` (unblocked, human sequence preference: PRO before TSK).
+**Coverage:** 48 features · 48 mapped to a module · **19 mapped to a task (9 FND + 4 STG + 6 PRO)** · 0 orphans · **FND, STG, and PRO modules all DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred on all three — PRO's deferral is disk-pressure, not headlessness) — all 9 FND features, all 4 STG features (F-006, F-036, F-037, F-038), and all 6 PRO features (F-001–F-005, F-033) `done`. Next: `/module TSK` (unblocked, human sequence preference PRO-before-TSK now satisfied) — 18 features, the product's core. ORG (11 features) stays blocked on TSK.
 
 ### Per-module coverage
 | Module | Features | IDs |
