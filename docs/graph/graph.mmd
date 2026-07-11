@@ -36,7 +36,15 @@ graph TD
     PRO002 --> PRO003
   end
   subgraph TSK["TSK · Task Management"]
-    TSK_m["18 features · tasks pending /module TSK"]
+    TSK001["TSK-001 · Tasks store + Home list (L) · F-008/042"]
+    TSK002["TSK-002 · Create task + shared TaskForm (M) · F-007/034/035"]
+    TSK003["TSK-003 · Task detail + edit (L) · F-009/010/018/019/040/041"]
+    TSK004["TSK-004 · Lifecycle actions (M) · F-011/012/013/014/015"]
+    TSK005["TSK-005 · Due date picker (M) · F-016/017"]
+    TSK001 --> TSK002
+    TSK002 --> TSK003
+    TSK003 --> TSK004
+    TSK002 --> TSK005
   end
   subgraph ORG["ORG · Search, Filter, Sort"]
     ORG_m["11 features · tasks pending /module ORG"]

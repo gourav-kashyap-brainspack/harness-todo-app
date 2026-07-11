@@ -13,19 +13,19 @@
 | F-004 | Remove Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | done |
 | F-005 | View User Profile | P0 | Profile | PRO | PRO-002 | Profile view + edit | done |
 | F-006 | Persist Profile Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
-| F-007 | Create Task | P0 | Tasks | TSK | | | mapped |
-| F-008 | View Task List | P0 | Tasks | TSK | | | mapped |
-| F-009 | View Task Details | P0 | Tasks | TSK | | | mapped |
-| F-010 | Edit Task | P0 | Tasks | TSK | | | mapped |
-| F-011 | Delete Task | P0 | Tasks | TSK | | | mapped |
-| F-012 | Confirm Task Deletion | P1 | Tasks | TSK | | | mapped |
-| F-013 | Mark Task as Completed | P0 | Tasks | TSK | | | mapped |
-| F-014 | Mark Task as Pending | P0 | Tasks | TSK | | | mapped |
-| F-015 | Duplicate Task | P2 | Tasks | TSK | | | mapped |
-| F-016 | Assign Due Date | P1 | Tasks | TSK | | | mapped |
-| F-017 | Remove Due Date | P2 | Tasks | TSK | | | mapped |
-| F-018 | Display Task Creation Date | P2 | Tasks | TSK | | | mapped |
-| F-019 | Display Last Updated Date | P2 | Tasks | TSK | | | mapped |
+| F-007 | Create Task | P0 | Tasks | TSK | TSK-002 | Create task | ready |
+| F-008 | View Task List | P0 | Tasks | TSK | TSK-001 | Tasks store + Home list | ready |
+| F-009 | View Task Details | P0 | Tasks | TSK | TSK-003 | Task detail + edit | ready |
+| F-010 | Edit Task | P0 | Tasks | TSK | TSK-003 | Task detail + edit | ready |
+| F-011 | Delete Task | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | ready |
+| F-012 | Confirm Task Deletion | P1 | Tasks | TSK | TSK-004 | Lifecycle actions | ready |
+| F-013 | Mark Task as Completed | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | ready |
+| F-014 | Mark Task as Pending | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | ready |
+| F-015 | Duplicate Task | P2 | Tasks | TSK | TSK-004 | Lifecycle actions | ready |
+| F-016 | Assign Due Date | P1 | Tasks | TSK | TSK-005 | Due date | ready |
+| F-017 | Remove Due Date | P2 | Tasks | TSK | TSK-005 | Due date | ready |
+| F-018 | Display Task Creation Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | ready |
+| F-019 | Display Last Updated Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | ready |
 | F-020 | Search Tasks by Title | P0 | Search | ORG | | | mapped |
 | F-021 | Search Tasks by Description | P1 | Search | ORG | | | mapped |
 | F-022 | Real-Time Search | P1 | Search | ORG | | | mapped |
@@ -40,15 +40,15 @@
 | F-031 | Display No Search Results | P1 | UI | ORG | | | mapped |
 | F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | done |
 | F-033 | Display Validation Errors | P0 | Validation | PRO | PRO-001 | Profile store + setup form | done |
-| F-034 | Require Task Title | P0 | Validation | TSK | | | mapped |
-| F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | | | mapped |
+| F-034 | Require Task Title | P0 | Validation | TSK | TSK-002 | Create task | ready |
+| F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | TSK-002 | Create task | ready |
 | F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
 | F-037 | Restore Local Data | P0 | Storage | STG | STG-001 | Typed storage service | done |
 | F-038 | Handle Corrupted Local Data | P1 | Storage | STG | STG-001 | Typed storage service | done |
 | F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | done |
-| F-040 | Navigate to Task Details | P0 | Navigation | TSK | | | mapped |
-| F-041 | Navigate to Edit Task | P0 | Navigation | TSK | | | mapped |
-| F-042 | Pull to Refresh | P2 | Tasks | TSK | | | mapped |
+| F-040 | Navigate to Task Details | P0 | Navigation | TSK | TSK-003 | Task detail + edit | ready |
+| F-041 | Navigate to Edit Task | P0 | Navigation | TSK | TSK-003 | Task detail + edit | ready |
+| F-042 | Pull to Refresh | P2 | Tasks | TSK | TSK-001 | Tasks store + Home list | ready |
 | F-043 | Application Splash Screen | P1 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 | F-044 | First Launch Detection | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 | F-045 | Light Theme (+dark) | P0 | UI | FND | FND-002 | Design system + theming | done |

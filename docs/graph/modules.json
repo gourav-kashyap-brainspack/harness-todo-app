@@ -404,6 +404,107 @@
       "spec": "docs/specs/PRO/PRO-003.spec.md",
       "clickupTaskId": "86d3np2h6",
       "clickupUrl": "https://app.clickup.com/t/86d3np2h6"
+    },
+    {
+      "id": "TSK-001",
+      "module": "TSK",
+      "title": "Tasks store + Home list (FlatList · empty state · FAB · pull-to-refresh)",
+      "featureIds": [
+        "F-008",
+        "F-042"
+      ],
+      "blockedBy": [],
+      "parallelGroup": null,
+      "complexity": "L",
+      "estimate": 8,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/TSK/TSK-001.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "TSK-002",
+      "module": "TSK",
+      "title": "Create task (Add screen + shared TaskForm · title-required · dup-submit guard)",
+      "featureIds": [
+        "F-007",
+        "F-034",
+        "F-035"
+      ],
+      "blockedBy": [
+        "TSK-001"
+      ],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/TSK/TSK-002.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "TSK-003",
+      "module": "TSK",
+      "title": "Task detail + edit (dates · nav to detail/edit · reuse TaskForm)",
+      "featureIds": [
+        "F-009",
+        "F-010",
+        "F-018",
+        "F-019",
+        "F-040",
+        "F-041"
+      ],
+      "blockedBy": [
+        "TSK-002"
+      ],
+      "parallelGroup": null,
+      "complexity": "L",
+      "estimate": 8,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/TSK/TSK-003.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "TSK-004",
+      "module": "TSK",
+      "title": "Lifecycle actions — complete/pending · delete + confirm · duplicate",
+      "featureIds": [
+        "F-011",
+        "F-012",
+        "F-013",
+        "F-014",
+        "F-015"
+      ],
+      "blockedBy": [
+        "TSK-003"
+      ],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/TSK/TSK-004.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "TSK-005",
+      "module": "TSK",
+      "title": "Due date field (date+time picker) — assign + remove",
+      "featureIds": [
+        "F-016",
+        "F-017"
+      ],
+      "blockedBy": [
+        "TSK-002"
+      ],
+      "parallelGroup": "TSK-pg1",
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/TSK/TSK-005.spec.md",
+      "clickupTaskId": ""
     }
   ],
   "openQuestions": []
