@@ -7,7 +7,7 @@
 
 | Feature | Title | Priority | Area | Module | Task | Spec (brief) | Status |
 |---|---|---|---|---|---|---|---|
-| F-001 | Create User Profile | P0 | Profile | PRO | PRO-001 | Profile store + setup form | ready |
+| F-001 | Create User Profile | P0 | Profile | PRO | PRO-001 | Profile store + setup form | review |
 | F-002 | Edit User Profile | P0 | Profile | PRO | PRO-002 | Profile view + edit | ready |
 | F-003 | Update Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | ready |
 | F-004 | Remove Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | ready |
@@ -39,7 +39,7 @@
 | F-030 | Display Empty State | P1 | UI | FND | FND-005 | Shared UI primitives | done |
 | F-031 | Display No Search Results | P1 | UI | ORG | | | mapped |
 | F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | done |
-| F-033 | Display Validation Errors | P0 | Validation | PRO | PRO-001 | Profile store + setup form | ready |
+| F-033 | Display Validation Errors | P0 | Validation | PRO | PRO-001 | Profile store + setup form | review |
 | F-034 | Require Task Title | P0 | Validation | TSK | | | mapped |
 | F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | | | mapped |
 | F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **13 mapped to a task (9 FND + 4 STG)** · 0 orphans · **FND and STG modules both DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred for both) — all 9 FND features + all 4 STG features (F-006, F-036, F-037, F-038) `done`. Next: `/module PRO` and `/module TSK`, both unblocked (human sequence preference: PRO before TSK) — 6 forward spec-gaps from the STG coherence review recorded in `docs/context/stack.md` for that planning.
+**Coverage:** 48 features · 48 mapped to a module · **15 mapped to a task (9 FND + 4 STG + 2 PRO)** · 0 orphans · **FND and STG modules both DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred for both) — all 9 FND features + all 4 STG features (F-006, F-036, F-037, F-038) `done`. **PRO in progress:** F-001, F-033 (PRO-001) now `review` — PR #10 gate-green, awaiting human merge-go. Next: PRO-002/PRO-003 (blocked on PRO-001 merge) and `/module TSK` (unblocked, human sequence preference: PRO before TSK).
 
 ### Per-module coverage
 | Module | Features | IDs |
