@@ -82,6 +82,9 @@ during STG-002's per-task pass (superseded by this consolidated table); d–f ar
 
 Full justification for each lives in `docs/graph/coherence/STG.md` → "Spec-gaps to fix in downstream specs".
 
+## Spec-gap notes (flagged during PRO-002, action for later tasks)
+- **2 non-blocking code-review nits (PRO-002, PR #11, low priority):** (1) `ProfileScreen`'s edit-mode `Save` handler doesn't add the `hasSubmittedRef` double-tap guard the RHF+Zod pattern row specifies (`patterns-registry.md`) — RHF's `isSubmitting` alone is currently enough here since a same-tick double-tap is a benign no-op (idempotent `setProfile` write), but a future form on this pattern with a non-idempotent submit side-effect should keep the guard; (2) `ProfileScreen.test.tsx` doesn't add a dedicated empty-name edge-case test mirroring `Avatar`'s own `getInitials('')` → icon-fallback unit test — `Avatar.test.tsx` already covers the fallback in isolation, so this is missing *screen-level* coverage of that path, not missing coverage overall. Neither blocked PRO-002 (both gate-green, code-review APPROVE). Fold into a future PRO-003/TSK form-hardening pass if a reviewer flags either again.
+
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.
 - **Node:** ≥18 (CI uses 20); **Java:** 17 (Android); **CocoaPods** for iOS.
