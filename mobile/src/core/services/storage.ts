@@ -41,12 +41,15 @@ export const CURRENT_STORAGE_VERSION = 1;
 /**
  * Single source of truth for every persisted key string this service
  * manages. Deliberately empty in STG-001 (the anchor task ships no domain
- * data yet) — STG-002 adds `profile`/`tasks` entries here. Does NOT include
- * FND's `theme.mode` / `app.hasLaunched`: those are FND-owned raw keys this
- * service coexists with on the same MMKV instance, not keys it manages
- * (spec FR5).
+ * data yet) — STG-002 adds the `profile`/`tasks` entries below. Does NOT
+ * include FND's `theme.mode` / `app.hasLaunched`: those are FND-owned raw
+ * keys this service coexists with on the same MMKV instance, not keys it
+ * manages (spec FR5).
  */
-export const StorageKeys = {} as const satisfies Record<string, string>;
+export const StorageKeys = {
+  profile: 'profile',
+  tasks: 'tasks',
+} as const satisfies Record<string, string>;
 
 /**
  * Sentinel returned by `migrate` for an unrecognized/unmigratable envelope
