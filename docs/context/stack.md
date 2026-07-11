@@ -31,6 +31,7 @@ Installed **2026-07-10** by FND-001 (`feat/FND-FND-001`). Sourced from `mobile/p
 | jwt-decode | 4.0.0 | **dormant** |
 | date-fns | 4.4.0 | **dormant** |
 | react-native-keychain | 10.0.0 | **dormant** |
+| react-native-uuid | 2.0.4 | added STG-002, 2026-07-11 — pure-JS RFC4122 v4 uuid generator, no native linking/no `react-native-get-random-values` polyfill required (unlike the `uuid` package). Powers `core/lib/id.ts:newId()`; **`Math.random()`-backed, not a CSPRNG — non-security ids only**, see patterns-registry → "ID generation" |
 
 **Dormant deps** (axios, react-query, jwt-decode, date-fns, keychain): installed for a future cloud-sync phase per OQ-1; must stay unimported by feature code until that phase is scoped.
 
@@ -64,6 +65,15 @@ downstream modules — none blocked FND, all are architect input for the named `
 | e | `react-native-reanimated/plugin` must stay last in `babel.config.js` | STG/TSK spec note | Any new babel plugin/animation work must preserve plugin ordering. |
 
 Full justification for each lives in `docs/graph/coherence/FND.md` → "Spec-gaps to fix in downstream specs".
+
+## Forward contracts for TSK from STG-002 (read before `/module TSK`)
+STG-002 (`core/types/task.ts`, `core/services/taskRepository.ts`) fixes three behaviors TSK's task UI/forms must respect — not blocking, but a TSK spec that ignores them will misuse the repository:
+
+| # | Contract | Why | Detail |
+|---|---|---|---|
+| a | `upsertTask` update = wholesale field replace | `taskRepository.ts:upsertTask` keeps `id`/`createdAt`, bumps `updatedAt`, but replaces `title`/`description`/`status`/`dueDate` wholesale — it does not merge/patch | TSK's edit-task form must submit the full set of business fields on every save, not just the field the user touched, or it will silently wipe the others |
+| b | `Task.dueDate` requires full ISO-8601, not a bare date | `taskSchema.dueDate` is `z.string().datetime()` (same format as `createdAt`/`updatedAt`), not `YYYY-MM-DD` | TSK's date-picker must normalize its selection via `.toISOString()` before calling `upsertTask`, or the Zod-validating write throws |
+| c | `newId()` is non-CSPRNG | `react-native-uuid` is `Math.random()`-backed | Fine for task ids (internal, non-security); do not reuse `newId()` if TSK ever needs a security-sensitive token |
 
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.
