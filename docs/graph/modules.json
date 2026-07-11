@@ -320,6 +320,48 @@
       "doneAt": "2026-07-11",
       "spec": "docs/specs/STG/STG-002.spec.md",
       "clickupTaskId": ""
+    },
+    {
+      "id": "PRO-001",
+      "module": "PRO",
+      "title": "Profile store + RHF/Zod form pattern + Profile Setup (mandatory first-launch)",
+      "featureIds": ["F-001", "F-033"],
+      "blockedBy": [],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/PRO/PRO-001.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "PRO-002",
+      "module": "PRO",
+      "title": "Profile view + edit screen (+ theme toggle)",
+      "featureIds": ["F-005", "F-002"],
+      "blockedBy": ["PRO-001"],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/PRO/PRO-002.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "PRO-003",
+      "module": "PRO",
+      "title": "Profile photo — add / change / remove (image picker + permissions)",
+      "featureIds": ["F-003", "F-004"],
+      "blockedBy": ["PRO-001", "PRO-002"],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/PRO/PRO-003.spec.md",
+      "clickupTaskId": ""
     }
   ],
   "openQuestions": []

@@ -7,11 +7,11 @@
 
 | Feature | Title | Priority | Area | Module | Task | Spec (brief) | Status |
 |---|---|---|---|---|---|---|---|
-| F-001 | Create User Profile | P0 | Profile | PRO | | | mapped |
-| F-002 | Edit User Profile | P0 | Profile | PRO | | | mapped |
-| F-003 | Update Profile Picture | P2 | Profile | PRO | | | mapped |
-| F-004 | Remove Profile Picture | P2 | Profile | PRO | | | mapped |
-| F-005 | View User Profile | P0 | Profile | PRO | | | mapped |
+| F-001 | Create User Profile | P0 | Profile | PRO | PRO-001 | Profile store + setup form | ready |
+| F-002 | Edit User Profile | P0 | Profile | PRO | PRO-002 | Profile view + edit | ready |
+| F-003 | Update Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | ready |
+| F-004 | Remove Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | ready |
+| F-005 | View User Profile | P0 | Profile | PRO | PRO-002 | Profile view + edit | ready |
 | F-006 | Persist Profile Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
 | F-007 | Create Task | P0 | Tasks | TSK | | | mapped |
 | F-008 | View Task List | P0 | Tasks | TSK | | | mapped |
@@ -39,7 +39,7 @@
 | F-030 | Display Empty State | P1 | UI | FND | FND-005 | Shared UI primitives | done |
 | F-031 | Display No Search Results | P1 | UI | ORG | | | mapped |
 | F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | done |
-| F-033 | Display Validation Errors | P0 | Validation | PRO | | | mapped |
+| F-033 | Display Validation Errors | P0 | Validation | PRO | PRO-001 | Profile store + setup form | ready |
 | F-034 | Require Task Title | P0 | Validation | TSK | | | mapped |
 | F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | | | mapped |
 | F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |

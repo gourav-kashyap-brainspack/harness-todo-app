@@ -29,7 +29,11 @@ graph TD
     STG001 --> STG002
   end
   subgraph PRO["PRO · Profile"]
-    PRO_m["6 features · tasks pending /module PRO"]
+    PRO001["PRO-001 · Profile store + RHF/Zod form + Setup (M) · F-001/033"]
+    PRO002["PRO-002 · Profile view+edit + theme toggle (M) · F-005/002"]
+    PRO003["PRO-003 · Profile photo add/change/remove (M) · F-003/004"]
+    PRO001 --> PRO002
+    PRO002 --> PRO003
   end
   subgraph TSK["TSK · Task Management"]
     TSK_m["18 features · tasks pending /module TSK"]
