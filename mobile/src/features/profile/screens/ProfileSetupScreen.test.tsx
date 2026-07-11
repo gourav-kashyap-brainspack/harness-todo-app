@@ -1,7 +1,8 @@
 import React from 'react';
-import {Pressable, Text, TextInput} from 'react-native';
+import {Text, TextInput} from 'react-native';
 import {act, create as createRenderer, type ReactTestRenderer} from 'react-test-renderer';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 import * as profileRepository from '@/core/services/profileRepository';
 import {useLaunchStore} from '@/core/store/launchStore';
@@ -9,6 +10,10 @@ import type {Profile} from '@/core/types/profile';
 
 import {useProfileStore} from '../store/profileStore';
 import {ProfileSetupScreen} from './ProfileSetupScreen';
+
+// PRO-003 adds a second `Pressable` above the form (the avatar photo-field
+// trigger), so `findByType(Pressable)` alone no longer uniquely identifies
+// the submit button — target it by its stable accessibility label instead.
 
 // The repository is the only persistence seam this screen (via the profile
 // store) is allowed to touch — mocked here the same way profileStore.test.ts
@@ -37,6 +42,7 @@ jest.mock('@react-navigation/native', () => {
 });
 
 const mockedSaveProfile = jest.mocked(profileRepository.saveProfile);
+const mockedLaunchImageLibrary = jest.mocked(launchImageLibrary);
 
 function renderScreen(): ReactTestRenderer {
   let tree!: ReactTestRenderer;
@@ -58,7 +64,7 @@ function fillField(tree: ReactTestRenderer, index: 0 | 1, value: string): void {
 }
 
 function pressSubmit(tree: ReactTestRenderer): void {
-  const button = tree.root.findByType(Pressable);
+  const button = tree.root.findByProps({accessibilityLabel: 'Get Started'});
   act(() => {
     button.props.onPress();
   });
@@ -152,7 +158,7 @@ describe('ProfileSetupScreen (PRO-001, FR3/FR4/FR5)', () => {
     fillField(tree, 0, 'Grace Hopper');
     fillField(tree, 1, 'grace@example.com');
 
-    const button = tree.root.findByType(Pressable);
+    const button = tree.root.findByProps({accessibilityLabel: 'Get Started'});
     act(() => {
       button.props.onPress();
       button.props.onPress();
@@ -162,5 +168,30 @@ describe('ProfileSetupScreen (PRO-001, FR3/FR4/FR5)', () => {
     expect(mockedSaveProfile).toHaveBeenCalledTimes(1);
     expect(useLaunchStore.getState().hasLaunched).toBe(true);
     expect(mockDispatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('picking a photo before submit persists it as part of the profile (PRO-003, FR2/FR5)', async () => {
+    mockedLaunchImageLibrary.mockResolvedValueOnce({assets: [{uri: 'file:///setup-photo.jpg'}]});
+    const tree = renderScreen();
+
+    fillField(tree, 0, 'Ada Lovelace');
+    fillField(tree, 1, 'ada@example.com');
+
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Add photo'}).props.onPress();
+    });
+    await act(async () => {
+      tree.root.findByProps({accessibilityLabel: 'Choose from Library'}).props.onPress();
+      await Promise.resolve();
+    });
+
+    pressSubmit(tree);
+    await flushSubmit();
+
+    expect(mockedSaveProfile).toHaveBeenCalledWith({
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+      photo: 'file:///setup-photo.jpg',
+    });
   });
 });

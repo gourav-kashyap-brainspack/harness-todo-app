@@ -14,7 +14,7 @@
       "done": "complete"
     },
     "statusNote": "Workspace now has to do | in progress | complete (in-progress added 2026-07-10).",
-    "mirroredAt": "2026-07-10T11:56:58.749Z",
+    "mirroredAt": "2026-07-11",
     "lists": {
       "FND": "901615807764",
       "STG": "901615807765",
@@ -27,7 +27,12 @@
       "FND-002": "86d3ngnj0",
       "FND-003": "86d3ngnj3",
       "FND-004": "86d3ngnj6",
-      "FND-005": "86d3ngnj8"
+      "FND-005": "86d3ngnj8",
+      "STG-001": "86d3np2gm",
+      "STG-002": "86d3np2gq",
+      "PRO-001": "86d3np2gv",
+      "PRO-002": "86d3np2h3",
+      "PRO-003": "86d3np2h6"
     }
   },
   "modules": [
@@ -48,10 +53,10 @@
         "F-047",
         "F-048"
       ],
-      "summary": "Install & wire the full stack into the RN 0.75 scaffold (NativeWind, React Navigation, Zustand, Zod, RHF, eslint-plugin-boundaries); establish the design system with light+dark theming tokens; bottom-tab + native-stack navigation; splash screen; first-launch detection; offline app shell; responsive layout primitives; shared UI primitives (empty state, loading indicator) and accessibility-label conventions. Anchor module — sets the Tier-1 mechanics for every later module.",
+      "summary": "Install & wire the full stack into the RN 0.75 scaffold (NativeWind, React Navigation, Zustand, Zod, RHF, eslint-plugin-boundaries); establish the design system with light+dark theming tokens; bottom-tab + native-stack navigation; splash screen; first-launch detection; offline app shell; responsive layout primitives; shared UI primitives (empty state, loading indicator) and accessibility-label conventions. Anchor module \u2014 sets the Tier-1 mechanics for every later module.",
       "coherenceChecks": [
-        "Every feature module consumes the shared theme tokens (light+dark) from src/theme — none hardcodes hex colors or rolls its own palette.",
-        "All screens are mounted through the single navigation tree in src/app/navigation — no ad-hoc navigators.",
+        "Every feature module consumes the shared theme tokens (light+dark) from src/theme \u2014 none hardcodes hex colors or rolls its own palette.",
+        "All screens are mounted through the single navigation tree in src/app/navigation \u2014 no ad-hoc navigators.",
         "Shared UI primitives (empty state, loading indicator) live in src/components/ui and are reused, not re-implemented per feature."
       ],
       "status": "done",
@@ -74,9 +79,9 @@
         "F-037",
         "F-038"
       ],
-      "summary": "Local-only persistence layer built on react-native-mmkv (the modern AsyncStorage replacement per OQ-1): a typed storage service, persist/restore of profile + tasks across app restarts, hydration on startup, and graceful recovery from corrupted/invalid local data (Zod-guarded reads, safe fallbacks). Anchor module — establishes the Tier-1 storage/store-hydration pattern that PRO and TSK reuse. No backend, no network.",
+      "summary": "Local-only persistence layer built on react-native-mmkv (the modern AsyncStorage replacement per OQ-1): a typed storage service, persist/restore of profile + tasks across app restarts, hydration on startup, and graceful recovery from corrupted/invalid local data (Zod-guarded reads, safe fallbacks). Anchor module \u2014 establishes the Tier-1 storage/store-hydration pattern that PRO and TSK reuse. No backend, no network.",
       "coherenceChecks": [
-        "Both Profile and Tasks persist through the single MMKV storage service — neither writes to MMKV/AsyncStorage directly or rolls its own persistence.",
+        "Both Profile and Tasks persist through the single MMKV storage service \u2014 neither writes to MMKV/AsyncStorage directly or rolls its own persistence.",
         "Every persisted read is Zod-guarded with a safe fallback, so corrupted local data never crashes startup (F-038).",
         "Zustand stores hydrate from the storage service on startup exactly once, via the shared hydration pattern."
       ],
@@ -103,9 +108,9 @@
         "F-005",
         "F-033"
       ],
-      "summary": "User profile: mandatory first-launch setup (name AND email both required per OQ-2; photo optional per OQ-3), edit profile, view profile, add/change profile photo, remove profile photo, and form validation (RHF + Zod, surfacing validation errors — F-033). One profile per device, persisted locally via the STG service. First module with a form — anchors the RHF+Zod form pattern.",
+      "summary": "User profile: mandatory first-launch setup (name AND email both required per OQ-2; photo optional per OQ-3), edit profile, view profile, add/change profile photo, remove profile photo, and form validation (RHF + Zod, surfacing validation errors \u2014 F-033). One profile per device, persisted locally via the STG service. First module with a form \u2014 anchors the RHF+Zod form pattern.",
       "coherenceChecks": [
-        "Profile forms use the shared RHF + Zod validation pattern (established here) — the same pattern Tasks reuse for task validation.",
+        "Profile forms use the shared RHF + Zod validation pattern (established here) \u2014 the same pattern Tasks reuse for task validation.",
         "Profile persists only through the STG storage service; no direct MMKV access.",
         "Mandatory-setup gating (first launch -> Profile Setup before Home) is driven by the first-launch detection from FND, not a second source of truth."
       ],
@@ -143,9 +148,9 @@
       ],
       "summary": "Core task lifecycle: create, list, view details, edit, delete (with confirmation), mark completed / restore to pending, duplicate; task fields (title required, description, status, optional due date add/remove, creation + last-updated timestamps); navigation to task detail and edit; pull-to-refresh; task validation (require title F-034, prevent duplicate submission F-035). The product's core value module. Reuses the STG store pattern and the PRO form pattern.",
       "coherenceChecks": [
-        "Task validation reuses the shared RHF + Zod form pattern from PRO — it does not roll a second validation approach.",
+        "Task validation reuses the shared RHF + Zod form pattern from PRO \u2014 it does not roll a second validation approach.",
         "Tasks persist only through the STG storage service; the last-updated timestamp is computed in one place and reused (not recomputed per screen).",
-        "Task list/detail/edit screens all read from the single Tasks store slice — no duplicated task state."
+        "Task list/detail/edit screens all read from the single Tasks store slice \u2014 no duplicated task state."
       ],
       "clickupListId": "901615807767"
     },
@@ -170,10 +175,10 @@
         "F-029",
         "F-031"
       ],
-      "summary": "Organize the task list: search by title and description with real-time (as-you-type) results; filter by All / Active / Completed; sort by due date, creation date, alphabetically, and recently updated; no-search-results empty state (F-031). Operates on the Tasks store from TSK — a derived/selector layer over the existing task data, no new persistence.",
+      "summary": "Organize the task list: search by title and description with real-time (as-you-type) results; filter by All / Active / Completed; sort by due date, creation date, alphabetically, and recently updated; no-search-results empty state (F-031). Operates on the Tasks store from TSK \u2014 a derived/selector layer over the existing task data, no new persistence.",
       "coherenceChecks": [
-        "Search/filter/sort are derived selectors over the single Tasks store from TSK — they do not copy or duplicate task data.",
-        "Search applies to the same task collection users see elsewhere (same ownership/visibility rules — trivially all local tasks here).",
+        "Search/filter/sort are derived selectors over the single Tasks store from TSK \u2014 they do not copy or duplicate task data.",
+        "Search applies to the same task collection users see elsewhere (same ownership/visibility rules \u2014 trivially all local tasks here).",
         "The no-results empty state (F-031) reuses the shared empty-state primitive from FND, not a bespoke one."
       ],
       "clickupListId": "901615807768"
@@ -243,7 +248,7 @@
     {
       "id": "FND-004",
       "module": "FND",
-      "title": "App bootstrap — splash · first-launch · offline shell",
+      "title": "App bootstrap \u2014 splash \u00b7 first-launch \u00b7 offline shell",
       "featureIds": [
         "F-043",
         "F-044",
@@ -268,7 +273,7 @@
     {
       "id": "FND-005",
       "module": "FND",
-      "title": "Shared UI primitives — empty state · loader · responsive · a11y",
+      "title": "Shared UI primitives \u2014 empty state \u00b7 loader \u00b7 responsive \u00b7 a11y",
       "featureIds": [
         "F-030",
         "F-032",
@@ -292,8 +297,11 @@
     {
       "id": "STG-001",
       "module": "STG",
-      "title": "Typed storage service (Zod-guarded MMKV · versioned · corrupt-recovery · hydration)",
-      "featureIds": ["F-037", "F-038"],
+      "title": "Typed storage service (Zod-guarded MMKV \u00b7 versioned \u00b7 corrupt-recovery \u00b7 hydration)",
+      "featureIds": [
+        "F-037",
+        "F-038"
+      ],
       "blockedBy": [],
       "parallelGroup": null,
       "complexity": "M",
@@ -303,14 +311,20 @@
       "startedAt": "2026-07-11",
       "doneAt": "2026-07-11",
       "spec": "docs/specs/STG/STG-001.spec.md",
-      "clickupTaskId": ""
+      "clickupTaskId": "86d3np2gm",
+      "clickupUrl": "https://app.clickup.com/t/86d3np2gm"
     },
     {
       "id": "STG-002",
       "module": "STG",
       "title": "Profile + Task persisted schemas & repositories (+ hydration wiring)",
-      "featureIds": ["F-006", "F-036"],
-      "blockedBy": ["STG-001"],
+      "featureIds": [
+        "F-006",
+        "F-036"
+      ],
+      "blockedBy": [
+        "STG-001"
+      ],
       "parallelGroup": null,
       "complexity": "M",
       "estimate": 4,
@@ -319,13 +333,17 @@
       "startedAt": "2026-07-11",
       "doneAt": "2026-07-11",
       "spec": "docs/specs/STG/STG-002.spec.md",
-      "clickupTaskId": ""
+      "clickupTaskId": "86d3np2gq",
+      "clickupUrl": "https://app.clickup.com/t/86d3np2gq"
     },
     {
       "id": "PRO-001",
       "module": "PRO",
       "title": "Profile store + RHF/Zod form pattern + Profile Setup (mandatory first-launch)",
-      "featureIds": ["F-001", "F-033"],
+      "featureIds": [
+        "F-001",
+        "F-033"
+      ],
       "blockedBy": [],
       "parallelGroup": null,
       "complexity": "M",
@@ -335,14 +353,20 @@
       "startedAt": "2026-07-11",
       "doneAt": "2026-07-11",
       "spec": "docs/specs/PRO/PRO-001.spec.md",
-      "clickupTaskId": ""
+      "clickupTaskId": "86d3np2gv",
+      "clickupUrl": "https://app.clickup.com/t/86d3np2gv"
     },
     {
       "id": "PRO-002",
       "module": "PRO",
       "title": "Profile view + edit screen (+ theme toggle)",
-      "featureIds": ["F-005", "F-002"],
-      "blockedBy": ["PRO-001"],
+      "featureIds": [
+        "F-005",
+        "F-002"
+      ],
+      "blockedBy": [
+        "PRO-001"
+      ],
       "parallelGroup": null,
       "complexity": "M",
       "estimate": 4,
@@ -351,21 +375,30 @@
       "startedAt": "2026-07-11",
       "doneAt": "2026-07-11",
       "spec": "docs/specs/PRO/PRO-002.spec.md",
-      "clickupTaskId": ""
+      "clickupTaskId": "86d3np2h3",
+      "clickupUrl": "https://app.clickup.com/t/86d3np2h3"
     },
     {
       "id": "PRO-003",
       "module": "PRO",
-      "title": "Profile photo — add / change / remove (image picker + permissions)",
-      "featureIds": ["F-003", "F-004"],
-      "blockedBy": ["PRO-001", "PRO-002"],
+      "title": "Profile photo \u2014 add / change / remove (image picker + permissions)",
+      "featureIds": [
+        "F-003",
+        "F-004"
+      ],
+      "blockedBy": [
+        "PRO-001",
+        "PRO-002"
+      ],
       "parallelGroup": null,
       "complexity": "M",
       "estimate": 4,
       "dynamicWorkflow": false,
-      "status": "ready",
+      "status": "review",
+      "startedAt": "2026-07-11",
       "spec": "docs/specs/PRO/PRO-003.spec.md",
-      "clickupTaskId": ""
+      "clickupTaskId": "86d3np2h6",
+      "clickupUrl": "https://app.clickup.com/t/86d3np2h6"
     }
   ],
   "openQuestions": []

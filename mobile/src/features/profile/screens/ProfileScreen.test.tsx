@@ -1,7 +1,8 @@
 import React from 'react';
-import {TextInput} from 'react-native';
+import {Image, TextInput} from 'react-native';
 import {act, create as createRenderer, type ReactTestRenderer} from 'react-test-renderer';
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 import * as profileRepository from '@/core/services/profileRepository';
 import {useThemeStore} from '@/core/store/themeStore';
@@ -30,6 +31,7 @@ jest.mock('@react-navigation/native', () => {
 });
 
 const mockedSaveProfile = jest.mocked(profileRepository.saveProfile);
+const mockedLaunchImageLibrary = jest.mocked(launchImageLibrary);
 const initialThemeState = useThemeStore.getState();
 
 const PROFILE: Profile = {name: 'Ada Lovelace', email: 'ada@example.com'};
@@ -170,6 +172,75 @@ describe('ProfileScreen (PRO-002, FR1/FR2/FR3/FR4)', () => {
     expect(mockedSaveProfile).not.toHaveBeenCalled();
     expect(useProfileStore.getState().profile).toEqual(PROFILE);
     expect(tree.root.findByProps({children: 'Ada Lovelace'})).toBeTruthy();
+  });
+
+  it('picking a photo in edit mode shows it on the avatar and persists it on Save (PRO-003, FR2/FR5)', async () => {
+    mockedLaunchImageLibrary.mockResolvedValueOnce({assets: [{uri: 'file:///edit-photo.jpg'}]});
+    const tree = renderScreen();
+
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Edit profile'}).props.onPress();
+    });
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Add photo'}).props.onPress();
+    });
+    await act(async () => {
+      tree.root.findByProps({accessibilityLabel: 'Choose from Library'}).props.onPress();
+      await Promise.resolve();
+    });
+
+    expect(tree.root.findByType(Image).props.source).toEqual({uri: 'file:///edit-photo.jpg'});
+
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Save'}).props.onPress();
+    });
+    await flushSubmit();
+
+    expect(mockedSaveProfile).toHaveBeenCalledWith({
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+      photo: 'file:///edit-photo.jpg',
+    });
+  });
+
+  it('Remove clears the photo on Save; Cancel after Remove discards the change (PRO-003, FR3)', async () => {
+    useProfileStore.setState({profile: {...PROFILE, photo: 'file:///existing.jpg'}});
+    const tree = renderScreen();
+
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Edit profile'}).props.onPress();
+    });
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Change photo'}).props.onPress();
+    });
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Remove photo'}).props.onPress();
+    });
+
+    // Cancel discards the in-progress removal — the persisted photo is untouched.
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Cancel'}).props.onPress();
+    });
+    expect(mockedSaveProfile).not.toHaveBeenCalled();
+    expect(useProfileStore.getState().profile?.photo).toBe('file:///existing.jpg');
+
+    // Re-open, remove again, and this time Save.
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Edit profile'}).props.onPress();
+    });
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Change photo'}).props.onPress();
+    });
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Remove photo'}).props.onPress();
+    });
+    act(() => {
+      tree.root.findByProps({accessibilityLabel: 'Save'}).props.onPress();
+    });
+    await flushSubmit();
+
+    expect(mockedSaveProfile).toHaveBeenCalledWith({name: 'Ada Lovelace', email: 'ada@example.com', photo: undefined});
+    expect(useProfileStore.getState().profile?.photo).toBeUndefined();
   });
 
   it('the theme segmented control renders the current mode, and selecting Dark calls setMode (FR3/FR4)', () => {

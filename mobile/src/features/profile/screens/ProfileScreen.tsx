@@ -9,6 +9,7 @@ import {Avatar, Button, EmptyState, FormField, Screen, SegmentedControl} from '@
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme, type ThemeMode} from '@/theme';
 import {profileSchema, type Profile} from '@/core/types/profile';
 
+import {AvatarPhotoField} from '../components/AvatarPhotoField';
 import {useProfileStore} from '../store/profileStore';
 
 const DEFAULT_VALUES: Profile = {name: '', email: ''};
@@ -69,6 +70,11 @@ export function ProfileScreen(): React.JSX.Element {
   const profile = useProfileStore(state => state.profile);
   const setProfile = useProfileStore(state => state.setProfile);
   const [isEditing, setIsEditing] = useState(false);
+  // Same "local state until this screen's own Save persists it" shape the
+  // form fields already use (via `reset`) — seeded from the current profile
+  // on entering edit mode, discarded on Cancel, merged into `setProfile` on
+  // a valid Save (PRO-003, FR2/FR3).
+  const [photo, setPhoto] = useState<string | undefined>(profile?.photo);
   const emailInputRef = useRef<TextInput>(null);
 
   const {
@@ -89,15 +95,17 @@ export function ProfileScreen(): React.JSX.Element {
 
   function startEditing(): void {
     reset(profile ?? DEFAULT_VALUES);
+    setPhoto(profile?.photo);
     setIsEditing(true);
   }
 
   function cancelEditing(): void {
+    setPhoto(profile?.photo);
     setIsEditing(false);
   }
 
   function onValid(data: Profile): void {
-    setProfile(data);
+    setProfile({...data, photo});
     setIsEditing(false);
   }
 
@@ -135,7 +143,11 @@ export function ProfileScreen(): React.JSX.Element {
         ) : null}
 
         <View className="items-center gap-2">
-          <Avatar name={profile.name} size="lg" />
+          {isEditing ? (
+            <AvatarPhotoField name={profile.name} photoUri={photo} onPhotoChange={setPhoto} size="lg" />
+          ) : (
+            <Avatar name={profile.name} photoUri={profile.photo} size="lg" />
+          )}
           {!isEditing ? (
             <>
               <Text className="text-xl font-semibold text-text">{profile.name}</Text>
