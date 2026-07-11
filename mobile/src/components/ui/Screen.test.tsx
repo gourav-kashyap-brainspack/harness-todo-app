@@ -70,6 +70,18 @@ describe('Screen', () => {
     expect(scrollView.props.contentContainerClassName).toBe('flex-grow');
   });
 
+  it('makes the scroll-mode ScrollView keyboard-aware by default (PRO-001 code review — a nested KeyboardAvoidingView is inert here)', () => {
+    const tree = createRenderer(
+      <Screen scroll>
+        <Text>content</Text>
+      </Screen>,
+    );
+
+    const scrollView = tree.root.findByType(ScrollView);
+    expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
+    expect(scrollView.props.automaticallyAdjustKeyboardInsets).toBe(true);
+  });
+
   // NativeWind's Metro CSS transform (what actually resolves `sm:max-w-2xl`
   // to a concrete width per viewport) does not run under Jest — see
   // jest/cssMock.js. So the responsive *resolution* is NativeWind's own

@@ -50,7 +50,7 @@ describe('BootstrapScreen (FND-004 — Splash route boot sequence)', () => {
       jest.runOnlyPendingTimers();
     });
 
-    expect(tree.root.findByProps({accessibilityLabel: 'Profile Setup'})).toBeTruthy();
+    expect(tree.root.findByProps({accessibilityLabel: 'Welcome to Todo App'})).toBeTruthy();
   });
 
   it('hasLaunched=true routes to Tabs (Home)', () => {
@@ -73,7 +73,7 @@ describe('BootstrapScreen (FND-004 — Splash route boot sequence)', () => {
       act(() => {
         jest.runOnlyPendingTimers();
       });
-      expect(tree.root.findByProps({accessibilityLabel: 'Profile Setup'})).toBeTruthy();
+      expect(tree.root.findByProps({accessibilityLabel: 'Welcome to Todo App'})).toBeTruthy();
     }).not.toThrow();
   });
 

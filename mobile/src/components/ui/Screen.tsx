@@ -42,7 +42,23 @@ export function Screen({
   return (
     <SafeAreaView edges={edges} className={safeAreaClassName}>
       {scroll ? (
-        <ScrollView className={CONTENT_CLASS_NAME} contentContainerClassName="flex-grow">
+        <ScrollView
+          className={CONTENT_CLASS_NAME}
+          contentContainerClassName="flex-grow"
+          // Keyboard-aware by default (PRO-001 code review) — a
+          // `KeyboardAvoidingView` nested INSIDE this ScrollView is inert
+          // (the ScrollView already owns scrolling), so a scrollable form
+          // screen relies on the ScrollView's own keyboard handling
+          // instead: `keyboardShouldPersistTaps="handled"` lets a tap on
+          // another field/the submit button register without first
+          // needing a second tap to dismiss the keyboard, and
+          // `automaticallyAdjustKeyboardInsets` (iOS; a no-op on Android)
+          // keeps the focused input/submit control clear of the keyboard
+          // without a manual KeyboardAvoidingView. Every scroll-mode
+          // screen gets this for free — a form screen (PRO/TSK) doesn't
+          // need to re-solve it.
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets>
           {children}
         </ScrollView>
       ) : (

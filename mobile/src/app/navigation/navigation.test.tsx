@@ -53,14 +53,16 @@ describe('navigation shell (FND-003)', () => {
     // screen to find. Routing correctness (fresh install -> ProfileSetup,
     // `hasLaunched` -> Tabs) is covered in BootstrapScreen.test.tsx; this
     // test only guards that the stack still starts from `Splash` and boots
-    // to *some* landed screen without hanging or crashing.
+    // to *some* landed screen without hanging or crashing. `ProfileSetup`
+    // now renders the real PRO-001 screen (its welcome heading), not the
+    // FND-003 placeholder.
     const {tree} = renderRootNavigator();
 
     act(() => {
       jest.runOnlyPendingTimers();
     });
 
-    expect(tree.root.findByProps({accessibilityLabel: 'Profile Setup'})).toBeTruthy();
+    expect(tree.root.findByProps({accessibilityLabel: 'Welcome to Todo App'})).toBeTruthy();
   });
 
   it('navigating to Tabs shows the Home and Profile tab labels', () => {
@@ -97,14 +99,14 @@ describe('navigation shell (FND-003)', () => {
     expect(detailNode).toBeTruthy();
   });
 
-  it('pushes ProfileSetup and AddTask (undefined-param stub screens)', () => {
+  it('pushes ProfileSetup (real PRO-001 screen) and AddTask (still an undefined-param stub screen)', () => {
     const {tree, ref} = renderRootNavigator();
 
     act(() => {
       ref.current?.navigate('ProfileSetup');
       jest.runOnlyPendingTimers();
     });
-    expect(tree.root.findByProps({accessibilityLabel: 'Profile Setup'})).toBeTruthy();
+    expect(tree.root.findByProps({accessibilityLabel: 'Welcome to Todo App'})).toBeTruthy();
 
     act(() => {
       ref.current?.navigate('AddTask');

@@ -12,12 +12,16 @@ import {PlaceholderScreen} from './PlaceholderScreen';
  * `Splash` is the first swap (FND-004) — re-exported here (rather than
  * defined inline like the stubs below) because it now carries real boot
  * logic + its own test file; see `BootstrapScreen.tsx`.
+ *
+ * `ProfileSetup` is the second swap (PRO-001) — re-exported the same way
+ * from the feature module (`app -> features` is an allowed boundary
+ * direction; the reverse is not, which is why the screen itself uses plain
+ * `useNavigation()` rather than this file's `useAppNavigation` helper).
+ * `RootNavigator`'s wiring never changes — it still only imports
+ * `ProfileSetupScreen` from this barrel.
  */
 export {BootstrapScreen as SplashScreen} from './BootstrapScreen';
-
-export function ProfileSetupScreen(): React.JSX.Element {
-  return <PlaceholderScreen name="Profile Setup" />;
-}
+export {ProfileSetupScreen} from '@/features/profile/screens/ProfileSetupScreen';
 
 export function HomeScreen(): React.JSX.Element {
   return <PlaceholderScreen name="Home" />;
