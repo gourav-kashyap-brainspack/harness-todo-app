@@ -1,5 +1,5 @@
-import React from 'react';
-import {Text, View} from 'react-native';
+import React, {useState} from 'react';
+import {Image, Text, View} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
@@ -8,6 +8,16 @@ export type AvatarSize = 'md' | 'lg';
 
 export interface AvatarProps {
   name: string;
+  /**
+   * PRO-003, F-003/F-004 — an optional local device file uri. When present
+   * (and loadable) an `Image` fills the chip in place of initials/icon; a
+   * broken/missing file (`onError`) falls back to the initials/icon chip
+   * rather than a broken-image box (spec FR5 — "treat a missing/deleted
+   * file defensively in the view"). Only ever a uri STRING — the caller
+   * (`profileStore` -> `profileRepository`) persists that string, never
+   * image bytes; this component never reads/writes storage itself.
+   */
+  photoUri?: string;
   size?: AvatarSize;
 }
 
@@ -60,11 +70,11 @@ function getInitials(name: string): string {
  * the accessibility tree the same way `EmptyState`'s icon chip is
  * (design-system.md → Component inventory → `Avatar`).
  *
- * PRO-003 will extend this with a `photoUri?: string` prop (renders an
- * `Image` filling the chip when present) — not stubbed here to avoid an
- * unused prop today.
+ * PRO-003 extends this with the `photoUri` prop above (renders an `Image`
+ * filling the chip when present, falling back to initials/icon on a load
+ * error) — one Avatar primitive, never a second fork for the photo case.
  */
-export function Avatar({name, size = 'lg'}: AvatarProps): React.JSX.Element {
+export function Avatar({name, photoUri, size = 'lg'}: AvatarProps): React.JSX.Element {
   const {resolvedScheme} = useTheme();
   const initials = getInitials(name);
   // Feather renders a native Text glyph — its `color` prop needs a resolved
@@ -73,12 +83,39 @@ export function Avatar({name, size = 'lg'}: AvatarProps): React.JSX.Element {
   // fresh hardcoded hex).
   const iconColor = rgbFromTriplet(NATIVE_CHROME_RGB[resolvedScheme].primary);
 
+  // A photo `Image` can fail to load (the device file was deleted/moved
+  // since the uri was persisted) — `onError` flips this so the render falls
+  // back to the initials/icon chip instead of a broken-image box (FR5).
+  // Re-armed whenever `photoUri` itself changes, so swapping in a fresh
+  // photo after a previous failure (or after Remove -> Add again) gets a
+  // clean attempt rather than being stuck on the old failure. Deliberately
+  // NOT a `useEffect` keyed on `photoUri` — that would reset the flag on a
+  // POST-commit pass, one render behind an `onError` that lands in the same
+  // update; tracking the last-seen uri and adjusting state during render
+  // (React's documented pattern for "reset state when a prop changes")
+  // applies the reset in the same render instead.
+  const [imageFailed, setImageFailed] = useState(false);
+  const [lastPhotoUri, setLastPhotoUri] = useState(photoUri);
+  if (photoUri !== lastPhotoUri) {
+    setLastPhotoUri(photoUri);
+    setImageFailed(false);
+  }
+
+  const showPhoto = Boolean(photoUri) && !imageFailed;
+
   return (
     <View
-      className={`items-center justify-center rounded-full bg-primary/10 ${SIZE_CLASS_NAMES[size]}`}
+      className={`items-center justify-center overflow-hidden rounded-full bg-primary/10 ${SIZE_CLASS_NAMES[size]}`}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants">
-      {initials ? (
+      {showPhoto ? (
+        <Image
+          source={{uri: photoUri}}
+          onError={() => setImageFailed(true)}
+          resizeMode="cover"
+          className={`rounded-full ${SIZE_CLASS_NAMES[size]}`}
+        />
+      ) : initials ? (
         <Text className={INITIALS_TEXT_CLASS_NAMES[size]}>{initials}</Text>
       ) : (
         <Feather name="user" size={ICON_SIZES[size]} color={iconColor} />

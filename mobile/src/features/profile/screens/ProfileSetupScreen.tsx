@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {Text, TextInput, View} from 'react-native';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import {Controller, useForm} from 'react-hook-form';
@@ -8,6 +8,7 @@ import {Button, FormField, Screen} from '@/components/ui';
 import {useLaunchStore} from '@/core/store/launchStore';
 import {profileSchema, type Profile} from '@/core/types/profile';
 
+import {AvatarPhotoField} from '../components/AvatarPhotoField';
 import {useProfileStore} from '../store/profileStore';
 
 const DEFAULT_VALUES: Profile = {name: '', email: ''};
@@ -54,16 +55,23 @@ export function ProfileSetupScreen(): React.JSX.Element {
   // reset to `false` again), which is correct — a screen that has
   // completed setup navigates away and unmounts.
   const hasSubmittedRef = useRef(false);
+  // Photo is optional (F-003) and isn't a validated text field, so it's kept
+  // as local state rather than an RHF `Controller` — merged into the
+  // payload on submit, same "local state until the screen's own save"
+  // shape `ProfileScreen`'s edit mode uses (PRO-003).
+  const [photo, setPhoto] = useState<string | undefined>(undefined);
 
   const {
     control,
     handleSubmit,
+    watch,
     formState: {errors, isSubmitting},
   } = useForm<Profile>({
     resolver: zodResolver(profileSchema),
     defaultValues: DEFAULT_VALUES,
     mode: 'onBlur',
   });
+  const nameValue = watch('name');
 
   function onValid(data: Profile): void {
     if (hasSubmittedRef.current) {
@@ -71,7 +79,7 @@ export function ProfileSetupScreen(): React.JSX.Element {
     }
     hasSubmittedRef.current = true;
 
-    setProfile(data);
+    setProfile({...data, photo});
     setHasLaunched();
 
     navigation.dispatch(CommonActions.reset({index: 0, routes: [{name: 'Tabs'}]}));
@@ -93,6 +101,8 @@ export function ProfileSetupScreen(): React.JSX.Element {
             Tell us your name and email to get started.
           </Text>
         </View>
+
+        <AvatarPhotoField name={nameValue} photoUri={photo} onPhotoChange={setPhoto} size="lg" />
 
         <Controller
           control={control}

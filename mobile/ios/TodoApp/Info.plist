@@ -34,6 +34,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSCameraUsageDescription</key>
+	<string>Todo App uses your camera to take a profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Todo App uses your photo library so you can choose a profile photo.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>BootSplash</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -1,3 +1,4 @@
+export {ActionSheet, type ActionSheetOption, type ActionSheetProps} from './ActionSheet';
 export {Avatar, type AvatarProps, type AvatarSize} from './Avatar';
 export {Button, type ButtonProps} from './Button';
 export {EmptyState, type EmptyStateAction, type EmptyStateProps, type FeatherIconName} from './EmptyState';

@@ -39,3 +39,18 @@ jest.mock('react-native-bootsplash', () => ({
     })),
   },
 }));
+
+// react-native-image-picker (PRO-003) calls through to
+// `NativeModules.ImagePicker`, which is unregistered under Jest (no real
+// native bridge) — an unmocked `launchCamera`/`launchImageLibrary` call
+// throws `Cannot read properties of undefined`. Mocked globally for the
+// same reason as the two mocks above: ANY test that mounts
+// `AvatarPhotoField` (both Profile screens, post PRO-003) must be safe by
+// default, not just the test file that happens to press "Take Photo".
+// Defaults to `{didCancel: true}` (a safe no-op); individual tests override
+// the resolved value per call via
+// `jest.mocked(launchCamera).mockResolvedValueOnce(...)`.
+jest.mock('react-native-image-picker', () => ({
+  launchCamera: jest.fn(() => Promise.resolve({didCancel: true})),
+  launchImageLibrary: jest.fn(() => Promise.resolve({didCancel: true})),
+}));
