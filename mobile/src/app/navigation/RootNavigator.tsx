@@ -30,9 +30,10 @@ export function RootNavigator(): React.JSX.Element {
   return (
     <Stack.Navigator initialRouteName="Splash" screenOptions={{headerShown: false}}>
       <Stack.Screen name="Splash" component={SplashScreen} />
-      {/* headerShown:false inherited from screenOptions — ProfileSetup is a
-          first-launch placeholder with no back target, so no header/title
-          is rendered (a `title` here would be dead per code review). */}
+      {/* headerShown:false inherited from screenOptions — ProfileSetup (the
+          real PRO-001 screen since PRO-001) is a mandatory first-launch
+          screen with no back target, so no header/title is rendered (a
+          `title` here would be dead per code review). */}
       <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
       <Stack.Screen name="Tabs" component={TabNavigator} />
       <Stack.Screen

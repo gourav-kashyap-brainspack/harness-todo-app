@@ -50,8 +50,8 @@ in `babel.config.js`):
 - `src/app/` — composition root: `AppProviders.tsx` (see Tier-1 pattern below); `navigation/` now live (FND-003, see below).
 - `src/core/{api,config,hooks,lib,services,store,types}` — cross-feature primitives. Only `core/lib` has real content
   (`constants.ts` + barrel); the rest are `.gitkeep` scaffolds awaiting their owning task.
-- `src/features/` — empty scaffold; first feature slice lands post-FND.
-- `src/components/ui/` — **live (FND-005).** `EmptyState`, `LoadingIndicator`, `Screen` (barrel `@/components/ui`) — see below. `src/platform/`, `src/theme/` — `theme/` live (FND-002/003); `platform/` still an empty scaffold.
+- `src/features/` — **live (PRO-001, PR #10 pending merge).** `features/profile` is the app's first feature slice: `store/profileStore.ts` (Zustand, hydrates from `profileRepository`) + `screens/ProfileSetupScreen.tsx` (the mandatory first-launch form). `features/tasks` still an empty scaffold, lands with TSK.
+- `src/components/ui/` — **live (FND-005, extended PRO-001).** `EmptyState`, `LoadingIndicator`, `Screen` (FND-005) + `Button`, `FormField` (PRO-001, barrel `@/components/ui`) — see below. `src/platform/`, `src/theme/` — `theme/` live (FND-002/003); `platform/` still an empty scaffold.
 
 **Enforced import direction:** `app → features → core|components|theme|platform`; no cross-feature imports (same-feature
 siblings allowed). Enforced by `eslint-plugin-boundaries` in `mobile/.eslintrc.js` (`--max-warnings=0` gate — a
@@ -79,14 +79,14 @@ _(to be filled — dormant until the API client is wired; no hooks exist yet.)_
 
 Route set (`RootStackParamList`):
 - `Splash` — initial route; **`BootstrapScreen` (FND-004)** — routes to `ProfileSetup`/`Tabs` based on the `app.hasLaunched` MMKV flag, see patterns-registry → "App bootstrap / first-launch seam".
-- `ProfileSetup` — first-launch route; placeholder, built out in **PRO** (which also owns the `setHasLaunched()` write once setup completes — FND-004 only reads the flag).
+- `ProfileSetup` — first-launch route; **now the real `ProfileSetupScreen` (PRO-001, PR #10 pending merge)**, replacing the FND-003 placeholder — Name+Email form (RHF+Zod), on valid submit persists via `profileStore`/`profileRepository` then calls `setHasLaunched()` (the single first-launch writer — FND-004 only reads the flag) and resets navigation to `Tabs`.
 - `Tabs` — the bottom-tab navigator (`TabParamList`: `Home`, `Profile`), both placeholders; **Home** built out in **TSK**, **Profile** in **PRO**.
 - `AddTask` (`undefined`), `EditTask` (`{taskId}`), `TaskDetail` (`{taskId}`) — pushed stack screens, headers shown with real titles; placeholders, built out in **TSK**.
 
 Typed-navigation, nav-theming, themed-StatusBar, and placeholder/jest-setup patterns are now Tier-1 — see patterns-registry.md. No deep-linking config wired (spec: none in MVP; shape supports adding one later without restructuring).
 
 ## src/components/ui — shared presentational primitives
-**Live (FND-005).** `EmptyState` (F-030), `LoadingIndicator` (F-032), `Screen`/`Container` (F-046) — the a11y baseline (F-047) is baked into all three (roles/labels, ≥48dp targets, `fontScale`-safe). **Reuse contract:** features import via `@/components/ui`; re-implementing any of the three is a `[blocking]` code-review finding (ORG's F-031 reuses `EmptyState`, TSK's F-042 reuses `LoadingIndicator` — see patterns-registry). Native-only color props (`ActivityIndicator`/icon `color`) resolve from `src/theme/nativeChromeColors.ts`, the same source `TabNavigator`/`ThemeProvider` already use — see patterns-registry.
+**Live (FND-005, extended PRO-001).** `EmptyState` (F-030), `LoadingIndicator` (F-032), `Screen`/`Container` (F-046) from FND-005 — the a11y baseline (F-047) is baked into all three (roles/labels, ≥48dp targets, `fontScale`-safe). PRO-001 adds `Button` (primary CTA, `disabled`/`loading` states) and `FormField` (label+input+inline-error, F-033) — the Tier-1 form-UI pair every RHF+Zod form (TSK included) reuses. `Screen`'s `scroll` mode is now keyboard-aware by default (`keyboardShouldPersistTaps`/`automaticallyAdjustKeyboardInsets`, added for PRO-001's form). **Reuse contract:** features import via `@/components/ui`; re-implementing any of the five is a `[blocking]` code-review finding (ORG's F-031 reuses `EmptyState`, TSK's F-042 reuses `LoadingIndicator` — see patterns-registry). Native-only color props (`ActivityIndicator`/icon `color`) resolve from `src/theme/nativeChromeColors.ts`, the same source `TabNavigator`/`ThemeProvider`/`FormField`'s error icon already use — see patterns-registry.
 
 ## src/platform — native-bridge adapters
 _(to be filled — empty scaffold. `react-native-mmkv@2.12.2` (v2, old-arch) is consumed by `core/services/storage.ts` (STG-001, see above), not from here. `react-native-keychain` installed dormant.)_

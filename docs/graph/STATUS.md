@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** FND + STG done. **PRO planned** (3 tasks, specs `ready`) — the first module with screens+forms. Next: `/build PRO-001`.
+**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** FND + STG done. **PRO in progress** — PRO-001 gate-green, PR #10 `review` (awaiting human merge-go). Next: merge PR #10, then `/build PRO-002`.
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -17,7 +17,7 @@
 |---|---|---|---|---|---|
 | 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 (5 done) | — | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 done) | FND ✅ | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
-| 3 | **PRO** — Profile | 6 | 3 planned | FND ✅, STG ✅ | 🔵 **ready to build** — `/build PRO-001` |
+| 3 | **PRO** — Profile | 6 | 3 planned (1 review) | FND ✅, STG ✅ | 🟡 **in progress** — PRO-001 PR #10 review, awaiting merge-go |
 | 4 | **TSK** — Task Management | 18 | — | FND ✅, STG ✅ | 🔵 **ready** — `/module TSK` unblocked; technically parallel with PRO, sequenced after per human preference |
 | 5 | **ORG** — Search, Filter, Sort | 11 | — | TSK | ⚪ blocked |
 
@@ -50,11 +50,11 @@
 
 | Task | Title | Feat. | Cplx | Est | blockedBy | Status |
 |---|---|---|---|---|---|---|
-| **PRO-001** ⚓ | Profile store + RHF/Zod form pattern + Profile Setup (mandatory first-launch) | F-001, F-033 | M | 4h | — | 🔵 ready |
-| **PRO-002** | Profile view + edit screen (+ theme toggle) | F-005, F-002 | M | 4h | PRO-001 | ⚪ blocked |
+| **PRO-001** ⚓ | Profile store + RHF/Zod form pattern + Profile Setup (mandatory first-launch) | F-001, F-033 | M | 4h | — | 🟡 review — PR #10, gates green, awaiting human merge-go |
+| **PRO-002** | Profile view + edit screen (+ theme toggle) | F-005, F-002 | M | 4h | PRO-001 | ⚪ blocked-on-PRO-001-merge |
 | **PRO-003** | Profile photo — add/change/remove (image picker + permissions) | F-003, F-004 | M | 4h | PRO-001, PRO-002 | ⚪ blocked |
 
-**Critical path:** PRO-001 → PRO-002 → PRO-003 (≈12h). **First runnable:** 🔵 **PRO-001** (the form-pattern + profile-store anchor).
-**PRO decisions:** photo via react-native-image-picker (gallery+camera, PRO-003) · theme toggle on Profile screen (PRO-002, completes OQ-10) · name+email both editable · mandatory setup, no skip. **Applies STG gaps e/f:** PRO-001 calls `setHasLaunched()` on setup-complete; all forms validate at the boundary (RHF+zodResolver) so repo saves never hit their throw path. PRO-003 is native-surface (image-picker + permissions → local build decisive; MERGE_WAIT_FOR_CI=on).
+**Critical path:** PRO-001 → PRO-002 → PRO-003 (≈12h). PRO-001 built + gate-green (design→implement→1 polish loop); **next runnable once PR #10 merges:** 🔵 **PRO-002**.
+**PRO decisions:** photo via react-native-image-picker (gallery+camera, PRO-003) · theme toggle on Profile screen (PRO-002, completes OQ-10) · name+email both editable · mandatory setup, no skip. **Applies STG gaps e/f — both now RESOLVED for PRO:** PRO-001 calls `setHasLaunched()` on setup-complete (gap e closed); form-boundary validation via RHF+zodResolver established as the Tier-1 pattern (gap f closed for PRO, TSK still to apply it). PRO-003 is native-surface (image-picker + permissions → local build decisive; MERGE_WAIT_FOR_CI=on).
 
-**Next:** `/build PRO-001`.
+**Next:** merge PR #10, then `/build PRO-002`.
