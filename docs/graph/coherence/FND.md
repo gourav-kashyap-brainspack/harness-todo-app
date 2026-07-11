@@ -43,8 +43,15 @@ Android: only RN-default `INTERNET`; the one `exported=true` is `MainActivity` (
 ## Forward authz note (security-reviewer)
 FND leaves a clean seam (single on-device profile, no login/AuthGate, no network). Two to watch downstream: (a) when STG activates the network layer, wire auth centrally in the `core/api` axios interceptor (per conventions), not per-call; (b) any sensitive profile field goes to `react-native-keychain`, NOT MMKV — keep MMKV = non-sensitive cache.
 
-## E2E gate (behavioral half of Module DoD) — ⏳ PENDING
-The coherence review is the **structural** lens. The sibling **local E2E gate** (`e2e-automator`, Maestro on emulator, local-only) has **not run** — `mobile/.maestro/` has no flows yet. Flows to author: fresh-launch → Profile Setup; returning (`hasLaunched=true`) → Home; offline (airplane-mode) cold start; tab switch Home↔Profile. **The FND module is DONE only when BOTH this coherence PASS ∧ local E2E green ∧ human integration go.**
+## E2E gate (behavioral half of Module DoD) — ⏭️ DEFERRED (human decision, 2026-07-11)
+The coherence review is the **structural** lens. The sibling **local E2E gate** (`e2e-automator`, Maestro on emulator, local-only) was **deferred by explicit human decision** at the FND integration go — `mobile/.maestro/` has no flows yet, and the app has few end-to-end-testable surfaces until PRO/TSK add real screens (FND's routes are placeholders).
+
+**Flows to author when E2E lands** (at the first end-to-end-testable point, e.g. after PRO/TSK): fresh-launch → Profile Setup; returning (`hasLaunched=true`) → Home; offline (airplane-mode) cold start reaches entry screen; tab switch Home↔Profile. Anchor on visible text (`^Home$`/`^Profile$`, Profile-setup heading); no `clearState`.
+
+**DoD note:** FND declared **done** on **coherence PASS + all per-task gates green + human integration go**, with the local E2E gate **explicitly deferred** (recorded here + `e2eStatus: deferred` in `modules.json`). The full E2E suite remains a **mandatory local gate before any `development → main` release** regardless of this per-module deferral.
+
+## Integration go
+✅ **Human integration go given 2026-07-11.** FND module = **DONE** (`status: done`, `coherenceStatus: pass`, `e2eStatus: deferred`).
 
 ---
-_Structural verdict recorded by the coherence-review skill. E2E verdict + `## Visual` subsection to be appended when the local E2E gate runs._
+_Structural verdict by the coherence-review skill. E2E verdict + `## Visual` subsection to be appended if/when the local E2E gate runs._

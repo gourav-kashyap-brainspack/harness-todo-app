@@ -54,8 +54,10 @@
         "All screens are mounted through the single navigation tree in src/app/navigation — no ad-hoc navigators.",
         "Shared UI primitives (empty state, loading indicator) live in src/components/ui and are reused, not re-implemented per feature."
       ],
+      "status": "done",
       "coherenceStatus": "pass",
-      "e2eStatus": "pending",
+      "e2eStatus": "deferred",
+      "doneAt": "2026-07-11",
       "clickupListId": "901615807764"
     },
     {
