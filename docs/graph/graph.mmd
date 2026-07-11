@@ -24,7 +24,9 @@ graph TD
   end
 
   subgraph STG["STG · Local Persistence (anchor)"]
-    STG_m["4 features · tasks pending /module STG"]
+    STG001["STG-001 · Typed storage service — Zod/versioned/corrupt-recovery/hydration (M) · F-037/038"]
+    STG002["STG-002 · Profile + Task schemas & repositories (M) · F-006/036"]
+    STG001 --> STG002
   end
   subgraph PRO["PRO · Profile"]
     PRO_m["6 features · tasks pending /module PRO"]

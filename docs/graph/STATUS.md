@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** **FND module DONE.** All 5 tasks merged (PR #3–#7); coherence review PASS (structural, zero findings); human integration go given; local E2E **deferred** (human decision — no end-to-end-testable surfaces yet). Next: `/module STG` (Local Persistence, unblocked).
+**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** **FND done.** STG planned (2 tasks, specs `ready`). Next: `/build STG-001` (the storage-service anchor).
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -16,7 +16,7 @@
 | Order | Module | Features | Tasks | Depends on | Status |
 |---|---|---|---|---|---|
 | 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 (5 done) | — | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
-| 2 | **STG** — Local Persistence (⚓) | 4 | — | FND ✅ | 🔵 **ready** · run `/module STG` |
+| 2 | **STG** — Local Persistence (⚓) | 4 | 2 planned | FND ✅ | 🔵 **ready to build** — `/build STG-001` |
 | 3 | **PRO** — Profile | 6 | — | FND, STG | ⚪ blocked |
 | 4 | **TSK** — Task Management | 18 | — | FND, STG | ⚪ blocked |
 | 5 | **ORG** — Search, Filter, Sort | 11 | — | TSK | ⚪ blocked |
@@ -36,4 +36,14 @@
 
 **Architecture:** LOCAL-ONLY (offline-first, MMKV, no backend/auth) · dark mode IN scope (system+toggle) · Add/Edit/Detail = pushed stack screens · profile mandatory (name+email).
 
-**Next runnable:** `/module STG` (Local Persistence) — unblocked, no tasks planned yet. 5 forward spec-gaps from the FND coherence review are recorded in `docs/context/stack.md` for the architect to read at that planning session.
+## STG tasks (2 · 4 features · specs ready)
+
+| Task | Title | Feat. | Cplx | Est | blockedBy | Status |
+|---|---|---|---|---|---|---|
+| **STG-001** ⚓ | Typed storage service (Zod-guarded MMKV · versioned · corrupt-recovery · hydration) | F-037, F-038 | M | 4h | — | 🔵 ready |
+| **STG-002** | Profile + Task persisted schemas & repositories (+ hydration wiring) | F-006, F-036 | M | 4h | STG-001 | ⚪ blocked |
+
+**Critical path:** STG-001 → STG-002 (≈8h). **First runnable:** 🔵 **STG-001** (the anchor storage service).
+**STG decisions:** STG owns Profile/Task Zod schemas in `core/types` + repositories · light `{version,data}` envelope · corrupt→reset-to-safe-default · name+email in MMKV (non-sensitive) · Task `id` = uuid string · **adopts FND's existing MMKV keys on the default instance (no churn — coherence spec-gap b).**
+
+**Next:** `/build STG-001`.

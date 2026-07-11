@@ -12,7 +12,7 @@
 | F-003 | Update Profile Picture | P2 | Profile | PRO | | | mapped |
 | F-004 | Remove Profile Picture | P2 | Profile | PRO | | | mapped |
 | F-005 | View User Profile | P0 | Profile | PRO | | | mapped |
-| F-006 | Persist Profile Data | P0 | Storage | STG | | | mapped |
+| F-006 | Persist Profile Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | ready |
 | F-007 | Create Task | P0 | Tasks | TSK | | | mapped |
 | F-008 | View Task List | P0 | Tasks | TSK | | | mapped |
 | F-009 | View Task Details | P0 | Tasks | TSK | | | mapped |
@@ -42,9 +42,9 @@
 | F-033 | Display Validation Errors | P0 | Validation | PRO | | | mapped |
 | F-034 | Require Task Title | P0 | Validation | TSK | | | mapped |
 | F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | | | mapped |
-| F-036 | Persist Task Data | P0 | Storage | STG | | | mapped |
-| F-037 | Restore Local Data | P0 | Storage | STG | | | mapped |
-| F-038 | Handle Corrupted Local Data | P1 | Storage | STG | | | mapped |
+| F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | ready |
+| F-037 | Restore Local Data | P0 | Storage | STG | STG-001 | Typed storage service | ready |
+| F-038 | Handle Corrupted Local Data | P1 | Storage | STG | STG-001 | Typed storage service | ready |
 | F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | done |
 | F-040 | Navigate to Task Details | P0 | Navigation | TSK | | | mapped |
 | F-041 | Navigate to Edit Task | P0 | Navigation | TSK | | | mapped |

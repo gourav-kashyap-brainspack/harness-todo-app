@@ -284,6 +284,34 @@
       "spec": "docs/specs/FND/FND-005.spec.md",
       "clickupTaskId": "86d3ngnj8",
       "clickupUrl": "https://app.clickup.com/t/86d3ngnj8"
+    },
+    {
+      "id": "STG-001",
+      "module": "STG",
+      "title": "Typed storage service (Zod-guarded MMKV · versioned · corrupt-recovery · hydration)",
+      "featureIds": ["F-037", "F-038"],
+      "blockedBy": [],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/STG/STG-001.spec.md",
+      "clickupTaskId": ""
+    },
+    {
+      "id": "STG-002",
+      "module": "STG",
+      "title": "Profile + Task persisted schemas & repositories (+ hydration wiring)",
+      "featureIds": ["F-006", "F-036"],
+      "blockedBy": ["STG-001"],
+      "parallelGroup": null,
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/STG/STG-002.spec.md",
+      "clickupTaskId": ""
     }
   ],
   "openQuestions": []
