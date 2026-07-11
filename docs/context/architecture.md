@@ -7,6 +7,18 @@
 **FND-001 landed the real tree** (2026-07-10, PR #3). Everything below reflects what exists now; sections still
 marked `(to be filled)` are genuinely empty scaffolds populated by later FND tasks.
 
+## FND — module complete (2026-07-11)
+All 5 FND tasks merged (PRs #3–#7); coherence review **PASS** (structural, zero findings); human integration
+go given; local E2E **deferred** (human decision — no end-to-end-testable surfaces yet, `.maestro/` empty).
+See `docs/graph/coherence/FND.md` for the full verdict. The one-paragraph picture: **app boots fully offline**
+(`App.tsx` → `AppProviders` → themed `NavigationRoot` → `BootstrapScreen` reads a single MMKV flag →
+`ProfileSetup`/`Tabs`), every screen is styled from one semantic token set (light/dark, `themeStore`), every
+persisted preference goes through one guarded-MMKV-read shape (`themeStore`, `launchStore`), navigation is one
+typed tree with no ad-hoc navigators, and the three shared UI primitives (`EmptyState`/`LoadingIndicator`/
+`Screen`) are the only presentational building blocks so far. Zero network/auth surface (dormant deps only).
+This is the reference foundation every later module (STG, PRO, TSK, ORG) builds on — see the patterns registry
+for the specific Tier-1 mechanics and the Spec-gap notes in `docs/context/stack.md` for forward guidance.
+
 ## Layer diagram
 Feature-sliced `mobile/src/`, alias `@/* → mobile/src/*` (`tsconfig.json` `paths` + `babel-plugin-module-resolver`
 in `babel.config.js`):
@@ -61,4 +73,8 @@ _(to be filled — empty scaffold. `react-native-mmkv@2.12.2` (v2, old-arch) ins
 _(to be filled — no local database; persistent state will be MMKV (non-secret), Keychain (secrets), and the React Query cache. Canonical TypeScript types live in `core/types/` — currently an empty scaffold.)_
 
 ## Graphify graph summary
-_(not yet rebuilt — per-task librarian mode only runs the fast AST update via the post-commit hook. The full semantic `/graphify ./mobile` rebuild is deferred to the FND module edge.)_
+_(still not built — attempted at the FND module edge, 2026-07-11: no `graphify` CLI, `/graphify` command, or
+`post-commit` hook exists anywhere in this repo or on PATH, despite being referenced as live machinery in
+`harness.config.md`/`librarian.md`/`harness-sync.md`. This is a tooling gap, not a "no code to graph" state —
+`mobile/src` has substantial real code. See `docs/graph/logs/graphify-FND.log` and
+`docs/context/harness-debt.md`. Grounding for now is direct Read/Grep of `mobile/src`, not `graphify query`.)_

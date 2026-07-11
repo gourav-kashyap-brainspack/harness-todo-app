@@ -6,7 +6,7 @@
 
 | Candidate | Why it's a candidate | State | Evidence |
 |---|---|---|---|
-| _(none yet)_ | | watch \| ablating \| kept \| removed \| replaced | |
+| Graphify tooling referenced but not installed | `CLAUDE.md`/`harness.config.md`/`librarian.md`/`harness-sync.md` describe live machinery — a `graphify` CLI (`graphify query/explain/path`, `graphify update .` via a post-commit hook) and a `/graphify ./mobile` slash-command — as running on every task/module edge. None of it exists: no `.claude/commands/graphify.md`, no `.claude/skills/graphify/`, no `graphify` binary on PATH or via `npx`, no real `.git/hooks/post-commit` (only `*.sample` files). At the FND module edge (2026-07-11) the rebuild was attempted and skipped gracefully rather than fabricated. This is either dead prose to prune (if the tool was never actually going to be built) or a real gap to fill (install/build it) — not a "watch, ablate later" item; flagging now so the next simplification pass or a `/setup` re-run makes a deliberate call instead of the docs silently continuing to describe non-existent machinery. | watch | `docs/graph/logs/graphify-FND.log`; `docs/context/architecture.md` → "Graphify graph summary" |
 
 ## Onboarding / setup gaps (additions — work TO DO, not simplification candidates)
 

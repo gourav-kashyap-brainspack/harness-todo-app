@@ -51,6 +51,20 @@ Installed **2026-07-10** by FND-001 (`feat/FND-FND-001`). Sourced from `mobile/p
 - **Deferred logo asset:** `react-native-bootsplash` is now fully configured on both platforms (FND-004) but still shows the library's placeholder mark — swapping in the real app logo + re-running `bootsplash generate` is a design-owned follow-up, not yet scheduled to a task.
 - **2 non-blocking test-robustness nits (code review, FND-004):** (1) `BootstrapScreen.test.tsx`'s corrupted-flag case duplicates the fresh-install assertion rather than independently exercising a throwing/non-boolean MMKV read; (2) the no-network boot assertion spies on `fetch` only, not `XMLHttpRequest` — a library that boots via XHR wouldn't be caught. Neither blocks FND-004 (the guarded-read behavior itself is unit-tested in `launchStore.test.ts`, and nothing in the boot path currently uses XHR). Fold both into FND-005 or the FND module-edge E2E hardening pass.
 
+## Forward spec-gaps from the FND coherence review (2026-07-11) — read this before the next `/module`
+Structural coherence review (`docs/graph/coherence/FND.md`) recorded 5 items as forward guidance for
+downstream modules — none blocked FND, all are architect input for the named `/module` run:
+
+| # | Gap | Fix at | One-line detail |
+|---|---|---|---|
+| a | ProfileSetup gate is `hasLaunched`, not "profile exists" | `/module PRO` | PRO calls `setHasLaunched()` only when setup genuinely completes; do NOT add a second "profile exists" flag. |
+| b | STG must ADOPT FND's raw MMKV keys, not replace them | `/module STG` | The typed storage service must wrap the existing `theme.mode` + `app.hasLaunched` keys on the default MMKV instance (no id/encryption change) or spec an explicit migration. |
+| c | Deferred splash logo asset | design / PRO follow-up | `react-native-bootsplash` wired both platforms but still shows the library placeholder mark — swap in the real logo + `bootsplash generate`. |
+| d | `taskId: string` route contract | `/module TSK` | Nav params fix task identity as `string` — TSK's data model must produce string ids (e.g. UUID); confirm before TSK builds. |
+| e | `react-native-reanimated/plugin` must stay last in `babel.config.js` | STG/TSK spec note | Any new babel plugin/animation work must preserve plugin ordering. |
+
+Full justification for each lives in `docs/graph/coherence/FND.md` → "Spec-gaps to fix in downstream specs".
+
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.
 - **Node:** ≥18 (CI uses 20); **Java:** 17 (Android); **CocoaPods** for iOS.
