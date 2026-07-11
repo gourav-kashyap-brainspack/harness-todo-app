@@ -311,7 +311,8 @@
       "complexity": "M",
       "estimate": 4,
       "dynamicWorkflow": false,
-      "status": "ready",
+      "status": "review",
+      "startedAt": "2026-07-11",
       "spec": "docs/specs/STG/STG-002.spec.md",
       "clickupTaskId": ""
     }

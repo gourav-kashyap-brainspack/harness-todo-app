@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** **FND done.** STG in progress — STG-001 gates green, PR #8 open (`review`), awaiting human merge-go. Next: merge PR #8, then `/build STG-002`.
+**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** **FND done.** STG task-complete — STG-001 merged (PR #8), STG-002 gates green, PR #9 open (`review`), awaiting human merge-go. Next: merge PR #9, then the STG Module DoD (coherence review + local E2E).
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -16,7 +16,7 @@
 | Order | Module | Features | Tasks | Depends on | Status |
 |---|---|---|---|---|---|
 | 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 (5 done) | — | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
-| 2 | **STG** — Local Persistence (⚓) | 4 | 2 (1 review) | FND ✅ | 🟡 **in progress** — STG-001 PR #8 open, awaiting merge |
+| 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 review/done) | FND ✅ | 🟡 **task-complete** — STG-001 merged, STG-002 PR #9 open, awaiting merge; Module DoD next |
 | 3 | **PRO** — Profile | 6 | — | FND, STG | ⚪ blocked |
 | 4 | **TSK** — Task Management | 18 | — | FND, STG | ⚪ blocked |
 | 5 | **ORG** — Search, Filter, Sort | 11 | — | TSK | ⚪ blocked |
@@ -40,10 +40,8 @@
 
 | Task | Title | Feat. | Cplx | Est | blockedBy | Status |
 |---|---|---|---|---|---|---|
-| **STG-001** ⚓ | Typed storage service (Zod-guarded MMKV · versioned · corrupt-recovery · hydration) | F-037, F-038 | M | 4h | — | 🟡 review — PR #8, gates green (2-iteration loop), awaiting human merge-go |
-| **STG-002** | Profile + Task persisted schemas & repositories (+ hydration wiring) | F-006, F-036 | M | 4h | STG-001 | ⚪ blocked — blocked-on-STG-001-merge |
+| **STG-001** ⚓ | Typed storage service (Zod-guarded MMKV · versioned · corrupt-recovery · hydration) | F-037, F-038 | M | 4h | — | 🟢 done — PR #8 merged |
+| **STG-002** | Profile + Task persisted schemas & repositories (+ hydration wiring) | F-006, F-036 | M | 4h | STG-001 ✅ | 🟡 review — PR #9, gates green (1-iteration loop), awaiting human merge-go |
 
-**Critical path:** STG-001 → STG-002 (≈8h). **Next runnable after merge:** STG-002 (blocked on STG-001's merge, not its gates — both are green).
+**Critical path:** STG-001 → STG-002 (≈8h, both gate-green). **Next:** merge PR #9 (STG-002), then STG's **Module DoD** (coherence review + local E2E) — this is STG's last task.
 **STG decisions:** STG owns Profile/Task Zod schemas in `core/types` + repositories · light `{version,data}` envelope · corrupt→reset-to-safe-default · name+email in MMKV (non-sensitive) · Task `id` = uuid string · **adopts FND's existing MMKV keys on the default instance (no churn — coherence spec-gap b).**
-
-**Next:** merge PR #8 (STG-001), then `/build STG-002`.
