@@ -17,13 +17,13 @@
 | F-008 | View Task List | P0 | Tasks | TSK | TSK-001 | Tasks store + Home list | done |
 | F-009 | View Task Details | P0 | Tasks | TSK | TSK-003 | Task detail + edit | done |
 | F-010 | Edit Task | P0 | Tasks | TSK | TSK-003 | Task detail + edit | done |
-| F-011 | Delete Task | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | review |
-| F-012 | Confirm Task Deletion | P1 | Tasks | TSK | TSK-004 | Lifecycle actions | review |
-| F-013 | Mark Task as Completed | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | review |
-| F-014 | Mark Task as Pending | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | review |
-| F-015 | Duplicate Task | P2 | Tasks | TSK | TSK-004 | Lifecycle actions | review |
-| F-016 | Assign Due Date | P1 | Tasks | TSK | TSK-005 | Due date | ready |
-| F-017 | Remove Due Date | P2 | Tasks | TSK | TSK-005 | Due date | ready |
+| F-011 | Delete Task | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | done |
+| F-012 | Confirm Task Deletion | P1 | Tasks | TSK | TSK-004 | Lifecycle actions | done |
+| F-013 | Mark Task as Completed | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | done |
+| F-014 | Mark Task as Pending | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | done |
+| F-015 | Duplicate Task | P2 | Tasks | TSK | TSK-004 | Lifecycle actions | done |
+| F-016 | Assign Due Date | P1 | Tasks | TSK | TSK-005 | Due date | review |
+| F-017 | Remove Due Date | P2 | Tasks | TSK | TSK-005 | Due date | review |
 | F-018 | Display Task Creation Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | done |
 | F-019 | Display Last Updated Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | done |
 | F-020 | Search Tasks by Title | P0 | Search | ORG | | | mapped |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **19 mapped to a task (9 FND + 4 STG + 6 PRO)** · 0 orphans · **FND, STG, and PRO modules all DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred on all three — PRO's deferral is disk-pressure, not headlessness) — all 9 FND features, all 4 STG features (F-006, F-036, F-037, F-038), and all 6 PRO features (F-001–F-005, F-033) `done`. **TSK in progress:** F-007, F-008, F-009, F-010, F-018, F-019, F-034, F-035, F-040, F-041, F-042 (TSK-001 + TSK-002 + TSK-003) → `done` (PRs #13, #14, #15 merged 2026-07-12 — F-040 was largely satisfied by TSK-001's row-tap wiring, completed by TSK-003's actual `TaskDetail` destination screen); F-011, F-012, F-013, F-014, F-015 (TSK-004) → `review` (PR #16, gates green, awaiting human merge-go); remaining 2 TSK features (F-016, F-017, TSK-005) still `ready`. ORG (11 features) stays blocked on TSK.
+**Coverage:** 48 features · 48 mapped to a module · **19 mapped to a task (9 FND + 4 STG + 6 PRO)** · 0 orphans · **FND, STG, and PRO modules all DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred on all three — PRO's deferral is disk-pressure, not headlessness) — all 9 FND features, all 4 STG features (F-006, F-036, F-037, F-038), and all 6 PRO features (F-001–F-005, F-033) `done`. **TSK now feature-complete (all 18 features done-or-in-review), module itself still `in progress`:** F-007, F-008, F-009, F-010, F-018, F-019, F-034, F-035, F-040, F-041, F-042 (TSK-001/002/003) → `done` (PRs #13–15 merged 2026-07-12); F-011, F-012, F-013, F-014, F-015 (TSK-004) → `done` (PR #16 merged 2026-07-12); F-016, F-017 (TSK-005) → `review` (PR #17, gates green, awaiting human merge-go — **NOT yet merged**). **TSK Module DoD (coherence review + local E2E) has not run** — ORG (11 features) stays blocked on the full TSK module completing, not merely TSK-005's merge.
 
 ### Per-module coverage
 | Module | Features | IDs |
