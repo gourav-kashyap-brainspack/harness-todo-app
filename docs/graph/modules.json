@@ -598,11 +598,12 @@
       "complexity": "M",
       "estimate": 4,
       "dynamicWorkflow": false,
-      "status": "review",
+      "status": "done",
       "spec": "docs/specs/ORG/ORG-003.spec.md",
       "clickupTaskId": "86d3nw6wd",
       "clickupUrl": "https://app.clickup.com/t/86d3nw6wd",
-      "startedAt": "2026-07-12"
+      "startedAt": "2026-07-12",
+      "doneAt": "2026-07-12"
     }
   ],
   "openQuestions": []
