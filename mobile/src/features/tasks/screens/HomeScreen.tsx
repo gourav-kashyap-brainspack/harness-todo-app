@@ -3,11 +3,12 @@ import {FlatList, Pressable, RefreshControl, Text, View, type ListRenderItemInfo
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 
-import {EmptyState, Screen, TaskListItem} from '@/components/ui';
+import {ActionSheet, EmptyState, Screen, TaskListItem, type ActionSheetOption} from '@/components/ui';
 import {getProfile} from '@/core/services/profileRepository';
 import type {Task} from '@/core/types/task';
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
 
+import {useTaskActions} from '../hooks/useTaskActions';
 import {useTaskStore} from '../store/taskStore';
 
 const FAB_ICON_SIZE = 24;
@@ -38,10 +39,53 @@ function TaskListEmptyState(): React.JSX.Element {
 }
 
 /**
+ * Builds the row "..." actions menu options (TSK-004, F-011-F-015) — design-
+ * system.md -> "TSK-004 - Task lifecycle actions" -> "1. Row model": Mark
+ * complete/pending -> Edit -> Duplicate -> Delete, in that order (the
+ * built-in trailing Cancel needs no entry). Module-scope, taking every
+ * dependency as a parameter, so it never closes over screen state — the
+ * array is only built while the menu sheet is visible and is never handed
+ * to a memoized child (that's the FlatList `renderItem` below, which stays
+ * stable on its own), so recomputing it per render has no perf cost.
+ */
+function buildRowMenuOptions(
+  task: Task,
+  handlers: {
+    onToggle: (id: string) => void;
+    onEdit: (id: string) => void;
+    onDuplicate: (id: string) => void;
+    onDelete: (task: Task) => void;
+  },
+): ActionSheetOption[] {
+  const isCompleted = task.status === 'completed';
+  return [
+    {
+      label: isCompleted ? 'Mark pending' : 'Mark complete',
+      icon: isCompleted ? 'circle' : 'check-circle',
+      onPress: () => handlers.onToggle(task.id),
+    },
+    {label: 'Edit', icon: 'edit-2', onPress: () => handlers.onEdit(task.id)},
+    {label: 'Duplicate', icon: 'copy', onPress: () => handlers.onDuplicate(task.id)},
+    {
+      label: 'Delete',
+      icon: 'trash-2',
+      destructive: true,
+      accessibilityLabel: 'Delete task',
+      onPress: () => handlers.onDelete(task),
+    },
+  ];
+}
+
+/**
  * HomeScreen (TSK-001, FR2/FR3/FR4) — replaces the FND-003 `Home` tab
  * placeholder. Renders all tasks (active + completed together, no
  * filtering — F-023 search/filter/sort is ORG's later module) from the
  * single `useTaskStore` (the TSK anchor store, FR1).
+ *
+ * **TSK-004 (F-011-F-015):** wires the row's toggle + "..." menu via
+ * `useTaskActions` (shared verbatim with `TaskDetailScreen`) — see that
+ * hook's doc comment for the state machine and `buildRowMenuOptions` above
+ * for this screen's 4-option menu content.
  *
  * Lives in `src/features/tasks` (feature layer), so — same as
  * `ProfileScreen`/`ProfileSetupScreen` (PRO-002) — it cannot import the
@@ -73,6 +117,8 @@ export function HomeScreen(): React.JSX.Element {
   const {resolvedScheme} = useTheme();
   const tasks = useTaskStore(state => state.tasks);
   const refresh = useTaskStore(state => state.refresh);
+  const toggleStatus = useTaskStore(state => state.toggleStatus);
+  const duplicateTask = useTaskStore(state => state.duplicateTask);
   const [profileName, setProfileName] = useState<string | undefined>(() => getProfile()?.name);
 
   useFocusEffect(
@@ -111,11 +157,30 @@ export function HomeScreen(): React.JSX.Element {
     [navigation],
   );
 
+  const handleEditTask = useCallback(
+    (taskId: string) => {
+      navigation.navigate('EditTask', {taskId});
+    },
+    [navigation],
+  );
+
+  // The shared TSK-004 lifecycle-action state machine — see
+  // `useTaskActions`'s own doc comment. HomeScreen passes no
+  // `onDeleteConfirmed`: a deleted row just leaves the list in place (no
+  // navigation needed, unlike TaskDetailScreen's `goBack`).
+  const {menuTask, openMenu, closeMenu, deleteTarget, requestDelete, cancelDelete, confirmDelete} =
+    useTaskActions();
+
   // Stable across renders (FR4) — a fresh inline arrow here would force
   // FlatList to treat every row as a new renderItem identity each render.
+  // `toggleStatus`/`openMenu` are themselves stable (a Zustand action
+  // reference / a no-dep `useCallback`), so including them below never
+  // thrashes this identity.
   const renderItem = useCallback(
-    ({item}: ListRenderItemInfo<Task>) => <TaskListItem task={item} onPress={handleRowPress} />,
-    [handleRowPress],
+    ({item}: ListRenderItemInfo<Task>) => (
+      <TaskListItem task={item} onPress={handleRowPress} onToggleComplete={toggleStatus} onOpenActions={openMenu} />
+    ),
+    [handleRowPress, toggleStatus, openMenu],
   );
 
   const keyExtractor = useCallback((item: Task) => item.id, []);
@@ -164,6 +229,50 @@ export function HomeScreen(): React.JSX.Element {
           className="absolute bottom-6 right-0 h-14 w-14 items-center justify-center rounded-full bg-primary">
           <Feather name="plus" size={FAB_ICON_SIZE} color={FAB_ICON_COLOR} />
         </Pressable>
+
+        {/* Row "..." actions menu (TSK-004) — one sheet, one "selected task"
+            piece of state owned here (never inside `TaskListItem`, which only
+            calls `onOpenActions`). No `title` — a plain options menu. */}
+        <ActionSheet
+          visible={menuTask !== null}
+          onClose={closeMenu}
+          accessibilityLabel={menuTask ? `${menuTask.title} actions` : undefined}
+          options={
+            menuTask
+              ? buildRowMenuOptions(menuTask, {
+                  onToggle: toggleStatus,
+                  onEdit: handleEditTask,
+                  onDuplicate: duplicateTask,
+                  onDelete: requestDelete,
+                })
+              : []
+          }
+        />
+
+        {/* Delete confirmation (F-012) — shared shape with TaskDetailScreen's
+            own confirm sheet: a `title` header + one destructive "Delete"
+            option; the built-in Cancel is the no-op path. Confirm ->
+            `taskStore.removeTask` via `confirmDelete`; the row just leaves
+            the list in place (no navigation from Home). */}
+        <ActionSheet
+          visible={deleteTarget !== null}
+          onClose={cancelDelete}
+          title="Delete this task?"
+          accessibilityLabel="Delete this task?"
+          options={
+            deleteTarget
+              ? [
+                  {
+                    label: 'Delete',
+                    icon: 'trash-2',
+                    destructive: true,
+                    accessibilityLabel: 'Delete task',
+                    onPress: confirmDelete,
+                  },
+                ]
+              : []
+          }
+        />
       </View>
     </Screen>
   );

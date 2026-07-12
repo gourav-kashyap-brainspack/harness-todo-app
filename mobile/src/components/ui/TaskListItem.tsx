@@ -16,12 +16,24 @@ export interface TaskListItemProps {
    * `TaskListItem`).
    */
   onToggleComplete?: (taskId: string) => void;
+  /**
+   * Opens the row's actions menu (TSK-004, F-011/F-012/F-015) — called with
+   * the whole `task` so the caller (HomeScreen) can build the option list
+   * (Mark complete/pending, Edit, Duplicate, Delete) without a second
+   * lookup. This component only calls the callback; it never renders the
+   * `ActionSheet` itself (that's HomeScreen's owned state, per
+   * design-system.md -> `TaskListItem` -> Props). Optional for the same
+   * "TSK-001 ships the control before the mutation exists" reason
+   * `onToggleComplete` is optional.
+   */
+  onOpenActions?: (task: Task) => void;
 }
 
 const TOGGLE_HIT_SLOP = {top: 12, right: 12, bottom: 12, left: 12};
+const ACTIONS_HIT_SLOP = {top: 12, right: 12, bottom: 12, left: 12};
 const CHECK_ICON_SIZE = 14;
 const DUE_DATE_ICON_SIZE = 12;
-const CHEVRON_ICON_SIZE = 18;
+const MORE_ACTIONS_ICON_SIZE = 20;
 const DUE_DATE_FORMAT = 'MMM d';
 
 // `primary-fg` is `255 255 255` in BOTH themes (design-system.md -> Color
@@ -33,7 +45,12 @@ function formatDueDate(dueDate: string): string {
   return format(new Date(dueDate), DUE_DATE_FORMAT);
 }
 
-function TaskListItemComponent({task, onPress, onToggleComplete}: TaskListItemProps): React.JSX.Element {
+function TaskListItemComponent({
+  task,
+  onPress,
+  onToggleComplete,
+  onOpenActions,
+}: TaskListItemProps): React.JSX.Element {
   const {resolvedScheme} = useTheme();
   const chrome = NATIVE_CHROME_RGB[resolvedScheme];
   const isCompleted = task.status === 'completed';
@@ -74,6 +91,10 @@ function TaskListItemComponent({task, onPress, onToggleComplete}: TaskListItemPr
     onToggleComplete?.(task.id);
   }
 
+  function handleOpenActions(): void {
+    onOpenActions?.(task);
+  }
+
   return (
     <Pressable
       onPress={() => onPress(task)}
@@ -86,7 +107,7 @@ function TaskListItemComponent({task, onPress, onToggleComplete}: TaskListItemPr
         hitSlop={TOGGLE_HIT_SLOP}
         accessibilityRole="checkbox"
         accessibilityState={{checked: isCompleted}}
-        accessibilityLabel={`Mark "${task.title}" as ${isCompleted ? 'active' : 'complete'}`}
+        accessibilityLabel={`Mark "${task.title}" as ${isCompleted ? 'pending' : 'complete'}`}
         className={`h-6 w-6 items-center justify-center rounded-full ${
           isCompleted ? 'bg-primary' : 'border-2 border-border'
         }`}>
@@ -109,9 +130,14 @@ function TaskListItemComponent({task, onPress, onToggleComplete}: TaskListItemPr
         ) : null}
       </View>
 
-      <View className="ml-2">
-        <Feather name="chevron-right" size={CHEVRON_ICON_SIZE} color={mutedIconColor} />
-      </View>
+      <Pressable
+        onPress={handleOpenActions}
+        hitSlop={ACTIONS_HIT_SLOP}
+        accessibilityRole="button"
+        accessibilityLabel="More actions"
+        className="ml-2 min-h-8 min-w-8 items-center justify-center">
+        <Feather name="more-horizontal" size={MORE_ACTIONS_ICON_SIZE} color={mutedIconColor} />
+      </Pressable>
     </Pressable>
   );
 }
@@ -130,8 +156,15 @@ function TaskListItemComponent({task, onPress, onToggleComplete}: TaskListItemPr
  * honor (never re-sort on toggle), not something this component enforces.
  *
  * Memoized (`React.memo`) per FR4 (list perf) — a stable `task` reference
- * (from the store's array) plus stable `onPress`/`onToggleComplete`
- * callbacks (the parent screen memoizes both) keeps unaffected rows from
- * re-rendering when a sibling task changes.
+ * (from the store's array) plus stable `onPress`/`onToggleComplete`/
+ * `onOpenActions` callbacks (the parent screen memoizes all three) keeps
+ * unaffected rows from re-rendering when a sibling task changes.
+ *
+ * **TSK-004:** the trailing `chevron-right` hint is replaced by a "⋯" More
+ * actions button (`onOpenActions`) — the row's own `onPress` (navigate to
+ * Detail) is unaffected, tapping anywhere else on the card still opens
+ * Detail. The checkbox's a11y label was also corrected from `"...as
+ * active"` to `"...as pending"` to match the "Mark complete ⇄ Mark
+ * pending" wording this task makes canonical everywhere (F-014).
  */
 export const TaskListItem = React.memo(TaskListItemComponent);

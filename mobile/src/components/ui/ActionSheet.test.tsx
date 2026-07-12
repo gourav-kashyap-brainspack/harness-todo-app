@@ -92,4 +92,54 @@ describe('ActionSheet (PRO-003)', () => {
     const label = tree.root.findByProps({children: 'Remove Photo'});
     expect(label.props.className).toEqual(expect.stringContaining('text-danger'));
   });
+
+  // TSK-004: two new optional props, `title` + per-option `icon`. The suite
+  // above (no `title`, no `icon` on any option — the exact shape PRO-003's
+  // photo-action menu uses) already proves the back-compat path renders
+  // unchanged; these cover the new behavior only.
+  it('omits the header entirely when `title` is not supplied (back-compat — PRO-003 unaffected)', () => {
+    const tree = createRenderer(
+      <ActionSheet visible onClose={jest.fn()} options={[{label: 'Take Photo', onPress: jest.fn()}]} />,
+    );
+
+    expect(() => tree.root.findByProps({accessibilityRole: 'header'})).toThrow();
+  });
+
+  it('renders a `title` as an announced header above the options', () => {
+    const tree = createRenderer(
+      <ActionSheet
+        visible
+        onClose={jest.fn()}
+        title="Delete this task?"
+        options={[{label: 'Delete', onPress: jest.fn(), destructive: true}]}
+      />,
+    );
+
+    const header = tree.root.findByProps({accessibilityRole: 'header'});
+    expect(header.props.children).toBe('Delete this task?');
+  });
+
+  it('renders no icon glyph on an option that omits `icon` (back-compat)', () => {
+    const tree = createRenderer(
+      <ActionSheet visible onClose={jest.fn()} options={[{label: 'Take Photo', onPress: jest.fn()}]} />,
+    );
+
+    expect(() => tree.root.findByProps({name: 'camera'})).toThrow();
+  });
+
+  it('renders each option\'s leading Feather `icon` when supplied', () => {
+    const tree = createRenderer(
+      <ActionSheet
+        visible
+        onClose={jest.fn()}
+        options={[
+          {label: 'Duplicate', onPress: jest.fn(), icon: 'copy'},
+          {label: 'Delete', onPress: jest.fn(), destructive: true, icon: 'trash-2'},
+        ]}
+      />,
+    );
+
+    expect(tree.root.findByProps({name: 'copy'})).toBeTruthy();
+    expect(tree.root.findByProps({name: 'trash-2'})).toBeTruthy();
+  });
 });

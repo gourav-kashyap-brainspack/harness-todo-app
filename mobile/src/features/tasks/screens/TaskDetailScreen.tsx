@@ -1,12 +1,13 @@
 import React, {useCallback} from 'react';
-import {Text, View} from 'react-native';
+import {Pressable, Text, View} from 'react-native';
 import {useNavigation, useRoute, type RouteProp} from '@react-navigation/native';
 import {format} from 'date-fns';
 import Feather from 'react-native-vector-icons/Feather';
 
-import {Button, EmptyState, Screen} from '@/components/ui';
+import {ActionSheet, Button, EmptyState, Screen} from '@/components/ui';
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
 
+import {useTaskActions} from '../hooks/useTaskActions';
 import {useTaskStore} from '../store/taskStore';
 
 /**
@@ -29,6 +30,13 @@ type TaskDetailParamList = {TaskDetail: {taskId: string}};
 
 const STATUS_ICON_SIZE = 14;
 const DUE_DATE_ICON_SIZE = 16;
+const ACTION_ICON_SIZE = 20;
+// The action zone's Toggle/More icon-buttons (TSK-004) — a plain outlined
+// square, single-use today (see design-system.md's TSK-004 subsection —
+// "promote to `components/ui` on a second consumer", the same
+// watch-then-promote call the PRO-002 changelog made for the Cancel-text
+// pressable).
+const ICON_BUTTON_BASE_CLASSNAME = 'min-h-12 min-w-12 items-center justify-center rounded-md border border-border';
 // design-system.md -> TSK-003 screen spec -> Meta block: fixed format for
 // Created/Last updated. Due date's own value format isn't locked in yet
 // (TSK-005 confirms) — `task.dueDate` is always absent today, so this is a
@@ -67,6 +75,11 @@ function formatDueDate(iso: string): string {
  *
  * Not-found (FR2's "safe empty/back" — e.g. a deleted task) reuses
  * `EmptyState` verbatim rather than crashing on an undefined task.
+ *
+ * **TSK-004 (F-011-F-015):** the action zone's Toggle/More icon-buttons +
+ * the "More" menu (Duplicate/Delete) + the shared delete-confirm sheet are
+ * wired via `useTaskActions` — the same hook/state-machine `HomeScreen`
+ * uses, so both screens share one lifecycle-action model.
  */
 export function TaskDetailScreen(): React.JSX.Element {
   const navigation = useNavigation();
@@ -75,6 +88,8 @@ export function TaskDetailScreen(): React.JSX.Element {
   const {resolvedScheme} = useTheme();
 
   const task = useTaskStore(state => state.tasks.find(candidate => candidate.id === taskId));
+  const toggleStatus = useTaskStore(state => state.toggleStatus);
+  const duplicateTask = useTaskStore(state => state.duplicateTask);
 
   const handleEdit = useCallback(() => {
     navigation.navigate('EditTask', {taskId});
@@ -83,6 +98,15 @@ export function TaskDetailScreen(): React.JSX.Element {
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  // The shared TSK-004 lifecycle-action state machine (design-system.md ->
+  // "TSK-004 - Task lifecycle actions" -> "one coherent affordance model ...
+  // reused identically" on Home + Detail — see `useTaskActions`'s own doc
+  // comment). Detail passes `handleGoBack` as `onDeleteConfirmed`: deleting
+  // the record you're currently viewing navigates back immediately (FR2) —
+  // Home passes nothing, since a deleted row just leaves the list in place.
+  const {menuTask, openMenu, closeMenu, deleteTarget, requestDelete, cancelDelete, confirmDelete} =
+    useTaskActions(handleGoBack);
 
   if (!task) {
     return (
@@ -149,12 +173,83 @@ export function TaskDetailScreen(): React.JSX.Element {
           <Text className="text-xs text-text-muted">{`Last updated ${formatMetaDate(task.updatedAt)}`}</Text>
         </View>
 
-        {/* Bottom action zone — deliberately NOT fullWidth (leaves room for
-            TSK-004's complete/duplicate/delete actions in this same row). */}
+        {/* Bottom action zone — Edit -> Toggle -> More (TSK-004,
+            F-011/F-012/F-013/F-014/F-015). Toggle/Edit are NOT repeated in
+            the More menu below — they already have a dedicated control
+            here, unlike the dense Home row which has room only for the
+            checkbox. */}
         <View className="mt-6 flex-row items-center gap-3">
           <Button label="Edit task" onPress={handleEdit} fullWidth={false} />
+
+          <Pressable
+            onPress={() => toggleStatus(task.id)}
+            accessibilityRole="button"
+            accessibilityLabel={isCompleted ? 'Mark pending' : 'Mark complete'}
+            className={`${ICON_BUTTON_BASE_CLASSNAME} ${isCompleted ? 'bg-success/10' : ''}`}>
+            <Feather
+              name="check-circle"
+              size={ACTION_ICON_SIZE}
+              color={isCompleted ? rgbFromTriplet(chrome.success) : rgbFromTriplet(chrome.primary)}
+            />
+          </Pressable>
+
+          <Pressable
+            onPress={() => openMenu(task)}
+            accessibilityRole="button"
+            accessibilityLabel="More actions"
+            className={ICON_BUTTON_BASE_CLASSNAME}>
+            <Feather name="more-horizontal" size={ACTION_ICON_SIZE} color={mutedIconColor} />
+          </Pressable>
         </View>
       </View>
+
+      {/* Detail "More" menu — only Duplicate/Delete (Toggle/Edit already
+          have dedicated controls above, so they're deliberately omitted
+          here per design-system.md's TSK-004 subsection). */}
+      <ActionSheet
+        visible={menuTask !== null}
+        onClose={closeMenu}
+        accessibilityLabel={menuTask ? `${menuTask.title} actions` : undefined}
+        options={
+          menuTask
+            ? [
+                {label: 'Duplicate', icon: 'copy', onPress: () => duplicateTask(menuTask.id)},
+                {
+                  label: 'Delete',
+                  icon: 'trash-2',
+                  destructive: true,
+                  accessibilityLabel: 'Delete task',
+                  onPress: () => requestDelete(menuTask),
+                },
+              ]
+            : []
+        }
+      />
+
+      {/* Delete confirmation (F-012) — the exact same shape HomeScreen's own
+          confirm sheet uses. Confirm -> `taskStore.removeTask` via
+          `confirmDelete`, which then calls `handleGoBack` (this screen's
+          `onDeleteConfirmed`) so deleting the record you're viewing doesn't
+          leave you looking at the "Task not found" EmptyState for a frame. */}
+      <ActionSheet
+        visible={deleteTarget !== null}
+        onClose={cancelDelete}
+        title="Delete this task?"
+        accessibilityLabel="Delete this task?"
+        options={
+          deleteTarget
+            ? [
+                {
+                  label: 'Delete',
+                  icon: 'trash-2',
+                  destructive: true,
+                  accessibilityLabel: 'Delete task',
+                  onPress: confirmDelete,
+                },
+              ]
+            : []
+        }
+      />
     </Screen>
   );
 }
