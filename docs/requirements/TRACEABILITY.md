@@ -26,18 +26,18 @@
 | F-017 | Remove Due Date | P2 | Tasks | TSK | TSK-005 | Due date | review |
 | F-018 | Display Task Creation Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | done |
 | F-019 | Display Last Updated Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | done |
-| F-020 | Search Tasks by Title | P0 | Search | ORG | ORG-002 | ORG-002.spec.md | ready |
-| F-021 | Search Tasks by Description | P1 | Search | ORG | ORG-002 | ORG-002.spec.md | ready |
-| F-022 | Real-Time Search | P1 | Search | ORG | ORG-002 | ORG-002.spec.md | ready |
-| F-023 | Filter All Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | review |
-| F-024 | Filter Active Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | review |
-| F-025 | Filter Completed Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | review |
+| F-020 | Search Tasks by Title | P0 | Search | ORG | ORG-002 | ORG-002.spec.md | review |
+| F-021 | Search Tasks by Description | P1 | Search | ORG | ORG-002 | ORG-002.spec.md | review |
+| F-022 | Real-Time Search | P1 | Search | ORG | ORG-002 | ORG-002.spec.md | review |
+| F-023 | Filter All Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | done |
+| F-024 | Filter Active Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | done |
+| F-025 | Filter Completed Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | done |
 | F-026 | Sort by Due Date | P1 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
 | F-027 | Sort by Creation Date | P1 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
 | F-028 | Sort Alphabetically | P2 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
 | F-029 | Sort by Recently Updated | P2 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
 | F-030 | Display Empty State | P1 | UI | FND | FND-005 | Shared UI primitives | done |
-| F-031 | Display No Search Results | P1 | UI | ORG | ORG-002 | ORG-002.spec.md | ready |
+| F-031 | Display No Search Results | P1 | UI | ORG | ORG-002 | ORG-002.spec.md | review |
 | F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | done |
 | F-033 | Display Validation Errors | P0 | Validation | PRO | PRO-001 | Profile store + setup form | done |
 | F-034 | Require Task Title | P0 | Validation | TSK | TSK-002 | Create task | done |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **48 mapped to a task (9 FND + 4 STG + 6 PRO + 18 TSK + 11 ORG)** · 0 orphans. **FND, STG, PRO, and TSK modules all DONE** (coherence PASS + human integration go; local E2E deferred on all four — carried as a mandatory pre-`main` gate). All 18 TSK features (F-007–F-019, F-034, F-035, F-040, F-041, F-042) `done` (PRs #13–17 merged 2026-07-12). **ORG (the final module) in progress:** F-023/024/025 → ORG-001 now `review` (PR #18 open, all gates green, awaiting human merge-go, NOT yet merged); F-020/021/022/031 → ORG-002 and F-026/027/028/029 → ORG-003 stay `ready`/blocked-on-ORG-001. Once ORG is built + its Module DoD passes, all 48 features are delivered.
+**Coverage:** 48 features · 48 mapped to a module · **48 mapped to a task (9 FND + 4 STG + 6 PRO + 18 TSK + 11 ORG)** · 0 orphans. **FND, STG, PRO, and TSK modules all DONE** (coherence PASS + human integration go; local E2E deferred on all four — carried as a mandatory pre-`main` gate). All 18 TSK features (F-007–F-019, F-034, F-035, F-040, F-041, F-042) `done` (PRs #13–17 merged 2026-07-12). **ORG (the final module) in progress:** F-023/024/025 → ORG-001 `done` (PR #18 merged 2026-07-12); F-020/021/022/031 → ORG-002 now `review` (PR #19 open, all gates green, awaiting human merge-go, NOT yet merged); F-026/027/028/029 → ORG-003 stays `ready`/blocked-on-ORG-002 (serialize, group ORG-pg1). Once ORG-003 merges + its Module DoD passes, all 48 features are delivered.
 
 ### Per-module coverage
 | Module | Features | IDs |
