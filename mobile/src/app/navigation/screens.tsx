@@ -1,8 +1,3 @@
-import React from 'react';
-
-import {useAppRoute} from './hooks';
-import {PlaceholderScreen} from './PlaceholderScreen';
-
 /**
  * Placeholder stub screens for every route in the navigation shell
  * (FND-003). Feature modules (PRO/TSK) replace these one at a time; the
@@ -18,23 +13,18 @@ import {PlaceholderScreen} from './PlaceholderScreen';
  * module (`app -> features` is an allowed boundary direction; the reverse
  * is not, which is why the screens themselves use plain `useNavigation()`
  * rather than this file's `useAppNavigation` helper). `Home` (the tab) is
- * the fourth swap (TSK-001), and `AddTask` is the fifth (TSK-002), same
- * re-export shape. `RootNavigator`/`TabNavigator`'s wiring never changes —
- * they still only import `ProfileSetupScreen`/`ProfileScreen`/
- * `HomeScreen`/`AddTaskScreen` from this barrel.
+ * the fourth swap (TSK-001), `AddTask` is the fifth (TSK-002), and
+ * `EditTask`/`TaskDetail` are the sixth and seventh (TSK-003) — all
+ * re-exported the same way from their feature module (same boundary note:
+ * `TaskDetailScreen`/`EditTaskScreen` also use plain `useNavigation()`/
+ * `useRoute()`, never the app-layer helpers). `RootNavigator`/
+ * `TabNavigator`'s wiring never changes — it still only imports these named
+ * exports from this barrel.
  */
 export {BootstrapScreen as SplashScreen} from './BootstrapScreen';
 export {ProfileSetupScreen} from '@/features/profile/screens/ProfileSetupScreen';
 export {ProfileScreen} from '@/features/profile/screens/ProfileScreen';
 export {HomeScreen} from '@/features/tasks/screens/HomeScreen';
 export {AddTaskScreen} from '@/features/tasks/screens/AddTaskScreen';
-
-export function EditTaskScreen(): React.JSX.Element {
-  const route = useAppRoute<'EditTask'>();
-  return <PlaceholderScreen name="Edit Task" detail={`taskId: ${route.params.taskId}`} />;
-}
-
-export function TaskDetailScreen(): React.JSX.Element {
-  const route = useAppRoute<'TaskDetail'>();
-  return <PlaceholderScreen name="Task Details" detail={`taskId: ${route.params.taskId}`} />;
-}
+export {EditTaskScreen} from '@/features/tasks/screens/EditTaskScreen';
+export {TaskDetailScreen} from '@/features/tasks/screens/TaskDetailScreen';
