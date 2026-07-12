@@ -47,7 +47,11 @@ graph TD
     TSK002 --> TSK005
   end
   subgraph ORG["ORG · Search, Filter, Sort"]
-    ORG_m["11 features · tasks pending /module ORG"]
+    ORG001["ORG-001 · Organize foundation: query store + selector + Filter (L) · F-023/024/025"]
+    ORG002["ORG-002 · Search title+desc real-time + no-results (M) · F-020/021/022/031"]
+    ORG003["ORG-003 · Sort due/created/alpha/updated (M) · F-026/027/028/029"]
+    ORG001 --> ORG002
+    ORG001 --> ORG003
   end
 
   %% Critical path: FND-001 -> FND-002 -> FND-003 -> FND-004. FND-005 parallel with FND-003 (group FND-pg1).

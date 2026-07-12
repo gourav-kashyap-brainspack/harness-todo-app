@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-12 · **Phase:** FND + STG + PRO done. **TSK feature-complete** — TSK-001/002/003/004 `done` (PRs #13–16 merged); **TSK-005 (due-date) `review`** — PR #17 open, all gates green, awaiting human merge-go (native-surface, `MERGE_WAIT_FOR_CI=on`). All 18 TSK features now done-or-in-review. Once PR #17 merges → **TSK Module DoD (coherence + local E2E, neither run yet)** runs before TSK is `done` and ORG unblocks.
+**Project:** Todo App · **Updated:** 2026-07-12 · **Phase:** FND + STG + PRO + **TSK done** (TSK-001–005 merged PRs #13–17; coherence PASS, E2E deferred, integration go). **ORG planned + unblocked** — `/module ORG` wrote 3 specs (ORG-001/002/003, 11 features); **ORG-001 is the first runnable task.** ORG is the **last module** — after it, only the deferred-E2E batch + the `development → main` release lane remain.
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -18,8 +18,8 @@
 | 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 (5 done) | — | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 done) | FND ✅ | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 3 | **PRO** — Profile | 6 | 3 (3 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (disk pressure), human integration go 2026-07-11 |
-| 4 | **TSK** — Task Management | 18 | 5 (4 done, 1 review) | FND ✅, STG ✅ | 🟡 **in progress** — TSK-001–004 done (PRs #13–16); TSK-005 (last task) review, PR #17 open, awaiting merge-go |
-| 5 | **ORG** — Search, Filter, Sort | 11 | — | TSK | ⚪ blocked |
+| 4 | **TSK** — Task Management | 18 | 5 (5 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (4th, disk), human integration go 2026-07-12 |
+| 5 | **ORG** — Search, Filter, Sort | 11 | 3 (specs ready) | TSK ✅ | 🔵 **planned** — ORG-001 runnable; ORG-002/003 blocked-on-ORG-001 (group ORG-pg1) |
 
 ## FND tasks
 
@@ -68,9 +68,22 @@
 | **TSK-002** | Create task (Add screen + shared TaskForm · title-req · dup-guard) | F-007, F-034, F-035 | M | 4h | TSK-001 ✅ | — | 🟢 done — PR #14 merged (275edbc) 2026-07-12 |
 | **TSK-003** | Task detail + edit (dates · nav · reuse TaskForm) | F-009/010/018/019/040/041 | L | 8h | TSK-002 ✅ | — | 🟢 done — PR #15 merged (99ddb8f) 2026-07-12 |
 | **TSK-004** | Lifecycle actions (complete/pending · delete+confirm · duplicate) | F-011/012/013/014/015 | M | 4h | TSK-003 ✅ | — | 🟢 done — PR #16 merged (0ffc76b) 2026-07-12 |
-| **TSK-005** | Due date field (date+time picker) — assign + remove | F-016, F-017 | M | 4h | TSK-002 ✅ | TSK-pg1 | 🟡 review — PR #17 open, all gates green, awaiting human merge-go — **LAST TSK task** |
+| **TSK-005** | Due date field (date+time picker) — assign + remove | F-016, F-017 | M | 4h | TSK-002 ✅ | TSK-pg1 | 🟢 done — PR #17 merged (5534c24, CI green) 2026-07-12 |
 
 **Critical path:** TSK-001 → 002 → 003 → 004 (≈24h, all gate-green through TSK-004). **TSK-005** (branch `feat/TSK-TSK-005`, PR #17) is 🟡 **review** — all gates green (typecheck·lint·304 unit/42 suites·Android `assembleDebug`·security PASS·code-review APPROVE), **NOT yet merged**, awaiting human merge-go. It is the **sole remaining TSK task** — once merged, all 18 TSK features are done and the **TSK Module DoD (coherence review + local E2E, neither run yet)** is the next gate; ORG stays blocked until that Module DoD completes, not just the merge. **TSK total:** ≈28h.
 **TSK decisions:** all-tasks list, completed shown in-place (OQ-8) · greeting uses profile name · duplicate = copy fields + reset status/timestamps · due date = @react-native-community/datetimepicker@^8.6.0 (date+time, RN-0.75/old-arch line) · search/filter/sort deferred to ORG. **Applies spec-gaps — all closed:** RHF+Zod form anchor reused for create (TSK-002), edit (TSK-003), and due-date (TSK-005) — STG gap f now fully closed, no TSK path left open; `upsertTask` wholesale-replace → edit submits ALL fields (STG gap a, closed TSK-003); `dueDate` `.toISOString()` full ISO-8601 (STG gap b, closed TSK-005); reuse `ActionSheet` for delete-confirm (F-012, built TSK-004). **TSK-002 promoted `TaskForm`** (`features/tasks/components/TaskForm.tsx`) as the shared create+edit form — **TSK-003 confirmed the edit-reuse contract** via `defaultValues` (+ the caller-side merge-over-existing-fields pattern, see patterns-registry.md); **TSK-005 extended it** by widening the `.pick` field set to include `dueDate` via the new `DueDateField` component. **TSK-003 also promoted** "typed navigation inside a feature screen" — see patterns-registry.md. **TSK-004 promoted** `useTaskActions` (confirm-gated destructive action) and extended `ActionSheet` (`title?`/`icon?`) + `TaskListItem` (`onOpenActions?`) + `nativeChromeColors` (`success` entry). **TSK-005 promoted** the due-date formatting util (`core/lib/formatDueDate.ts` — consolidates 3 previously-disagreeing format strings) and the `IconButton` primitive (promoted off TSK-004's single-use shape on its 2nd consumer) — `components/ui` now at **10 primitives**. See patterns-registry.md for all rows.
 
-**Next:** human merge-go on PR #17 (TSK-005, native-surface → `MERGE_WAIT_FOR_CI=on`). Once merged, TSK is the module's last task → the **TSK Module DoD (coherence review + local E2E)** runs — neither has run yet. ORG becomes unblocked only after the TSK module is fully `done` (coherence PASS + local E2E GREEN + human integration go), not merely after TSK-005 merges.
+**TSK Module DoD — COMPLETE (2026-07-12):** all 5 tasks done · **coherence review PASS** (architect + security, zero findings — `docs/graph/coherence/TSK.md`) · local E2E **deferred** (human decision, 4th module — disk pressure; carried as mandatory pre-`main` gate) · **human integration go** (given by advancing to `/module ORG`). TSK = 🟢 **done**. Recorded 1 downstream ORG spec-gap (Home-filtering integration + 2 sort invariants) — folded into the ORG specs.
+
+## ORG tasks (3 · 11 features · specs ready) — the final module
+
+| Task | Title | Feat. | Cplx | Est | blockedBy | Group | Status |
+|---|---|---|---|---|---|---|---|
+| **ORG-001** ⚓ | Organize foundation — query store (persisted filter+sort) + `selectVisibleTasks` selector + Filter | F-023/024/025 | L | 8h | — | — | 🔵 ready |
+| **ORG-002** | Search (title+desc, real-time) + no-results empty state | F-020/021/022, F-031 | M | 4h | ORG-001 | ORG-pg1 | ⚪ blocked-on-ORG-001 |
+| **ORG-003** | Sort — due · created · alpha · updated (ActionSheet menu) | F-026/027/028/029 | M | 4h | ORG-001 | ORG-pg1 | ⚪ blocked-on-ORG-001 |
+
+**Critical path:** ORG-001 → (ORG-002 ∥ ORG-003) (≈16h). **First runnable:** 🔵 **ORG-001** (the anchor — query store + derived-selector pipeline + Filter). ORG-002 + ORG-003 both depend on ORG-001 and share `HomeScreen.tsx` + `taskQueryStore.ts` + `selectVisibleTasks.ts` (group `ORG-pg1`) → **serialize (recommended: 002 then 003)** or coordinate via `parallel-integration`. **ORG total:** ≈16h.
+**ORG decisions (/module ORG 2026-07-12):** search/filter/sort live **on Home** (derived selector, not a separate screen) · all three **compose** in one pipeline (search → filter → sort) · filter+sort **persist to MMKV** (themeStore guarded-preference pattern; UI-prefs, not task data), search **in-memory** (resets on relaunch) · default sort **created-desc** (newest) · filter = `SegmentedControl` (reused), sort = `ActionSheet` menu (reused), no-results = `EmptyState` (reused) · **ORG code lives in `features/tasks`** (NOT a features/organize slice — that would be a features→features boundary violation reading the tasks store) · OQ-8 preserved (no re-sort on toggle). No new deps, no schema change, no research spike.
+
+**Next:** `/build ORG-001` (the anchor). Then ORG-002 + ORG-003 (serialize). After ORG done → ORG Module DoD (coherence + local E2E), then the app is feature-complete: the deferred-E2E batch + `development → main` release lane remain (both mandatory, both need disk freed).

@@ -26,18 +26,18 @@
 | F-017 | Remove Due Date | P2 | Tasks | TSK | TSK-005 | Due date | review |
 | F-018 | Display Task Creation Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | done |
 | F-019 | Display Last Updated Date | P2 | Tasks | TSK | TSK-003 | Task detail + edit | done |
-| F-020 | Search Tasks by Title | P0 | Search | ORG | | | mapped |
-| F-021 | Search Tasks by Description | P1 | Search | ORG | | | mapped |
-| F-022 | Real-Time Search | P1 | Search | ORG | | | mapped |
-| F-023 | Filter All Tasks | P0 | Filter | ORG | | | mapped |
-| F-024 | Filter Active Tasks | P0 | Filter | ORG | | | mapped |
-| F-025 | Filter Completed Tasks | P0 | Filter | ORG | | | mapped |
-| F-026 | Sort by Due Date | P1 | Sorting | ORG | | | mapped |
-| F-027 | Sort by Creation Date | P1 | Sorting | ORG | | | mapped |
-| F-028 | Sort Alphabetically | P2 | Sorting | ORG | | | mapped |
-| F-029 | Sort by Recently Updated | P2 | Sorting | ORG | | | mapped |
+| F-020 | Search Tasks by Title | P0 | Search | ORG | ORG-002 | ORG-002.spec.md | ready |
+| F-021 | Search Tasks by Description | P1 | Search | ORG | ORG-002 | ORG-002.spec.md | ready |
+| F-022 | Real-Time Search | P1 | Search | ORG | ORG-002 | ORG-002.spec.md | ready |
+| F-023 | Filter All Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | ready |
+| F-024 | Filter Active Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | ready |
+| F-025 | Filter Completed Tasks | P0 | Filter | ORG | ORG-001 | ORG-001.spec.md | ready |
+| F-026 | Sort by Due Date | P1 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
+| F-027 | Sort by Creation Date | P1 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
+| F-028 | Sort Alphabetically | P2 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
+| F-029 | Sort by Recently Updated | P2 | Sorting | ORG | ORG-003 | ORG-003.spec.md | ready |
 | F-030 | Display Empty State | P1 | UI | FND | FND-005 | Shared UI primitives | done |
-| F-031 | Display No Search Results | P1 | UI | ORG | | | mapped |
+| F-031 | Display No Search Results | P1 | UI | ORG | ORG-002 | ORG-002.spec.md | ready |
 | F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | done |
 | F-033 | Display Validation Errors | P0 | Validation | PRO | PRO-001 | Profile store + setup form | done |
 | F-034 | Require Task Title | P0 | Validation | TSK | TSK-002 | Create task | done |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **19 mapped to a task (9 FND + 4 STG + 6 PRO)** · 0 orphans · **FND, STG, and PRO modules all DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred on all three — PRO's deferral is disk-pressure, not headlessness) — all 9 FND features, all 4 STG features (F-006, F-036, F-037, F-038), and all 6 PRO features (F-001–F-005, F-033) `done`. **TSK now feature-complete (all 18 features done-or-in-review), module itself still `in progress`:** F-007, F-008, F-009, F-010, F-018, F-019, F-034, F-035, F-040, F-041, F-042 (TSK-001/002/003) → `done` (PRs #13–15 merged 2026-07-12); F-011, F-012, F-013, F-014, F-015 (TSK-004) → `done` (PR #16 merged 2026-07-12); F-016, F-017 (TSK-005) → `review` (PR #17, gates green, awaiting human merge-go — **NOT yet merged**). **TSK Module DoD (coherence review + local E2E) has not run** — ORG (11 features) stays blocked on the full TSK module completing, not merely TSK-005's merge.
+**Coverage:** 48 features · 48 mapped to a module · **48 mapped to a task (9 FND + 4 STG + 6 PRO + 18 TSK + 11 ORG)** · 0 orphans. **FND, STG, PRO, and TSK modules all DONE** (coherence PASS + human integration go; local E2E deferred on all four — carried as a mandatory pre-`main` gate). All 18 TSK features (F-007–F-019, F-034, F-035, F-040, F-041, F-042) `done` (PRs #13–17 merged 2026-07-12). **ORG (the final module) planned + specs ready:** F-023/024/025 → ORG-001, F-020/021/022/031 → ORG-002, F-026/027/028/029 → ORG-003 — all `ready`, ORG-001 runnable. Once ORG is built + its Module DoD passes, all 48 features are delivered.
 
 ### Per-module coverage
 | Module | Features | IDs |

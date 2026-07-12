@@ -190,11 +190,14 @@
       ],
       "summary": "Organize the task list: search by title and description with real-time (as-you-type) results; filter by All / Active / Completed; sort by due date, creation date, alphabetically, and recently updated; no-search-results empty state (F-031). Operates on the Tasks store from TSK — a derived/selector layer over the existing task data, no new persistence.",
       "coherenceChecks": [
-        "Search/filter/sort are derived selectors over the single Tasks store from TSK — they do not copy or duplicate task data.",
-        "Search applies to the same task collection users see elsewhere (same ownership/visibility rules — trivially all local tasks here).",
-        "The no-results empty state (F-031) reuses the shared empty-state primitive from FND, not a bespoke one."
+        "Search/filter/sort are DERIVED selectors (selectVisibleTasks) over the single Tasks store from TSK — they never copy, duplicate, or mutate/reorder the store tasks array (the store is the persistence-order source of truth).",
+        "Filter + sort are UI preferences persisted via the themeStore guarded-MMKV-preference pattern (raw keys, absent->default), NOT task data through taskRepository; search is in-memory (resets on relaunch).",
+        "The no-search-results empty state (F-031) reuses the shared EmptyState primitive from FND (a fork is blocking); the filter control reuses SegmentedControl and the sort menu reuses ActionSheet (no bespoke re-implementations).",
+        "ORG code lives inside features/tasks (query store + selector + Home wiring) — NOT a separate features/organize slice, which would be a features->features boundary violation reading the tasks store.",
+        "OQ-8 preserved: a status toggle never forces a list re-sort under the default/creation/alpha/due sorts (only sort=updated legitimately reflects the new updatedAt)."
       ],
-      "clickupListId": "901615807768"
+      "clickupListId": "901615807768",
+      "architectureNote": "ORG is an orchestration grouping, not a feature folder — all ORG code lives in features/tasks. Resolved decisions (/module ORG 2026-07-12): on-Home (not a separate screen); search+filter+sort compose in one pipeline; filter+sort persist to MMKV, search in-memory; default sort created-desc; sort via ActionSheet, filter via SegmentedControl."
     }
   ],
   "tasks": [
@@ -529,6 +532,69 @@
       "spec": "docs/specs/TSK/TSK-005.spec.md",
       "clickupTaskId": "86d3ntxcz",
       "clickupUrl": "https://app.clickup.com/t/86d3ntxcz"
+    },
+    {
+      "id": "ORG-001",
+      "module": "ORG",
+      "title": "Organize foundation — task-query store (persisted filter+sort) + derived selector + Filter (All/Active/Completed)",
+      "featureIds": [
+        "F-023",
+        "F-024",
+        "F-025"
+      ],
+      "blockedBy": [],
+      "parallelGroup": null,
+      "complexity": "L",
+      "estimate": 8,
+      "dynamicWorkflow": false,
+      "status": "ready",
+      "spec": "docs/specs/ORG/ORG-001.spec.md",
+      "clickupTaskId": null,
+      "clickupUrl": null
+    },
+    {
+      "id": "ORG-002",
+      "module": "ORG",
+      "title": "Search tasks (title + description, real-time) + no-results empty state",
+      "featureIds": [
+        "F-020",
+        "F-021",
+        "F-022",
+        "F-031"
+      ],
+      "blockedBy": [
+        "ORG-001"
+      ],
+      "parallelGroup": "ORG-pg1",
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "blocked",
+      "spec": "docs/specs/ORG/ORG-002.spec.md",
+      "clickupTaskId": null,
+      "clickupUrl": null
+    },
+    {
+      "id": "ORG-003",
+      "module": "ORG",
+      "title": "Sort tasks — due date · creation · alphabetical · recently updated (ActionSheet menu)",
+      "featureIds": [
+        "F-026",
+        "F-027",
+        "F-028",
+        "F-029"
+      ],
+      "blockedBy": [
+        "ORG-001"
+      ],
+      "parallelGroup": "ORG-pg1",
+      "complexity": "M",
+      "estimate": 4,
+      "dynamicWorkflow": false,
+      "status": "blocked",
+      "spec": "docs/specs/ORG/ORG-003.spec.md",
+      "clickupTaskId": null,
+      "clickupUrl": null
     }
   ],
   "openQuestions": []
