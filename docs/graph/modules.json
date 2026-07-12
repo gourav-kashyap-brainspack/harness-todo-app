@@ -1,6 +1,6 @@
 {
   "project": "Todo App",
-  "updated": "2026-07-11",
+  "updated": "2026-07-12",
   "note": "Modules populated by /scope (2026-07-09). Tasks are added per module by /module <name>. ClickUp IDs are filled after /clickup-sync creates the lists. Architecture: LOCAL-ONLY (offline-first, MMKV persistence, no backend, no auth) per PRD; Axios/React Query layer stays dormant for a future cloud-sync phase (OQ-1). Dark mode is IN MVP scope (OQ-10). Profile setup mandatory, name+email required (OQ-2).",
   "clickup": {
     "workspaceId": "90161694196",
@@ -37,7 +37,10 @@
       "TSK-002": "86d3ntxcr",
       "TSK-003": "86d3ntxcv",
       "TSK-004": "86d3ntxcx",
-      "TSK-005": "86d3ntxcz"
+      "TSK-005": "86d3ntxcz",
+      "ORG-001": "86d3nw6w7",
+      "ORG-002": "86d3nw6wa",
+      "ORG-003": "86d3nw6wd"
     }
   },
   "modules": [
@@ -191,13 +194,14 @@
       "summary": "Organize the task list: search by title and description with real-time (as-you-type) results; filter by All / Active / Completed; sort by due date, creation date, alphabetically, and recently updated; no-search-results empty state (F-031). Operates on the Tasks store from TSK — a derived/selector layer over the existing task data, no new persistence.",
       "coherenceChecks": [
         "Search/filter/sort are DERIVED selectors (selectVisibleTasks) over the single Tasks store from TSK — they never copy, duplicate, or mutate/reorder the store tasks array (the store is the persistence-order source of truth).",
-        "Filter + sort are UI preferences persisted via the themeStore guarded-MMKV-preference pattern (raw keys, absent->default), NOT task data through taskRepository; search is in-memory (resets on relaunch).",
+        "Filter + sort are UI preferences persisted as ONE {filter,sort} envelope via the typed storage service (createPersistedValue(StorageKeys.taskQuery, taskQueryPrefsSchema, ...); absent/corrupt->default), NOT the themeStore raw-key shape and NOT task data through taskRepository; search is in-memory (resets on relaunch).",
         "The no-search-results empty state (F-031) reuses the shared EmptyState primitive from FND (a fork is blocking); the filter control reuses SegmentedControl and the sort menu reuses ActionSheet (no bespoke re-implementations).",
         "ORG code lives inside features/tasks (query store + selector + Home wiring) — NOT a separate features/organize slice, which would be a features->features boundary violation reading the tasks store.",
         "OQ-8 preserved: a status toggle never forces a list re-sort under the default/creation/alpha/due sorts (only sort=updated legitimately reflects the new updatedAt)."
       ],
       "clickupListId": "901615807768",
-      "architectureNote": "ORG is an orchestration grouping, not a feature folder — all ORG code lives in features/tasks. Resolved decisions (/module ORG 2026-07-12): on-Home (not a separate screen); search+filter+sort compose in one pipeline; filter+sort persist to MMKV, search in-memory; default sort created-desc; sort via ActionSheet, filter via SegmentedControl."
+      "status": "in-progress",
+      "architectureNote": "ORG is an orchestration grouping, not a feature folder — all ORG code lives in features/tasks. Resolved decisions (/module ORG 2026-07-12): on-Home (not a separate screen); search+filter+sort compose in one pipeline; filter+sort persist via the typed storage service as one envelope, search in-memory; default sort created-desc; sort via ActionSheet, filter via SegmentedControl. ORG-001 (anchor) done, PR #18 review."
     }
   ],
   "tasks": [
@@ -547,10 +551,10 @@
       "complexity": "L",
       "estimate": 8,
       "dynamicWorkflow": false,
-      "status": "ready",
+      "status": "review",
       "spec": "docs/specs/ORG/ORG-001.spec.md",
-      "clickupTaskId": null,
-      "clickupUrl": null
+      "clickupTaskId": "86d3nw6w7",
+      "clickupUrl": "https://app.clickup.com/t/86d3nw6w7"
     },
     {
       "id": "ORG-002",
@@ -571,8 +575,8 @@
       "dynamicWorkflow": false,
       "status": "blocked",
       "spec": "docs/specs/ORG/ORG-002.spec.md",
-      "clickupTaskId": null,
-      "clickupUrl": null
+      "clickupTaskId": "86d3nw6wa",
+      "clickupUrl": "https://app.clickup.com/t/86d3nw6wa"
     },
     {
       "id": "ORG-003",
@@ -593,8 +597,8 @@
       "dynamicWorkflow": false,
       "status": "blocked",
       "spec": "docs/specs/ORG/ORG-003.spec.md",
-      "clickupTaskId": null,
-      "clickupUrl": null
+      "clickupTaskId": "86d3nw6wd",
+      "clickupUrl": "https://app.clickup.com/t/86d3nw6wd"
     }
   ],
   "openQuestions": []
