@@ -163,7 +163,9 @@
       ],
       "clickupListId": "901615807767",
       "coherenceStatus": "pass",
-      "e2eStatus": "deferred"
+      "e2eStatus": "deferred",
+      "status": "done",
+      "doneAt": "2026-07-12"
     },
     {
       "id": "ORG",
