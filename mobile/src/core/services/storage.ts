@@ -41,14 +41,20 @@ export const CURRENT_STORAGE_VERSION = 1;
 /**
  * Single source of truth for every persisted key string this service
  * manages. Deliberately empty in STG-001 (the anchor task ships no domain
- * data yet) — STG-002 adds the `profile`/`tasks` entries below. Does NOT
- * include FND's `theme.mode` / `app.hasLaunched`: those are FND-owned raw
- * keys this service coexists with on the same MMKV instance, not keys it
- * manages (spec FR5).
+ * data yet) — STG-002 adds the `profile`/`tasks` entries below. `taskQuery`
+ * (ORG-001) is the organize layer's persisted `{filter,sort}` prefs
+ * envelope — a UI preference, not a domain model, but still routed through
+ * this service rather than a hand-rolled raw MMKV key (patterns-registry.md
+ * → "Typed storage service", row 18/19 — the raw-key shape `themeStore`/
+ * `launchStore` use is a grandfathered FND-era exception, not a template for
+ * new persisted values). Does NOT include FND's `theme.mode` /
+ * `app.hasLaunched`: those are FND-owned raw keys this service coexists with
+ * on the same MMKV instance, not keys it manages (spec FR5).
  */
 export const StorageKeys = {
   profile: 'profile',
   tasks: 'tasks',
+  taskQuery: 'taskQuery',
 } as const satisfies Record<string, string>;
 
 /**

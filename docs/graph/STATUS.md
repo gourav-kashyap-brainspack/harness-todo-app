@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-12 · **Phase:** FND + STG + PRO + **TSK done** (TSK-001–005 merged PRs #13–17; coherence PASS, E2E deferred, integration go). **ORG planned + unblocked** — `/module ORG` wrote 3 specs (ORG-001/002/003, 11 features); **ORG-001 is the first runnable task.** ORG is the **last module** — after it, only the deferred-E2E batch + the `development → main` release lane remain.
+**Project:** Todo App · **Updated:** 2026-07-12 · **Phase:** FND + STG + PRO + **TSK done** (TSK-001–005 merged PRs #13–17; coherence PASS, E2E deferred, integration go). **ORG in progress** — `/module ORG` wrote 3 specs (ORG-001/002/003, 11 features); **ORG-001 (the anchor) is `review`, PR #18 open, all gates green, awaiting human merge-go.** ORG-002/003 stay blocked-on-ORG-001. ORG is the **last module** — after it, only the deferred-E2E batch + the `development → main` release lane remain.
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -19,7 +19,7 @@
 | 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 done) | FND ✅ | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 3 | **PRO** — Profile | 6 | 3 (3 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (disk pressure), human integration go 2026-07-11 |
 | 4 | **TSK** — Task Management | 18 | 5 (5 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (4th, disk), human integration go 2026-07-12 |
-| 5 | **ORG** — Search, Filter, Sort | 11 | 3 (specs ready) | TSK ✅ | 🔵 **planned** — ORG-001 runnable; ORG-002/003 blocked-on-ORG-001 (group ORG-pg1) |
+| 5 | **ORG** — Search, Filter, Sort | 11 | 3 (1 review) | TSK ✅ | 🟡 **in-progress** — ORG-001 review (PR #18); ORG-002/003 blocked-on-ORG-001 (group ORG-pg1) |
 
 ## FND tasks
 
@@ -79,11 +79,11 @@
 
 | Task | Title | Feat. | Cplx | Est | blockedBy | Group | Status |
 |---|---|---|---|---|---|---|---|
-| **ORG-001** ⚓ | Organize foundation — query store (persisted filter+sort) + `selectVisibleTasks` selector + Filter | F-023/024/025 | L | 8h | — | — | 🔵 ready |
+| **ORG-001** ⚓ | Organize foundation — query store (persisted filter+sort) + `selectVisibleTasks` selector + Filter | F-023/024/025 | L | 8h | — | — | 🟡 review — PR #18 open, all gates green |
 | **ORG-002** | Search (title+desc, real-time) + no-results empty state | F-020/021/022, F-031 | M | 4h | ORG-001 | ORG-pg1 | ⚪ blocked-on-ORG-001 |
 | **ORG-003** | Sort — due · created · alpha · updated (ActionSheet menu) | F-026/027/028/029 | M | 4h | ORG-001 | ORG-pg1 | ⚪ blocked-on-ORG-001 |
 
-**Critical path:** ORG-001 → (ORG-002 ∥ ORG-003) (≈16h). **First runnable:** 🔵 **ORG-001** (the anchor — query store + derived-selector pipeline + Filter). ORG-002 + ORG-003 both depend on ORG-001 and share `HomeScreen.tsx` + `taskQueryStore.ts` + `selectVisibleTasks.ts` (group `ORG-pg1`) → **serialize (recommended: 002 then 003)** or coordinate via `parallel-integration`. **ORG total:** ≈16h.
-**ORG decisions (/module ORG 2026-07-12):** search/filter/sort live **on Home** (derived selector, not a separate screen) · all three **compose** in one pipeline (search → filter → sort) · filter+sort **persist to MMKV** (themeStore guarded-preference pattern; UI-prefs, not task data), search **in-memory** (resets on relaunch) · default sort **created-desc** (newest) · filter = `SegmentedControl` (reused), sort = `ActionSheet` menu (reused), no-results = `EmptyState` (reused) · **ORG code lives in `features/tasks`** (NOT a features/organize slice — that would be a features→features boundary violation reading the tasks store) · OQ-8 preserved (no re-sort on toggle). No new deps, no schema change, no research spike.
+**Critical path:** ORG-001 → (ORG-002 ∥ ORG-003) (≈16h). **ORG-001** (the anchor — query store + derived-selector pipeline + Filter) is 🟡 **review**: typecheck·lint·331 unit (100% changed files)·Android `assembleDebug`·security PASS (2 Low forward advisories, see stack.md)·code-review APPROVE (1 spec-text nit, reconciled) all green, **NOT yet merged**, awaiting human merge-go. ORG-002 + ORG-003 both depend on ORG-001 and share `HomeScreen.tsx` + `taskQueryStore.ts` + `selectVisibleTasks.ts` (group `ORG-pg1`) → **serialize (recommended: 002 then 003)** or coordinate via `parallel-integration`, runnable once ORG-001 merges. **ORG total:** ≈16h.
+**ORG decisions (/module ORG 2026-07-12):** search/filter/sort live **on Home** (derived selector, not a separate screen) · all three **compose** in one pipeline (search → filter → sort) · filter+sort **persist via the typed storage service** as one `{filter,sort}` envelope (`createPersistedValue`, NOT the themeStore raw-key shape — reconciled in ORG-001.spec.md post-implementation), search **in-memory** (resets on relaunch) · default sort **created-desc** (newest) · filter = `SegmentedControl` (reused), sort = `ActionSheet` menu (reused), no-results = `EmptyState` (reused) · **ORG code lives in `features/tasks`** (NOT a features/organize slice — that would be a features→features boundary violation reading the tasks store) · OQ-8 preserved (no re-sort on toggle). No new deps, no schema change, no research spike. **ORG-001 promoted 2 new Tier-1 patterns** (derived-selector-over-a-store; UI-query-state via typed storage service) — see patterns-registry.md.
 
-**Next:** `/build ORG-001` (the anchor). Then ORG-002 + ORG-003 (serialize). After ORG done → ORG Module DoD (coherence + local E2E), then the app is feature-complete: the deferred-E2E batch + `development → main` release lane remain (both mandatory, both need disk freed).
+**Next:** human merge-go on PR #18. Then ORG-002 + ORG-003 (serialize). After ORG done → ORG Module DoD (coherence + local E2E), then the app is feature-complete: the deferred-E2E batch + `development → main` release lane remain (both mandatory, both need disk freed).

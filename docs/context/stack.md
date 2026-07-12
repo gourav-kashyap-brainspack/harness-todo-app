@@ -126,6 +126,12 @@ Full justification for each lives in `docs/graph/coherence/PRO.md` → "Spec-gap
 - **2 non-blocking code-review nits (TSK-002, PR #14, low priority):** (1) an empty description submits as `''` rather than `undefined` — `taskSchema`'s `description` is optional, so both are schema-valid, but the two aren't distinguished on read; TSK-003 (edit) re-touches this same field and should decide + apply one normalization consistently rather than inherit the ambiguity; (2) `FormField`'s new `multiline` mode (min-height + `textAlignVertical`) hasn't been visually verified on a physical Android device — flag for the TSK module-edge visual/E2E pass, same as other deferred visual nits this project has been carrying.
 - **`TaskForm` promoted as a Tier-1-adjacent shared pattern** (see patterns-registry.md → "`TaskForm` (shared create+edit feature form)") — TSK-003 and TSK-005 extend it rather than forking a new form; TSK-005 runs in `TSK-pg1` parallel with TSK-003/004 after TSK-002 merges, so both touch `TaskForm.tsx` — coordinate merge ordering per the `parallel-integration` skill to avoid a silent field-set conflict.
 
+## Spec-gap notes (flagged during ORG-001, action for ORG-002 — PR #18 open/review, NOT yet merged)
+- **No new deps.** ORG-001 is JS-only (Zustand + the existing typed storage service).
+- **2 forward security advisories (both Low, non-blocking now — MUST reach the ORG-002 builder):**
+  1. **`search` is untrusted input once ORG-002 wires `matchesSearch`.** Treat it the same as any user-typed text: trim + a reasonable length cap + a **plain substring match** (`String.includes`, case-insensitive). Never build a `RegExp` from the raw query string — a user-controlled regex is a classic ReDoS vector, even in a fully local/offline app (a malicious/pathological input could still hang the JS thread on a large task list).
+  2. **Optional defensive symmetry in `selectVisibleTasks`.** `FILTER_PREDICATES[query.filter]` is currently looked up directly (safe today — `TaskFilter` is a closed Zod enum so an invalid value can't reach this call). If `FILTER_PREDICATES` ever grows a partial map (mirroring `SORT_COMPARATORS`'s `Partial<Record<...>>` + `resolveComparator` fallback), add the same `?? FILTER_PREDICATES.all` guard for consistency — not required while the map stays total.
+
 ## Build & tooling
 - **Package manager:** npm; installs `npm ci --legacy-peer-deps`. Lockfile: `mobile/package-lock.json`.
 - **Node:** ≥18 (CI uses 20); **Java:** 17 (Android); **CocoaPods** for iOS.
