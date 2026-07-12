@@ -99,7 +99,7 @@ describe('navigation shell (FND-003)', () => {
     expect(detailNode).toBeTruthy();
   });
 
-  it('pushes ProfileSetup (real PRO-001 screen) and AddTask (still an undefined-param stub screen)', () => {
+  it('pushes ProfileSetup (real PRO-001 screen) and AddTask (real TSK-002 TaskForm screen)', () => {
     const {tree, ref} = renderRootNavigator();
 
     act(() => {
@@ -112,7 +112,12 @@ describe('navigation shell (FND-003)', () => {
       ref.current?.navigate('AddTask');
       jest.runOnlyPendingTimers();
     });
-    expect(tree.root.findByProps({accessibilityLabel: 'Add Task'})).toBeTruthy();
+    // AddTask (TSK-002) replaced the FND-003 placeholder with the real
+    // `TaskForm` + submit button; the native-stack header (`title: 'Add
+    // Task'`) still supplies the visible screen title, so this asserts on
+    // the form's own content instead of a placeholder heading.
+    expect(tree.root.findByProps({accessibilityLabel: 'Title'})).toBeTruthy();
+    expect(tree.root.findByProps({accessibilityLabel: 'Add task'})).toBeTruthy();
   });
 
   it('pushes EditTask with {taskId} and the placeholder reads the param', () => {
