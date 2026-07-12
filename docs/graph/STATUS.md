@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-12 · **Phase:** FND + STG + PRO done. **TSK in progress** — TSK-001 `done` (PR #13 merged); TSK-002 `review` (PR #14, gates green, awaiting human merge-go); TSK-003/004 blocked-on-TSK-002-merge; TSK-005 blocked-on-TSK-002-merge (parallel group, shares `TaskForm`).
+**Project:** Todo App · **Updated:** 2026-07-12 · **Phase:** FND + STG + PRO done. **TSK in progress** — TSK-001 + TSK-002 `done` (PRs #13, #14 merged). Create + list flows live. **Runnable:** TSK-003 (detail+edit) + TSK-005 (due-date, TSK-pg1) — both share `TaskForm`, coordinate. TSK-004 blocked on TSK-003.
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -65,12 +65,12 @@
 | Task | Title | Feat. | Cplx | Est | blockedBy | Group | Status |
 |---|---|---|---|---|---|---|---|
 | **TSK-001** ⚓ | Tasks store + Home list (FlatList · empty · FAB · pull-refresh) | F-008, F-042 | L | 8h | — | — | 🟢 done — PR #13 merged 2026-07-12 |
-| **TSK-002** | Create task (Add screen + shared TaskForm · title-req · dup-guard) | F-007, F-034, F-035 | M | 4h | TSK-001 ✅ | — | 🟡 review — PR #14, gates green, awaiting human merge-go |
-| **TSK-003** | Task detail + edit (dates · nav · reuse TaskForm) | F-009/010/018/019/040/041 | L | 8h | TSK-002 | — | ⚪ blocked-on-TSK-002-merge |
+| **TSK-002** | Create task (Add screen + shared TaskForm · title-req · dup-guard) | F-007, F-034, F-035 | M | 4h | TSK-001 ✅ | — | 🟢 done — PR #14 merged (275edbc) 2026-07-12 |
+| **TSK-003** | Task detail + edit (dates · nav · reuse TaskForm) | F-009/010/018/019/040/041 | L | 8h | TSK-002 ✅ | — | 🔵 ready |
 | **TSK-004** | Lifecycle actions (complete/pending · delete+confirm · duplicate) | F-011/012/013/014/015 | M | 4h | TSK-003 | — | ⚪ blocked |
-| **TSK-005** | Due date field (date+time picker) — assign + remove | F-016, F-017 | M | 4h | TSK-002 | TSK-pg1 | ⚪ blocked-on-TSK-002-merge (shares `TaskForm` — coordinate with TSK-003) |
+| **TSK-005** | Due date field (date+time picker) — assign + remove | F-016, F-017 | M | 4h | TSK-002 ✅ | TSK-pg1 | 🔵 ready — shares `TaskForm` w/ TSK-003 (coordinate) |
 
-**Critical path:** TSK-001 → 002 → 003 → 004 (≈24h). **TSK-005 parallel** with 003/004 after 002 (shares `TaskForm` — coordinate). **First runnable:** 🔵 **TSK-001** (the Tasks store anchor). **TSK total:** ≈28h.
+**Critical path:** TSK-001 → 002 → 003 → 004 (≈24h). **TSK-005 parallel** with 003/004 after 002 (shares `TaskForm` — coordinate). **Runnable now:** 🔵 **TSK-003** (detail+edit, reuses `TaskForm`) + 🔵 **TSK-005** (due-date, group TSK-pg1) — both unblocked by the TSK-002 merge; they share `TaskForm.tsx` so coordinate merge ordering (parallel-integration) or serialize. **TSK total:** ≈28h.
 **TSK decisions:** all-tasks list, completed shown in-place (OQ-8) · greeting uses profile name · duplicate = copy fields + reset status/timestamps · due date = @react-native-community/datetimepicker (date+time) · search/filter/sort deferred to ORG. **Applies spec-gaps:** reuse the RHF+Zod form anchor (no 2nd pattern) — confirmed clean reuse for TSK-002's create flow, closing STG spec-gap f for TSK's create path (edit/due-date still to apply it); `upsertTask` wholesale-replace → edit submits ALL fields; `dueDate` `.toISOString()` full ISO-8601; reuse `ActionSheet` for delete-confirm (F-012). TSK-005 is native-surface (datetimepicker → `MERGE_WAIT_FOR_CI=on`). **TSK-002 promoted `TaskForm`** (`features/tasks/components/TaskForm.tsx`) as the shared create+edit form — TSK-003 reuses it via `defaultValues`, TSK-005 extends it by widening the `.pick` field set; extended `FormField` with a `multiline`/`numberOfLines` mode (backward-compatible) for the description field.
 
-**Next:** human merge-go on PR #14, then `/build TSK-003` (blocked-on-TSK-002-merge) and `/build TSK-005` (parallel after TSK-002, shares `TaskForm` — coordinate merge ordering per `parallel-integration`).
+**Next:** `/build TSK-003` (detail+edit, reuses `TaskForm`) and/or `/build TSK-005` (due-date, parallel group TSK-pg1) — both runnable after the TSK-002 merge; they share `TaskForm.tsx`, so coordinate merge ordering per `parallel-integration` or serialize.
