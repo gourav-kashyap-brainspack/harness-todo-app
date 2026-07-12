@@ -142,4 +142,65 @@ describe('ActionSheet (PRO-003)', () => {
     expect(tree.root.findByProps({name: 'copy'})).toBeTruthy();
     expect(tree.root.findByProps({name: 'trash-2'})).toBeTruthy();
   });
+
+  // ORG-003: one new optional per-option prop, `active`. The suites above
+  // (no option ever sets it — the exact shape PRO-003/TSK-004's existing
+  // call sites use) already prove the back-compat path renders unchanged;
+  // these cover the new behavior only.
+  describe('`active` option (ORG-003, F-026-029)', () => {
+    it('marks an active option with the primary+semibold label treatment, keeping its own icon glyph', () => {
+      const tree = createRenderer(
+        <ActionSheet
+          visible
+          onClose={jest.fn()}
+          options={[
+            {label: 'Due date', onPress: jest.fn(), icon: 'calendar', active: true},
+            {label: 'Alphabetical', onPress: jest.fn(), icon: 'type'},
+          ]}
+        />,
+      );
+
+      const activeLabel = tree.root.findByProps({children: 'Due date'});
+      expect(activeLabel.props.className).toEqual(expect.stringContaining('text-primary'));
+      expect(activeLabel.props.className).toEqual(expect.stringContaining('font-semibold'));
+
+      const inactiveLabel = tree.root.findByProps({children: 'Alphabetical'});
+      expect(inactiveLabel.props.className).not.toEqual(expect.stringContaining('text-primary'));
+
+      // The active option keeps its OWN meaningful glyph (`calendar`) — it
+      // is never swapped to a generic checkmark.
+      expect(tree.root.findByProps({name: 'calendar'})).toBeTruthy();
+    });
+
+    it('resolves the active option\'s icon color to `primary`, distinct from the default and destructive colors', () => {
+      const tree = createRenderer(
+        <ActionSheet
+          visible
+          onClose={jest.fn()}
+          options={[
+            {label: 'Due date', onPress: jest.fn(), icon: 'calendar', active: true},
+            {label: 'Alphabetical', onPress: jest.fn(), icon: 'type'},
+            {label: 'Delete', onPress: jest.fn(), icon: 'trash-2', destructive: true},
+          ]}
+        />,
+      );
+
+      const activeIcon = tree.root.findByProps({name: 'calendar'});
+      const defaultIcon = tree.root.findByProps({name: 'type'});
+      const destructiveIcon = tree.root.findByProps({name: 'trash-2'});
+
+      expect(activeIcon.props.color).not.toBe(defaultIcon.props.color);
+      expect(activeIcon.props.color).not.toBe(destructiveIcon.props.color);
+      expect(defaultIcon.props.color).not.toBe(destructiveIcon.props.color);
+    });
+
+    it('an option that omits `active` renders with the default (non-active) treatment — back-compat', () => {
+      const tree = createRenderer(
+        <ActionSheet visible onClose={jest.fn()} options={[{label: 'Take Photo', onPress: jest.fn()}]} />,
+      );
+
+      const label = tree.root.findByProps({children: 'Take Photo'});
+      expect(label.props.className).toBe('text-base text-text');
+    });
+  });
 });

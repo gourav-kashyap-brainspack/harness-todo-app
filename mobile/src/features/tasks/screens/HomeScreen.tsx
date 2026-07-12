@@ -3,7 +3,16 @@ import {FlatList, Pressable, RefreshControl, Text, View, type ListRenderItemInfo
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 
-import {ActionSheet, EmptyState, Screen, SegmentedControl, TaskListItem, type ActionSheetOption} from '@/components/ui';
+import {
+  ActionSheet,
+  EmptyState,
+  IconButton,
+  Screen,
+  SegmentedControl,
+  TaskListItem,
+  type ActionSheetOption,
+  type FeatherIconName,
+} from '@/components/ui';
 import {getProfile} from '@/core/services/profileRepository';
 import type {Task} from '@/core/types/task';
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
@@ -11,7 +20,8 @@ import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
 import {SearchBar} from '../components/SearchBar';
 import {useTaskActions} from '../hooks/useTaskActions';
 import {selectVisibleTasks} from '../lib/selectVisibleTasks';
-import {useTaskQueryStore, type TaskFilter} from '../store/taskQueryStore';
+import {SORT_LABELS} from '../lib/sortLabels';
+import {useTaskQueryStore, type TaskFilter, type TaskSortKey} from '../store/taskQueryStore';
 import {useTaskStore} from '../store/taskStore';
 
 /**
@@ -161,6 +171,40 @@ function buildRowMenuOptions(
 }
 
 /**
+ * The sort `ActionSheet`'s option order + icon per key (ORG-003, F-026–029,
+ * design-system.md → "ORG-003 — Sort control"). Module-scope so the array
+ * isn't re-created every render — same rationale as `FILTER_OPTIONS` above.
+ * Labels come from `SORT_LABELS` (shared with the trigger's a11y label),
+ * never restated here.
+ */
+const SORT_OPTIONS: {key: TaskSortKey; icon: FeatherIconName}[] = [
+  {key: 'due', icon: 'calendar'},
+  {key: 'created-desc', icon: 'clock'},
+  {key: 'alpha', icon: 'type'},
+  {key: 'updated', icon: 'refresh-cw'},
+];
+
+/**
+ * Builds the sort `ActionSheet`'s options (ORG-003, FR2) — design-system.md
+ * → "ORG-003 — Sort control". `active` is derived from the current `sort`
+ * on every call rather than stashed as a duplicate boolean (the same
+ * pattern the row menu's own dynamic "Mark complete"/"Mark pending" label
+ * already uses). `ActionSheet`'s own option wrapper already calls its
+ * `onClose` before firing `onPress` (see `ActionSheet.tsx`), so selecting a
+ * sort closes the sheet with no extra code here — same shape as
+ * `buildRowMenuOptions`'s options, none of which call `closeMenu`
+ * themselves either.
+ */
+function buildSortMenuOptions(sort: TaskSortKey, setSort: (sort: TaskSortKey) => void): ActionSheetOption[] {
+  return SORT_OPTIONS.map(({key, icon}) => ({
+    label: SORT_LABELS[key],
+    icon,
+    active: key === sort,
+    onPress: () => setSort(key),
+  }));
+}
+
+/**
  * HomeScreen (TSK-001, FR2/FR3/FR4) — replaces the FND-003 `Home` tab
  * placeholder. Renders tasks from the single `useTaskStore` (the TSK anchor
  * store, FR1).
@@ -217,9 +261,14 @@ export function HomeScreen(): React.JSX.Element {
   const filter = useTaskQueryStore(state => state.filter);
   const setFilter = useTaskQueryStore(state => state.setFilter);
   const sort = useTaskQueryStore(state => state.sort);
+  const setSort = useTaskQueryStore(state => state.setSort);
   const search = useTaskQueryStore(state => state.search);
   const setSearch = useTaskQueryStore(state => state.setSearch);
   const [profileName, setProfileName] = useState<string | undefined>(() => getProfile()?.name);
+  // ORG-003 — the sort ActionSheet's own visible state, owned here like the
+  // row-action/delete-confirm sheets (TSK-004) already are: one sheet, one
+  // piece of local state, never stashed in a shared store.
+  const [sortSheetVisible, setSortSheetVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -229,6 +278,9 @@ export function HomeScreen(): React.JSX.Element {
 
   const chrome = NATIVE_CHROME_RGB[resolvedScheme];
   const refreshTintColor = rgbFromTriplet(chrome.primary);
+  // ORG-003 — the sort trigger's neutral (non-state-signal) icon color, the
+  // same `mutedColor` resolution ORG-002's "Clear search" IconButton uses.
+  const mutedColor = rgbFromTriplet(chrome.textMuted);
 
   // FAB elevation per design-system.md's `TaskListItem` -> Elevation note:
   // "the Home screen's FAB ... reuses this exact resolution mechanism at
@@ -271,6 +323,16 @@ export function HomeScreen(): React.JSX.Element {
     setSearch('');
   }, [setSearch]);
 
+  // ORG-003 — opens/closes the sort ActionSheet; stable across renders for
+  // the same reason `handleClearSearch` above is.
+  const handleOpenSortMenu = useCallback(() => {
+    setSortSheetVisible(true);
+  }, []);
+
+  const handleCloseSortMenu = useCallback(() => {
+    setSortSheetVisible(false);
+  }, []);
+
   // The shared TSK-004 lifecycle-action state machine — see
   // `useTaskActions`'s own doc comment. HomeScreen passes no
   // `onDeleteConfirmed`: a deleted row just leaves the list in place (no
@@ -310,6 +372,11 @@ export function HomeScreen(): React.JSX.Element {
     [tasks.length, filter, trimmedSearch],
   );
 
+  // ORG-003 — the sort menu's own options, recomputed only when the current
+  // sort actually changes (so the active-option indication stays correct
+  // without rebuilding the array on every unrelated re-render).
+  const sortMenuOptions = useMemo(() => buildSortMenuOptions(sort, setSort), [sort, setSort]);
+
   return (
     <Screen>
       <View className="flex-1">
@@ -317,11 +384,11 @@ export function HomeScreen(): React.JSX.Element {
           {profileName ? `Hi, ${profileName}` : 'Hi there'}
         </Text>
 
-        {/* Organize header (ORG-001 + ORG-002) — pinned: a fixed sibling of
-            the list, never a FlatList `ListHeaderComponent`, so it never
-            scrolls away (design-system.md -> "ORG-001 — Organize header").
-            Slot 3 (sort trigger, ORG-003) stays structurally reserved below
-            without any layout this task ships. */}
+        {/* Organize header (ORG-001 + ORG-002 + ORG-003) — pinned: a fixed
+            sibling of the list, never a FlatList `ListHeaderComponent`, so
+            it never scrolls away (design-system.md -> "ORG-001 — Organize
+            header"). Slot 3 (sort trigger) is filled below — the organize
+            header is structurally complete after this task. */}
         <View className="gap-3 pb-4">
           {/* slot 1 — search (ORG-002, FR1/FR2) — bound directly to
               `taskQueryStore.search`/`setSearch`; real-time, no submit. */}
@@ -336,7 +403,17 @@ export function HomeScreen(): React.JSX.Element {
                 accessibilityLabel="Filter tasks"
               />
             </View>
-            {/* slot 3 — sort trigger (ORG-003 appends an IconButton here) */}
+            {/* slot 3 — sort trigger (ORG-003, FR2). Neutral `text-muted`
+                chrome (an overflow trigger that opens a menu, not a state
+                signal itself — design-system.md -> "ORG-003 — Sort
+                control"); the active sort is communicated inside the menu,
+                not on this trigger. */}
+            <IconButton
+              icon="sliders"
+              iconColor={mutedColor}
+              accessibilityLabel={`Sort tasks, currently ${SORT_LABELS[sort]}`}
+              onPress={handleOpenSortMenu}
+            />
           </View>
         </View>
 
@@ -420,6 +497,20 @@ export function HomeScreen(): React.JSX.Element {
                 ]
               : []
           }
+        />
+
+        {/* Sort menu (ORG-003, FR2) — one sheet, one piece of local state,
+            same ownership pattern as the two sheets above. `active` marks
+            the currently-selected sort (design-system.md -> "ORG-003 —
+            Sort control"); `ActionSheet`'s own option wrapper closes the
+            sheet before firing `onPress`, so no explicit close call is
+            needed in `buildSortMenuOptions`. */}
+        <ActionSheet
+          visible={sortSheetVisible}
+          onClose={handleCloseSortMenu}
+          title="Sort by"
+          accessibilityLabel="Sort by"
+          options={sortMenuOptions}
         />
       </View>
     </Screen>

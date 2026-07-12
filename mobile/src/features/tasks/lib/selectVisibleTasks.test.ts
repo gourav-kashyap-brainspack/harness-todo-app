@@ -2,7 +2,7 @@ import {describe, expect, it} from '@jest/globals';
 
 import type {Task} from '@/core/types/task';
 
-import type {TaskFilter} from '../store/taskQueryStore';
+import type {TaskFilter, TaskSortKey} from '../store/taskQueryStore';
 import {selectVisibleTasks} from './selectVisibleTasks';
 
 function makeTask(overrides: Partial<Task> & Pick<Task, 'id' | 'title' | 'status' | 'createdAt'>): Task {
@@ -60,11 +60,16 @@ describe('selectVisibleTasks (ORG-001, FR2)', () => {
     expect(result.map(t => t.id)).toEqual([NEWEST.id, MIDDLE.id, OLDEST.id]);
   });
 
-  it('an unimplemented (declared-but-not-yet-wired) sort key falls back to created-desc without crashing', () => {
-    // `due`/`alpha`/`updated` are valid `TaskSortKey` members (ORG-003
-    // slots) with no comparator entry yet — the lookup must degrade
-    // gracefully rather than throwing or leaving the list unsorted.
-    const result = selectVisibleTasks(TASKS, {search: '', filter: 'all', sort: 'due'});
+  it('an unrecognized (future-build) sort key falls back to created-desc without crashing (defensive symmetry, ORG-003)', () => {
+    // Every `TaskSortKey` member has a comparator entry as of ORG-003; this
+    // casts past the union the same way a persisted-but-stale value from a
+    // FUTURE build could arrive at runtime — `resolveComparator`'s `??`
+    // fallback must degrade gracefully rather than throwing.
+    const result = selectVisibleTasks(TASKS, {
+      search: '',
+      filter: 'all',
+      sort: 'unknown-future-key' as unknown as TaskSortKey,
+    });
 
     expect(result.map(t => t.id)).toEqual([NEWEST.id, MIDDLE.id, OLDEST.id]);
   });
@@ -120,6 +125,132 @@ describe('selectVisibleTasks (ORG-001, FR2)', () => {
     });
 
     expect(result).toHaveLength(3);
+  });
+});
+
+describe('sort — due/alpha/updated comparators (ORG-003, F-026/F-028/F-029)', () => {
+  const DUE_SOON = makeTask({
+    id: '99edc52b-2918-4d71-9058-f7285e29d894',
+    title: 'Zebra task',
+    status: 'active',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    dueDate: '2026-02-01T00:00:00.000Z',
+  });
+  const DUE_LATER = makeTask({
+    id: 'a1edc52b-2918-4d71-9058-f7285e29d894',
+    title: 'apple task',
+    status: 'active',
+    createdAt: '2026-01-02T00:00:00.000Z',
+    dueDate: '2026-03-01T00:00:00.000Z',
+  });
+  const NO_DUE_1 = makeTask({
+    id: 'a2edc52b-2918-4d71-9058-f7285e29d894',
+    title: 'Mango task',
+    status: 'active',
+    createdAt: '2026-01-03T00:00:00.000Z',
+  });
+  const NO_DUE_2 = makeTask({
+    id: 'a3edc52b-2918-4d71-9058-f7285e29d894',
+    title: 'banana task',
+    status: 'active',
+    createdAt: '2026-01-04T00:00:00.000Z',
+  });
+  const DUE_TASKS: Task[] = [NO_DUE_1, DUE_LATER, NO_DUE_2, DUE_SOON];
+
+  it('sort="due" orders ascending by dueDate, soonest first (F-026)', () => {
+    const result = selectVisibleTasks(DUE_TASKS, {search: '', filter: 'all', sort: 'due'});
+
+    expect(result.slice(0, 2).map(t => t.id)).toEqual([DUE_SOON.id, DUE_LATER.id]);
+  });
+
+  it('sort="due" puts tasks with no dueDate LAST, in their pre-sort relative order (stable)', () => {
+    const result = selectVisibleTasks(DUE_TASKS, {search: '', filter: 'all', sort: 'due'});
+
+    // The two dueDate-bearing tasks come first (soonest first), then the two
+    // no-dueDate tasks in their original array order (NO_DUE_1, NO_DUE_2) —
+    // proves stability, not an incidental re-ordering.
+    expect(result.map(t => t.id)).toEqual([DUE_SOON.id, DUE_LATER.id, NO_DUE_1.id, NO_DUE_2.id]);
+  });
+
+  it('sort="alpha" orders by title, case-insensitive A→Z (F-028)', () => {
+    const result = selectVisibleTasks(DUE_TASKS, {search: '', filter: 'all', sort: 'alpha'});
+
+    // "apple task" < "banana task" < "Mango task" < "Zebra task" once case
+    // is ignored — proves the comparison is case-insensitive, not a raw
+    // codepoint compare (which would put every capitalized title first).
+    expect(result.map(t => t.id)).toEqual([DUE_LATER.id, NO_DUE_2.id, NO_DUE_1.id, DUE_SOON.id]);
+  });
+
+  it('sort="updated" orders descending by updatedAt, most recently changed first (F-029)', () => {
+    const tasks: Task[] = [
+      {...NO_DUE_1, updatedAt: '2026-01-10T00:00:00.000Z'},
+      {...NO_DUE_2, updatedAt: '2026-01-20T00:00:00.000Z'},
+      {...DUE_SOON, updatedAt: '2026-01-15T00:00:00.000Z'},
+    ];
+
+    const result = selectVisibleTasks(tasks, {search: '', filter: 'all', sort: 'updated'});
+
+    expect(result.map(t => t.id)).toEqual([NO_DUE_2.id, DUE_SOON.id, NO_DUE_1.id]);
+  });
+
+  it('due/alpha/updated all compose with the active filter (sort applies AFTER filter)', () => {
+    const completedZebra: Task = {...DUE_SOON, id: 'a4edc52b-2918-4d71-9058-f7285e29d894', status: 'completed'};
+    const tasks = [...DUE_TASKS, completedZebra];
+
+    const result = selectVisibleTasks(tasks, {search: '', filter: 'active', sort: 'alpha'});
+
+    expect(result.map(t => t.id)).toEqual([DUE_LATER.id, NO_DUE_2.id, NO_DUE_1.id, DUE_SOON.id]);
+    expect(result.map(t => t.id)).not.toContain(completedZebra.id);
+  });
+
+  it('is pure for every comparator: never mutates or reorders the input array', () => {
+    const input = [...DUE_TASKS];
+    const snapshot = [...input];
+
+    (['due', 'alpha', 'updated'] as const).forEach(sort => {
+      selectVisibleTasks(input, {search: '', filter: 'all', sort});
+    });
+
+    expect(input).toEqual(snapshot);
+    input.forEach((task, index) => expect(task).toBe(DUE_TASKS[index]));
+  });
+
+  it('OQ-8 — a status toggle does not reorder the list under "due" (dueDate is unaffected by a toggle)', () => {
+    const before = selectVisibleTasks(DUE_TASKS, {search: '', filter: 'all', sort: 'due'});
+
+    const toggled = DUE_TASKS.map(t => (t.id === NO_DUE_1.id ? {...t, status: 'completed' as const} : t));
+    const after = selectVisibleTasks(toggled, {search: '', filter: 'all', sort: 'due'});
+
+    expect(after.map(t => t.id)).toEqual(before.map(t => t.id));
+  });
+
+  it('OQ-8 — a status toggle does not reorder the list under "alpha" (title is unaffected by a toggle)', () => {
+    const before = selectVisibleTasks(DUE_TASKS, {search: '', filter: 'all', sort: 'alpha'});
+
+    const toggled = DUE_TASKS.map(t => (t.id === NO_DUE_1.id ? {...t, status: 'completed' as const} : t));
+    const after = selectVisibleTasks(toggled, {search: '', filter: 'all', sort: 'alpha'});
+
+    expect(after.map(t => t.id)).toEqual(before.map(t => t.id));
+  });
+
+  it('OQ-8 — under "updated", a toggled task LEGITIMATELY moves (its updatedAt just changed) — this is correct, not a violation', () => {
+    const tasks: Task[] = [
+      {...NO_DUE_1, updatedAt: '2026-01-10T00:00:00.000Z'},
+      {...NO_DUE_2, updatedAt: '2026-01-20T00:00:00.000Z'},
+    ];
+    const before = selectVisibleTasks(tasks, {search: '', filter: 'all', sort: 'updated'});
+    expect(before.map(t => t.id)).toEqual([NO_DUE_2.id, NO_DUE_1.id]);
+
+    // Toggling NO_DUE_1 bumps its updatedAt past NO_DUE_2's — it should now
+    // sort first, a legitimate reorder under `updated` (not a violation of
+    // OQ-8, which only forbids reordering under sorts that don't read
+    // `updatedAt`).
+    const toggled: Task[] = tasks.map(t =>
+      t.id === NO_DUE_1.id ? {...t, status: 'completed' as const, updatedAt: '2026-01-25T00:00:00.000Z'} : t,
+    );
+    const after = selectVisibleTasks(toggled, {search: '', filter: 'all', sort: 'updated'});
+
+    expect(after.map(t => t.id)).toEqual([NO_DUE_1.id, NO_DUE_2.id]);
   });
 });
 
