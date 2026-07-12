@@ -19,7 +19,7 @@
 | 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 done) | FND ✅ | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 3 | **PRO** — Profile | 6 | 3 (3 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (disk pressure), human integration go 2026-07-11 |
 | 4 | **TSK** — Task Management | 18 | 5 (5 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (4th, disk), human integration go 2026-07-12 |
-| 5 | **ORG** — Search, Filter, Sort | 11 | 3 (1 review) | TSK ✅ | 🟡 **in-progress** — ORG-001 review (PR #18); ORG-002/003 blocked-on-ORG-001 (group ORG-pg1) |
+| 5 | **ORG** — Search, Filter, Sort | 11 | 3 (1 done) | TSK ✅ | 🟡 **in-progress** — ORG-001 done (PR #18); ORG-002 runnable, ORG-003 (group ORG-pg1) |
 
 ## FND tasks
 
@@ -79,8 +79,8 @@
 
 | Task | Title | Feat. | Cplx | Est | blockedBy | Group | Status |
 |---|---|---|---|---|---|---|---|
-| **ORG-001** ⚓ | Organize foundation — query store (persisted filter+sort) + `selectVisibleTasks` selector + Filter | F-023/024/025 | L | 8h | — | — | 🟡 review — PR #18 open, all gates green |
-| **ORG-002** | Search (title+desc, real-time) + no-results empty state | F-020/021/022, F-031 | M | 4h | ORG-001 | ORG-pg1 | ⚪ blocked-on-ORG-001 |
+| **ORG-001** ⚓ | Organize foundation — query store (persisted filter+sort) + `selectVisibleTasks` selector + Filter | F-023/024/025 | L | 8h | — | — | 🟢 done — PR #18 merged (81a5be1) 2026-07-12 |
+| **ORG-002** | Search (title+desc, real-time) + no-results empty state | F-020/021/022, F-031 | M | 4h | ORG-001 ✅ | ORG-pg1 | 🟡 in-progress — branch feat/ORG-ORG-002 |
 | **ORG-003** | Sort — due · created · alpha · updated (ActionSheet menu) | F-026/027/028/029 | M | 4h | ORG-001 | ORG-pg1 | ⚪ blocked-on-ORG-001 |
 
 **Critical path:** ORG-001 → (ORG-002 ∥ ORG-003) (≈16h). **ORG-001** (the anchor — query store + derived-selector pipeline + Filter) is 🟡 **review**: typecheck·lint·331 unit (100% changed files)·Android `assembleDebug`·security PASS (2 Low forward advisories, see stack.md)·code-review APPROVE (1 spec-text nit, reconciled) all green, **NOT yet merged**, awaiting human merge-go. ORG-002 + ORG-003 both depend on ORG-001 and share `HomeScreen.tsx` + `taskQueryStore.ts` + `selectVisibleTasks.ts` (group `ORG-pg1`) → **serialize (recommended: 002 then 003)** or coordinate via `parallel-integration`, runnable once ORG-001 merges. **ORG total:** ≈16h.

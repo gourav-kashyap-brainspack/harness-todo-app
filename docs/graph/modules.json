@@ -551,10 +551,11 @@
       "complexity": "L",
       "estimate": 8,
       "dynamicWorkflow": false,
-      "status": "review",
+      "status": "done",
       "spec": "docs/specs/ORG/ORG-001.spec.md",
       "clickupTaskId": "86d3nw6w7",
-      "clickupUrl": "https://app.clickup.com/t/86d3nw6w7"
+      "clickupUrl": "https://app.clickup.com/t/86d3nw6w7",
+      "doneAt": "2026-07-12"
     },
     {
       "id": "ORG-002",
