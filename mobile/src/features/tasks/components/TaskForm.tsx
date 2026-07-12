@@ -7,6 +7,8 @@ import {z} from 'zod';
 import {Button, FormField} from '@/components/ui';
 import {taskSchema} from '@/core/types/task';
 
+import {DueDateField} from './DueDateField';
+
 /**
  * Editable business-field schema for the shared task form (TSK-002, FR1) —
  * derived from `taskSchema` (the single source of truth for the `Task`
@@ -17,11 +19,16 @@ import {taskSchema} from '@/core/types/task';
  * `createdAt`/`updatedAt` are deliberately NOT part of this form schema —
  * `taskRepository.upsertTask` mints/manages every one of those (FR5).
  *
- * **TSK-005 extension point:** add `dueDate: true` to this `pick` set (plus
- * a `Controller` for it below) when the due-date field lands — nothing else
- * about this component's shape needs to change.
+ * **TSK-005:** `dueDate` joins the `.pick` set below — `taskSchema.dueDate`
+ * is `z.string().datetime().optional()` already (STG), so this form now
+ * boundary-validates it for free (FR4, gap f): a value only ever reaches
+ * `onSubmit` as a full ISO datetime string or `undefined`, never a bare
+ * date, because `DueDateField` (see its own doc comment) only ever produces
+ * `.toISOString()` or `undefined` — a Zod failure here is structurally
+ * unreachable, same "boundary validation" shape the RHF+Zod anchor
+ * establishes for `title`.
  */
-export const taskFormSchema = taskSchema.pick({title: true, description: true});
+export const taskFormSchema = taskSchema.pick({title: true, description: true, dueDate: true});
 export type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 export interface TaskFormProps {
@@ -33,7 +40,7 @@ export interface TaskFormProps {
   submitLabel?: string;
 }
 
-const EMPTY_VALUES: TaskFormValues = {title: '', description: ''};
+const EMPTY_VALUES: TaskFormValues = {title: '', description: '', dueDate: undefined};
 const DESCRIPTION_LINES = 4;
 
 /**
@@ -133,6 +140,18 @@ export function TaskForm({
             numberOfLines={DESCRIPTION_LINES}
           />
         )}
+      />
+
+      {/* TSK-005 (FR2/FR3) — below Description, in the same gap-4 stack
+          (design-system.md -> "TSK-005 — Due date field" -> "Where"). Not a
+          `FormField`: a `Pressable` pair opening a native OS dialog has no
+          text-input/error shape (that doc's own "Why not FormField" note).
+          No `error` prop — FR4 makes an invalid value structurally
+          unreachable (see this file's `taskFormSchema` doc comment). */}
+      <Controller
+        control={control}
+        name="dueDate"
+        render={({field: {onChange, value}}) => <DueDateField value={value} onChange={onChange} />}
       />
 
       <Button label={submitLabel} onPress={handleFormSubmit} loading={isSubmitting} />

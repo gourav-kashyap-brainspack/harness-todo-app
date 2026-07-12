@@ -54,3 +54,29 @@ jest.mock('react-native-image-picker', () => ({
   launchCamera: jest.fn(() => Promise.resolve({didCancel: true})),
   launchImageLibrary: jest.fn(() => Promise.resolve({didCancel: true})),
 }));
+
+// @react-native-community/datetimepicker (TSK-005) ships a real native
+// component (default export, the iOS/inline flow) plus an Android-only
+// imperative API (`DateTimePickerAndroid.open`/`dismiss`, no native bridge
+// under Jest — an unmocked call throws the same
+// `TurboModuleRegistry`-style error the other native-module mocks above
+// guard against). Mocked globally for the same reason: ANY test that mounts
+// `DueDateField` (`TaskForm`, and therefore both `AddTaskScreen` and
+// `EditTaskScreen`, post TSK-005) must be safe by default, not just
+// `DueDateField.test.tsx`. The default-export component is a plain
+// `jest.fn(() => null)` — `DueDateField.test.tsx` locates it via
+// `tree.root.findByType(DateTimePicker)` (the same "still findable by
+// reference even though it renders null" mechanism the app's other
+// composite-component tests rely on, e.g. `TextInput` lookups) and fires
+// `.props.onChange(event, date)` directly to simulate a pick. `open`
+// defaults to a no-op (safe if a test never overrides it);
+// individual tests override behaviour via
+// `jest.mocked(DateTimePickerAndroid.open).mockImplementation(...)`.
+jest.mock('@react-native-community/datetimepicker', () => ({
+  __esModule: true,
+  default: jest.fn(() => null),
+  DateTimePickerAndroid: {
+    open: jest.fn(),
+    dismiss: jest.fn(() => Promise.resolve(true)),
+  },
+}));

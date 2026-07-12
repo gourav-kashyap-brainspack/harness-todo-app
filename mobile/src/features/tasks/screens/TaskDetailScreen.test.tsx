@@ -3,6 +3,7 @@ import {act, create as createRenderer, type ReactTestRenderer} from 'react-test-
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {format} from 'date-fns';
 
+import {formatDueDateFull} from '@/core/lib';
 import * as taskRepository from '@/core/services/taskRepository';
 import type {Task} from '@/core/types/task';
 
@@ -56,6 +57,12 @@ const NO_DESCRIPTION_TASK: Task = {
   ...ACTIVE_TASK,
   id: '33edc52b-2918-4d71-9058-f7285e29d894',
   description: undefined,
+};
+
+const WITH_DUE_DATE_TASK: Task = {
+  ...ACTIVE_TASK,
+  id: '44edc52b-2918-4d71-9058-f7285e29d894',
+  dueDate: '2026-07-15T15:30:00.000Z',
 };
 
 const initialTaskState = useTaskStore.getState();
@@ -121,11 +128,20 @@ describe('TaskDetailScreen (TSK-003, FR2/FR6)', () => {
     expect(tree.root.findByProps({children: 'No description'})).toBeTruthy();
   });
 
-  it('shows "No due date" while task.dueDate is unset (TSK-005 extension point)', () => {
+  it('shows "No due date" while task.dueDate is unset', () => {
     useTaskStore.setState({tasks: [ACTIVE_TASK]});
     const tree = renderScreen(ACTIVE_TASK.id);
 
     expect(tree.root.findByProps({accessibilityLabel: 'Due date: No due date'})).toBeTruthy();
+  });
+
+  it('shows the full-format due date (formatDueDateFull, TSK-005) when task.dueDate is set', () => {
+    useTaskStore.setState({tasks: [WITH_DUE_DATE_TASK]});
+    const tree = renderScreen(WITH_DUE_DATE_TASK.id);
+
+    const expectedLabel = formatDueDateFull(WITH_DUE_DATE_TASK.dueDate!);
+    expect(tree.root.findByProps({accessibilityLabel: `Due date: ${expectedLabel}`})).toBeTruthy();
+    expect(tree.root.findByProps({children: expectedLabel})).toBeTruthy();
   });
 
   it('the Edit affordance navigates to EditTask with the same {taskId} (F-041)', () => {
@@ -158,7 +174,14 @@ describe('TaskDetailScreen (TSK-003, FR2/FR6)', () => {
       useTaskStore.setState({tasks: [ACTIVE_TASK], toggleStatus: mockedToggleStatus});
       const tree = renderScreen(ACTIVE_TASK.id);
 
-      const toggleButton = tree.root.findByProps({accessibilityLabel: 'Mark complete'});
+      // `findByProps` stops at the FIRST tree match (non-deep search) —
+      // since TSK-005's `IconButton` now forwards `accessibilityLabel`
+      // verbatim from its own prop to the inner `Pressable`, a bare
+      // `{accessibilityLabel: 'Mark complete'}` filter would resolve to the
+      // outer `IconButton` composite (which has no `accessibilityRole` of
+      // its own) instead of the Pressable. Adding `accessibilityRole` to
+      // the filter disambiguates to the actual interactive node.
+      const toggleButton = tree.root.findByProps({accessibilityLabel: 'Mark complete', accessibilityRole: 'button'});
       expect(toggleButton.props.accessibilityRole).toBe('button');
 
       act(() => {
