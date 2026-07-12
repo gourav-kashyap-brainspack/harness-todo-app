@@ -10,3 +10,4 @@ export {
   type SegmentedControlOption,
   type SegmentedControlProps,
 } from './SegmentedControl';
+export {TaskListItem, type TaskListItemProps} from './TaskListItem';
