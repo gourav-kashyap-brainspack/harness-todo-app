@@ -45,15 +45,39 @@ function resolveComparator(sort: TaskSortKey): (a: Task, b: Task) => number {
 }
 
 /**
- * `search` predicate — a no-op passthrough for ORG-001 (spec FR2: "a
- * non-empty search may either passthrough — but structure the seam so
- * ORG-002 drops in a title/description substring match"). Isolated in its
- * own function (rather than inlined in the pipeline below) so ORG-002 swaps
- * this one implementation for a real predicate without touching
- * `selectVisibleTasks` itself.
+ * ORG-002 security advisory 1 (from the ORG-001 review, `stack.md`): `search`
+ * is UNTRUSTED user input. Clamp it to a reasonable length BEFORE it ever
+ * reaches a string operation — a pathological multi-KB paste into the search
+ * field should cost `.includes` no more than this cap, not the full input
+ * length, on every keystroke re-derive.
  */
-function matchesSearch(_task: Task, _search: string): boolean {
-  return true;
+const SEARCH_QUERY_MAX_LENGTH = 128;
+
+/**
+ * `search` predicate (ORG-002, FR3, F-020/F-021) — a task matches when the
+ * normalized query is a substring of its title (F-020) OR description
+ * (F-021). Normalization: trim, lowercase, then clamp to
+ * `SEARCH_QUERY_MAX_LENGTH` — same three steps applied to both the query and
+ * the fields it's compared against, so "buy" matches "Buy milk" regardless of
+ * case.
+ *
+ * **Security (advisory 1, `docs/context/stack.md`):** plain
+ * `String.prototype.includes` ONLY — never `RegExp`/`.match()` built from the
+ * raw query. A user-controlled regex is a ReDoS vector even in a fully local,
+ * offline app (a pathological pattern like `(a+)+$` can still hang the JS
+ * thread); a literal substring check has no such failure mode and is exactly
+ * what F-020/F-021 ask for ("contains", not "matches a pattern").
+ *
+ * Pure — reads `task`/`search`, mutates neither.
+ */
+function matchesSearch(task: Task, search: string): boolean {
+  const query = search.trim().toLowerCase().slice(0, SEARCH_QUERY_MAX_LENGTH);
+  if (query === '') {
+    return true;
+  }
+  const titleMatches = task.title.toLowerCase().includes(query);
+  const descriptionMatches = task.description?.toLowerCase().includes(query) ?? false;
+  return titleMatches || descriptionMatches;
 }
 
 /**
@@ -71,6 +95,9 @@ function matchesSearch(_task: Task, _search: string): boolean {
  */
 export function selectVisibleTasks(tasks: Task[], query: TaskQuery): Task[] {
   const searched = query.search.trim() === '' ? tasks : tasks.filter(task => matchesSearch(task, query.search));
-  const filtered = searched.filter(FILTER_PREDICATES[query.filter]);
+  // ORG-002 security advisory 2 (defensive symmetry with `resolveComparator`
+  // above): fall back to the `all` passthrough rather than crash on an
+  // unrecognized `filter` value.
+  const filtered = searched.filter(FILTER_PREDICATES[query.filter] ?? FILTER_PREDICATES.all);
   return filtered.slice().sort(resolveComparator(query.sort));
 }

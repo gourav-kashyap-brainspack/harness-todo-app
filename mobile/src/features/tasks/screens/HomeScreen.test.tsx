@@ -503,4 +503,105 @@ describe('HomeScreen (TSK-001, FR2/FR3/FR4)', () => {
       expect(secondData).not.toBe(firstData);
     });
   });
+
+  describe('ORG-002 — search (F-020/F-021/F-022/F-031)', () => {
+    const MILK: Task = {...TASK, title: 'Buy milk'};
+    const BANK: Task = {...OTHER_TASK, id: '33edc52b-2918-4d71-9058-f7285e29d894', title: 'Call bank'};
+
+    it('renders the search input, labeled for a11y/Maestro', () => {
+      const tree = renderScreen();
+
+      const input = tree.root.findByProps({accessibilityLabel: 'Search tasks'});
+      expect(input.props.placeholder).toBe('Search tasks');
+    });
+
+    it('typing in search calls setSearch and re-derives the list live (F-022)', () => {
+      useTaskStore.setState({tasks: [MILK, BANK]});
+      const tree = renderScreen();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Search tasks'}).props.onChangeText('milk');
+      });
+
+      expect(useTaskQueryStore.getState().search).toBe('milk');
+      expect(tree.root.findByProps({children: 'Buy milk'})).toBeTruthy();
+      expect(() => tree.root.findByProps({children: 'Call bank'})).toThrow();
+    });
+
+    it('a non-empty search with no matches shows the no-results copy, interpolating the trimmed query (F-031)', () => {
+      useTaskStore.setState({tasks: [MILK, BANK]});
+      useTaskQueryStore.setState({search: 'xyz'});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'No results'})).toBeTruthy();
+      expect(tree.root.findByProps({children: 'No tasks match "xyz".'})).toBeTruthy();
+    });
+
+    it('no-results WINS over the filtered-empty copy when a non-"all" filter is also active (precedence)', () => {
+      useTaskStore.setState({tasks: [MILK]});
+      useTaskQueryStore.setState({search: 'xyz', filter: 'active'});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'No results'})).toBeTruthy();
+      expect(() => tree.root.findByProps({children: 'No active tasks'})).toThrow();
+    });
+
+    it('"No tasks yet" still wins over no-results when the store has zero tasks at all (precedence)', () => {
+      useTaskQueryStore.setState({search: 'xyz'});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'No tasks yet'})).toBeTruthy();
+      expect(() => tree.root.findByProps({children: 'No results'})).toThrow();
+    });
+
+    it('a whitespace-only search does not trigger no-results (trimmed to empty, treated as no search)', () => {
+      useTaskStore.setState({tasks: [MILK, BANK]});
+      useTaskQueryStore.setState({search: '   '});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'Buy milk'})).toBeTruthy();
+      expect(tree.root.findByProps({children: 'Call bank'})).toBeTruthy();
+      expect(() => tree.root.findByProps({children: 'No results'})).toThrow();
+    });
+
+    it('the clear button is shown only once a query is typed, and resets the search to \'\'', () => {
+      useTaskStore.setState({tasks: [MILK, BANK]});
+      const tree = renderScreen();
+
+      expect(() => tree.root.findByProps({accessibilityLabel: 'Clear search'})).toThrow();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Search tasks'}).props.onChangeText('milk');
+      });
+      expect(tree.root.findByProps({children: 'Buy milk'})).toBeTruthy();
+      expect(() => tree.root.findByProps({children: 'Call bank'})).toThrow();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Clear search'}).props.onPress();
+      });
+
+      expect(useTaskQueryStore.getState().search).toBe('');
+      expect(tree.root.findByProps({children: 'Buy milk'})).toBeTruthy();
+      expect(tree.root.findByProps({children: 'Call bank'})).toBeTruthy();
+    });
+
+    it('filter-empty copy still shows when search is empty (search does not shadow the filter-empty precedence)', () => {
+      const completedTask: Task = {...TASK, status: 'completed'};
+      useTaskStore.setState({tasks: [completedTask]});
+      useTaskQueryStore.setState({filter: 'active', search: ''});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'No active tasks'})).toBeTruthy();
+    });
+
+    it('search composes with filter+sort — searching while filter=active shows only active matches', () => {
+      const completedMilk: Task = {...MILK, id: '99edc52b-2918-4d71-9058-f7285e29d894', status: 'completed'};
+      useTaskStore.setState({tasks: [MILK, completedMilk]});
+      useTaskQueryStore.setState({search: 'milk', filter: 'active'});
+      const tree = renderScreen();
+
+      const list = tree.root.findByType(FlatList);
+      expect(list.props.data).toEqual([MILK]);
+    });
+  });
 });
