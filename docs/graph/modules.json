@@ -446,7 +446,8 @@
       "complexity": "M",
       "estimate": 4,
       "dynamicWorkflow": false,
-      "status": "ready",
+      "status": "review",
+      "startedAt": "2026-07-12",
       "spec": "docs/specs/TSK/TSK-002.spec.md",
       "clickupTaskId": "86d3ntxcr",
       "clickupUrl": "https://app.clickup.com/t/86d3ntxcr"

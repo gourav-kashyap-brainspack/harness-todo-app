@@ -13,8 +13,8 @@
 | F-004 | Remove Profile Picture | P2 | Profile | PRO | PRO-003 | Profile photo | done |
 | F-005 | View User Profile | P0 | Profile | PRO | PRO-002 | Profile view + edit | done |
 | F-006 | Persist Profile Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
-| F-007 | Create Task | P0 | Tasks | TSK | TSK-002 | Create task | ready |
-| F-008 | View Task List | P0 | Tasks | TSK | TSK-001 | Tasks store + Home list | review |
+| F-007 | Create Task | P0 | Tasks | TSK | TSK-002 | Create task | review |
+| F-008 | View Task List | P0 | Tasks | TSK | TSK-001 | Tasks store + Home list | done |
 | F-009 | View Task Details | P0 | Tasks | TSK | TSK-003 | Task detail + edit | ready |
 | F-010 | Edit Task | P0 | Tasks | TSK | TSK-003 | Task detail + edit | ready |
 | F-011 | Delete Task | P0 | Tasks | TSK | TSK-004 | Lifecycle actions | ready |
@@ -40,15 +40,15 @@
 | F-031 | Display No Search Results | P1 | UI | ORG | | | mapped |
 | F-032 | Show Loading Indicator | P1 | UI | FND | FND-005 | Shared UI primitives | done |
 | F-033 | Display Validation Errors | P0 | Validation | PRO | PRO-001 | Profile store + setup form | done |
-| F-034 | Require Task Title | P0 | Validation | TSK | TSK-002 | Create task | ready |
-| F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | TSK-002 | Create task | ready |
+| F-034 | Require Task Title | P0 | Validation | TSK | TSK-002 | Create task | review |
+| F-035 | Prevent Duplicate Submission | P1 | Validation | TSK | TSK-002 | Create task | review |
 | F-036 | Persist Task Data | P0 | Storage | STG | STG-002 | Profile + Task repositories | done |
 | F-037 | Restore Local Data | P0 | Storage | STG | STG-001 | Typed storage service | done |
 | F-038 | Handle Corrupted Local Data | P1 | Storage | STG | STG-001 | Typed storage service | done |
 | F-039 | Bottom Tab Navigation | P0 | Navigation | FND | FND-003 | Navigation shell | done |
 | F-040 | Navigate to Task Details | P0 | Navigation | TSK | TSK-003 | Task detail + edit | ready |
 | F-041 | Navigate to Edit Task | P0 | Navigation | TSK | TSK-003 | Task detail + edit | ready |
-| F-042 | Pull to Refresh | P2 | Tasks | TSK | TSK-001 | Tasks store + Home list | review |
+| F-042 | Pull to Refresh | P2 | Tasks | TSK | TSK-001 | Tasks store + Home list | done |
 | F-043 | Application Splash Screen | P1 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 | F-044 | First Launch Detection | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 | F-045 | Light Theme (+dark) | P0 | UI | FND | FND-002 | Design system + theming | done |
@@ -56,7 +56,7 @@
 | F-047 | Accessibility Labels | P2 | Accessibility | FND | FND-005 | Shared UI primitives | done |
 | F-048 | Offline Operation | P0 | Application | FND | FND-004 | Bootstrap: splash·first-launch·offline | done |
 
-**Coverage:** 48 features · 48 mapped to a module · **19 mapped to a task (9 FND + 4 STG + 6 PRO)** · 0 orphans · **FND, STG, and PRO modules all DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred on all three — PRO's deferral is disk-pressure, not headlessness) — all 9 FND features, all 4 STG features (F-006, F-036, F-037, F-038), and all 6 PRO features (F-001–F-005, F-033) `done`. **TSK in progress:** F-008, F-042 (TSK-001) → `review` (PR #13, awaiting human merge-go); remaining 16 TSK features still `ready` (TSK-002–005). ORG (11 features) stays blocked on TSK.
+**Coverage:** 48 features · 48 mapped to a module · **19 mapped to a task (9 FND + 4 STG + 6 PRO)** · 0 orphans · **FND, STG, and PRO modules all DONE** (coherence PASS, human integration go 2026-07-11, local E2E deferred on all three — PRO's deferral is disk-pressure, not headlessness) — all 9 FND features, all 4 STG features (F-006, F-036, F-037, F-038), and all 6 PRO features (F-001–F-005, F-033) `done`. **TSK in progress:** F-008, F-042 (TSK-001) → `done` (PR #13 merged 2026-07-12); F-007, F-034, F-035 (TSK-002) → `review` (PR #14, gates green, awaiting human merge-go); remaining 13 TSK features still `ready` (TSK-003–005). ORG (11 features) stays blocked on TSK.
 
 ### Per-module coverage
 | Module | Features | IDs |

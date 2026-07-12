@@ -157,6 +157,25 @@ describe('FormField (PRO-001, F-033)', () => {
     expect(icon.props.color).toBe('rgb(229, 100, 90)');
   });
 
+  it('multiline grows the input to the taller "sane height" box and top-aligns text on Android (TSK-002)', () => {
+    const rendered = renderFormField({multiline: true, numberOfLines: 4});
+    const input = rendered.root.findByType(TextInput);
+
+    expect(input.props.className).toEqual(expect.stringContaining('min-h-24'));
+    expect(input.props.className).not.toEqual(expect.stringContaining('min-h-12'));
+    expect(input.props.textAlignVertical).toBe('top');
+    expect(input.props.multiline).toBe(true);
+    expect(input.props.numberOfLines).toBe(4);
+  });
+
+  it('single-line (default) input keeps the standard height and no textAlignVertical override', () => {
+    const rendered = renderFormField();
+    const input = rendered.root.findByType(TextInput);
+
+    expect(input.props.className).toEqual(expect.stringContaining('min-h-12'));
+    expect(input.props.textAlignVertical).toBeUndefined();
+  });
+
   it('the `required` prop renders no visible marker and never leaks onto the underlying TextInput', () => {
     const rendered = renderFormField({required: true});
 

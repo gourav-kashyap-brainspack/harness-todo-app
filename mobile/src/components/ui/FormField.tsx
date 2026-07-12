@@ -17,6 +17,8 @@ export interface FormFieldProps
     | 'returnKeyType'
     | 'onSubmitEditing'
     | 'secureTextEntry'
+    | 'multiline'
+    | 'numberOfLines'
   > {
   label: string;
   error?: string;
@@ -50,6 +52,13 @@ const ERROR_ICON_SIZE = 14;
  *
  * Forwards its ref to the underlying `TextInput` so a screen can drive
  * focus-advance (e.g. Name's `onSubmitEditing` focusing the Email field).
+ *
+ * **`multiline` (TSK-002 extension):** when set, the input grows to a
+ * "sane height" for a short paragraph (`min-h-24`, 96dp — the 4pt-grid step
+ * above the single-line `min-h-12` floor, roughly 4 lines at `text-base`'s
+ * line-height) and sets `textAlignVertical="top"` (Android — text otherwise
+ * vertically centers in a tall multiline box; a no-op on iOS, which already
+ * top-aligns). First use: `TaskForm`'s Description field.
  */
 export const FormField = forwardRef<TextInput, FormFieldProps>(function FormField(
   {label, error, required: _required, onBlur, ...inputProps},
@@ -78,6 +87,7 @@ export const FormField = forwardRef<TextInput, FormFieldProps>(function FormFiel
   // error row below (design-system.md anti-pattern #3).
   const borderClassName = error ? 'border-danger' : isFocused ? 'border-primary' : 'border-border';
   const accessibilityLabel = error ? `${label}, ${error}` : label;
+  const heightClassName = inputProps.multiline ? 'min-h-24' : 'min-h-12';
 
   return (
     <View>
@@ -91,7 +101,8 @@ export const FormField = forwardRef<TextInput, FormFieldProps>(function FormFiel
           setIsFocused(false);
           onBlur?.(event);
         }}
-        className={`min-h-12 rounded-md border ${borderClassName} bg-surface px-3 py-3 text-base text-text`}
+        textAlignVertical={inputProps.multiline ? 'top' : undefined}
+        className={`${heightClassName} rounded-md border ${borderClassName} bg-surface px-3 py-3 text-base text-text`}
         {...inputProps}
       />
       {error ? (

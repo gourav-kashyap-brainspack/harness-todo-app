@@ -18,18 +18,16 @@ import {PlaceholderScreen} from './PlaceholderScreen';
  * module (`app -> features` is an allowed boundary direction; the reverse
  * is not, which is why the screens themselves use plain `useNavigation()`
  * rather than this file's `useAppNavigation` helper). `Home` (the tab) is
- * the fourth swap (TSK-001), same re-export shape. `RootNavigator`/
- * `TabNavigator`'s wiring never changes — they still only import
- * `ProfileSetupScreen`/`ProfileScreen`/`HomeScreen` from this barrel.
+ * the fourth swap (TSK-001), and `AddTask` is the fifth (TSK-002), same
+ * re-export shape. `RootNavigator`/`TabNavigator`'s wiring never changes —
+ * they still only import `ProfileSetupScreen`/`ProfileScreen`/
+ * `HomeScreen`/`AddTaskScreen` from this barrel.
  */
 export {BootstrapScreen as SplashScreen} from './BootstrapScreen';
 export {ProfileSetupScreen} from '@/features/profile/screens/ProfileSetupScreen';
 export {ProfileScreen} from '@/features/profile/screens/ProfileScreen';
 export {HomeScreen} from '@/features/tasks/screens/HomeScreen';
-
-export function AddTaskScreen(): React.JSX.Element {
-  return <PlaceholderScreen name="Add Task" />;
-}
+export {AddTaskScreen} from '@/features/tasks/screens/AddTaskScreen';
 
 export function EditTaskScreen(): React.JSX.Element {
   const route = useAppRoute<'EditTask'>();
