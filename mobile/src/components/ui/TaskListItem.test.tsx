@@ -29,7 +29,8 @@ const COMPLETED_TASK: Task = {...TASK, status: 'completed'};
 const ROW_LABEL_ACTIVE = 'Buy milk, active, due Jul 15';
 const ROW_LABEL_COMPLETED = 'Buy milk, completed, due Jul 15';
 const TOGGLE_LABEL_UNCHECKED = 'Mark "Buy milk" as complete';
-const TOGGLE_LABEL_CHECKED = 'Mark "Buy milk" as active';
+// TSK-004: corrected from "...as active" to "...as pending" (F-014 wording).
+const TOGGLE_LABEL_CHECKED = 'Mark "Buy milk" as pending';
 
 // Tracked + unmounted in `afterEach` — an un-unmounted tree from a prior
 // test stays subscribed to `useThemeStore`, so the dark/light-mode tests
@@ -180,5 +181,49 @@ describe('TaskListItem (TSK-001, F-008/FR5)', () => {
 
     const row = tree.root.findByProps({accessibilityLabel: ROW_LABEL_ACTIVE});
     expect(row.props.style).toEqual({shadowOpacity: 0, elevation: 0});
+  });
+
+  // TSK-004: the trailing chevron-right hint is replaced by a "..." More
+  // actions button.
+  it('renders the "More actions" button (replacing the old chevron hint) and calls onOpenActions with the task', () => {
+    const onOpenActions = jest.fn();
+    const tree = renderItem({task: TASK, onPress: jest.fn(), onOpenActions});
+
+    expect(() => tree.root.findByProps({name: 'chevron-right'})).toThrow();
+    expect(tree.root.findByProps({name: 'more-horizontal'})).toBeTruthy();
+
+    const moreButton = tree.root.findByProps({accessibilityLabel: 'More actions'});
+    expect(moreButton.props.accessibilityRole).toBe('button');
+
+    act(() => {
+      moreButton.props.onPress();
+    });
+
+    expect(onOpenActions).toHaveBeenCalledWith(TASK);
+  });
+
+  it('pressing "More actions" is a harmless no-op when onOpenActions is omitted', () => {
+    const tree = renderItem({task: TASK, onPress: jest.fn()});
+
+    const moreButton = tree.root.findByProps({accessibilityLabel: 'More actions'});
+    expect(() => {
+      act(() => {
+        moreButton.props.onPress();
+      });
+    }).not.toThrow();
+  });
+
+  it('pressing "More actions" does not also trigger the row\'s onPress (navigate to Detail)', () => {
+    const onPress = jest.fn();
+    const onOpenActions = jest.fn();
+    const tree = renderItem({task: TASK, onPress, onOpenActions});
+
+    const moreButton = tree.root.findByProps({accessibilityLabel: 'More actions'});
+    act(() => {
+      moreButton.props.onPress();
+    });
+
+    expect(onOpenActions).toHaveBeenCalledTimes(1);
+    expect(onPress).not.toHaveBeenCalled();
   });
 });

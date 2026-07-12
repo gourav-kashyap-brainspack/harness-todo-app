@@ -29,6 +29,7 @@ export const NATIVE_CHROME_RGB: Record<
     border: string;
     primary: string;
     danger: string;
+    success: string;
   }
 > = {
   light: {
@@ -39,6 +40,7 @@ export const NATIVE_CHROME_RGB: Record<
     border: '228 223 216', // `border` token
     primary: '11 110 127', // `primary` token — active tab tint / nav accent
     danger: '179 38 30', // `danger` token — reused for nav's "notification" slot (no separate semantic; design-system.md anti-pattern #8)
+    success: '46 125 79', // `success` token (design-system.md Color tokens) — first native-prop consumer: TaskDetailScreen's Toggle icon (TSK-004)
   },
   dark: {
     bg: '18 24 26',
@@ -48,6 +50,7 @@ export const NATIVE_CHROME_RGB: Record<
     border: '44 55 58',
     primary: '23 120 111',
     danger: '229 100 90',
+    success: '79 174 114',
   },
 };
 

@@ -1,5 +1,10 @@
 import React from 'react';
 import {Modal, Pressable, Text} from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
+
+import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
+
+import type {FeatherIconName} from './EmptyState';
 
 export interface ActionSheetOption {
   label: string;
@@ -8,6 +13,14 @@ export interface ActionSheetOption {
   destructive?: boolean;
   /** Falls back to `label` when the visible text is already a clear name. */
   accessibilityLabel?: string;
+  /**
+   * Optional leading Feather glyph (TSK-004, F-011/F-012/F-015) — 20dp,
+   * color-paired to the label: `danger` when `destructive`, `text`
+   * otherwise. Omitted entirely for a plain text-only option row — the
+   * existing PRO-003 photo-action menu never sets this and renders
+   * byte-for-byte unchanged.
+   */
+  icon?: FeatherIconName;
 }
 
 export interface ActionSheetProps {
@@ -16,7 +29,16 @@ export interface ActionSheetProps {
   options: ActionSheetOption[];
   /** The sheet's accessible name/context (e.g. `"Photo actions"`). */
   accessibilityLabel?: string;
+  /**
+   * Optional header rendered above the options (TSK-004, F-012) — used for
+   * a yes/no-style confirm (e.g. `"Delete this task?"`). An options-only
+   * menu (no yes/no question) omits this, same as PRO-003's existing
+   * photo-action menu — unaffected either way.
+   */
+  title?: string;
 }
+
+const OPTION_ICON_SIZE = 20;
 
 /**
  * ActionSheet (PRO-003) — a themed, cross-platform bottom action sheet: a
@@ -32,16 +54,28 @@ export interface ActionSheetProps {
  * false — RN's `Modal` otherwise keeps its children mounted regardless of
  * its own `visible` prop, which would leave inert Pressables sitting in the
  * tree (and in the accessibility tree) between opens.
+ *
+ * **TSK-004 extension:** two optional additions, both backward-compatible —
+ * `title` (a header above the options, for a yes/no-style confirm) and
+ * per-option `icon` (a leading Feather glyph). Neither is set by the
+ * existing PRO-003 photo-action menu, so that call site renders unchanged.
  */
 export function ActionSheet({
   visible,
   onClose,
   options,
   accessibilityLabel,
+  title,
 }: ActionSheetProps): React.JSX.Element | null {
+  const {resolvedScheme} = useTheme();
+
   if (!visible) {
     return null;
   }
+
+  const chrome = NATIVE_CHROME_RGB[resolvedScheme];
+  const defaultIconColor = rgbFromTriplet(chrome.text);
+  const destructiveIconColor = rgbFromTriplet(chrome.danger);
 
   return (
     <Modal transparent animationType="fade" visible onRequestClose={onClose} statusBarTranslucent>
@@ -57,6 +91,13 @@ export function ActionSheet({
           accessibilityRole="menu"
           accessibilityLabel={accessibilityLabel}
           className="gap-1 rounded-t-lg bg-card p-4">
+          {title ? (
+            <Text
+              accessibilityRole="header"
+              className="mb-1 border-b border-border pb-3 text-base font-semibold text-text">
+              {title}
+            </Text>
+          ) : null}
           {options.map(option => (
             <Pressable
               key={option.label}
@@ -66,7 +107,14 @@ export function ActionSheet({
               }}
               accessibilityRole="menuitem"
               accessibilityLabel={option.accessibilityLabel ?? option.label}
-              className="min-h-12 items-center justify-center rounded-md px-4 py-3">
+              className="min-h-12 flex-row items-center justify-center gap-3 rounded-md px-4 py-3">
+              {option.icon ? (
+                <Feather
+                  name={option.icon}
+                  size={OPTION_ICON_SIZE}
+                  color={option.destructive ? destructiveIconColor : defaultIconColor}
+                />
+              ) : null}
               <Text
                 className={`text-base ${option.destructive ? 'font-semibold text-danger' : 'text-text'}`}>
                 {option.label}

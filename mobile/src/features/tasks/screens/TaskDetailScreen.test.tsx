@@ -3,6 +3,7 @@ import {act, create as createRenderer, type ReactTestRenderer} from 'react-test-
 import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {format} from 'date-fns';
 
+import * as taskRepository from '@/core/services/taskRepository';
 import type {Task} from '@/core/types/task';
 
 import {useTaskStore} from '../store/taskStore';
@@ -17,6 +18,8 @@ jest.mock('@/core/services/taskRepository', () => ({
   removeTask: jest.fn(),
   upsertTask: jest.fn(),
 }));
+
+const mockedRemoveTask = jest.mocked(taskRepository.removeTask);
 
 const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
@@ -147,5 +150,121 @@ describe('TaskDetailScreen (TSK-003, FR2/FR6)', () => {
       goBackButton.props.onPress();
     });
     expect(mockGoBack).toHaveBeenCalledTimes(1);
+  });
+
+  describe('TSK-004 — lifecycle actions (F-011-F-015)', () => {
+    it('the Toggle button is labeled "Mark complete" for an active task and calls toggleStatus(id)', () => {
+      const mockedToggleStatus = jest.fn();
+      useTaskStore.setState({tasks: [ACTIVE_TASK], toggleStatus: mockedToggleStatus});
+      const tree = renderScreen(ACTIVE_TASK.id);
+
+      const toggleButton = tree.root.findByProps({accessibilityLabel: 'Mark complete'});
+      expect(toggleButton.props.accessibilityRole).toBe('button');
+
+      act(() => {
+        toggleButton.props.onPress();
+      });
+
+      expect(mockedToggleStatus).toHaveBeenCalledWith(ACTIVE_TASK.id);
+    });
+
+    it('the Toggle button is labeled "Mark pending" for a completed task (F-014 wording)', () => {
+      useTaskStore.setState({tasks: [COMPLETED_TASK]});
+      const tree = renderScreen(COMPLETED_TASK.id);
+
+      expect(tree.root.findByProps({accessibilityLabel: 'Mark pending'})).toBeTruthy();
+      expect(() => tree.root.findByProps({accessibilityLabel: 'Mark complete'})).toThrow();
+    });
+
+    it('"More actions" opens a menu with only Duplicate and Delete (Toggle/Edit already have dedicated controls)', () => {
+      useTaskStore.setState({tasks: [ACTIVE_TASK]});
+      const tree = renderScreen(ACTIVE_TASK.id);
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'More actions'}).props.onPress();
+      });
+
+      expect(tree.root.findByProps({accessibilityLabel: 'Duplicate'})).toBeTruthy();
+      const deleteOption = tree.root.findByProps({accessibilityLabel: 'Delete task'});
+      expect(deleteOption.props.accessibilityRole).toBe('menuitem');
+    });
+
+    it('"Duplicate" calls duplicateTask(id) (F-015)', () => {
+      const mockedDuplicateTask = jest.fn();
+      useTaskStore.setState({tasks: [ACTIVE_TASK], duplicateTask: mockedDuplicateTask});
+      const tree = renderScreen(ACTIVE_TASK.id);
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'More actions'}).props.onPress();
+      });
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Duplicate'}).props.onPress();
+      });
+
+      expect(mockedDuplicateTask).toHaveBeenCalledWith(ACTIVE_TASK.id);
+    });
+
+    it('"Delete" opens a confirm sheet; Cancel does NOT delete (F-012 — never delete without confirm)', () => {
+      useTaskStore.setState({tasks: [ACTIVE_TASK]});
+      const tree = renderScreen(ACTIVE_TASK.id);
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'More actions'}).props.onPress();
+      });
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Delete task'}).props.onPress();
+      });
+
+      expect(tree.root.findByProps({children: 'Delete this task?'})).toBeTruthy();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Cancel'}).props.onPress();
+      });
+
+      expect(mockedRemoveTask).not.toHaveBeenCalled();
+      expect(mockGoBack).not.toHaveBeenCalled();
+      expect(() => tree.root.findByProps({children: 'Delete this task?'})).toThrow();
+    });
+
+    it('confirming Delete calls removeTask(id) AND navigates back (F-011/F-012, FR2 — deleting the record you\'re viewing)', () => {
+      // The real (unmocked) `removeTask` action writes THROUGH
+      // `taskRepository.removeTask` and sets `tasks` to whatever it
+      // returns (see taskStore.test.ts) — seeded here so the post-delete
+      // re-render (this screen re-reads `state.tasks.find(...)`) sees a
+      // valid array rather than the mock's bare-`jest.fn()` `undefined`.
+      mockedRemoveTask.mockReturnValueOnce([]);
+      useTaskStore.setState({tasks: [ACTIVE_TASK]});
+      const tree = renderScreen(ACTIVE_TASK.id);
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'More actions'}).props.onPress();
+      });
+      act(() => {
+        // The menu's "Delete" option — closes the menu, opens the confirm.
+        tree.root.findByProps({accessibilityLabel: 'Delete task'}).props.onPress();
+      });
+      act(() => {
+        // The confirm sheet's own destructive "Delete" option.
+        tree.root.findByProps({accessibilityLabel: 'Delete task'}).props.onPress();
+      });
+
+      expect(mockedRemoveTask).toHaveBeenCalledWith(ACTIVE_TASK.id);
+      expect(mockGoBack).toHaveBeenCalledTimes(1);
+    });
+
+    it('the confirm sheet\'s Delete option is marked destructive (a11y, never color-alone)', () => {
+      useTaskStore.setState({tasks: [ACTIVE_TASK]});
+      const tree = renderScreen(ACTIVE_TASK.id);
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'More actions'}).props.onPress();
+      });
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Delete task'}).props.onPress();
+      });
+
+      const label = tree.root.findByProps({children: 'Delete'});
+      expect(label.props.className).toContain('text-danger');
+    });
   });
 });
