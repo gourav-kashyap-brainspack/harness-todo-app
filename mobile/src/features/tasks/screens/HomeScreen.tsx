@@ -8,6 +8,7 @@ import {getProfile} from '@/core/services/profileRepository';
 import type {Task} from '@/core/types/task';
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
 
+import {SearchBar} from '../components/SearchBar';
 import {useTaskActions} from '../hooks/useTaskActions';
 import {selectVisibleTasks} from '../lib/selectVisibleTasks';
 import {useTaskQueryStore, type TaskFilter} from '../store/taskQueryStore';
@@ -74,19 +75,49 @@ function CompletedFilterEmptyState(): React.JSX.Element {
 }
 
 /**
- * Resolves the FlatList `ListEmptyComponent` per FR5's precedence: (a) the
- * raw store has zero tasks at all -> the unchanged "No tasks yet" state
- * (TSK-001); (b) tasks exist but the active filter matches none of them ->
- * the filter-specific copy. `filter: 'all'` never reaches branch (b) — it's
- * a passthrough, so a non-empty raw list always yields a non-empty derived
- * list under it; FlatList only renders whichever component this resolves to
- * when the *derived* list is actually empty, so the `all` case never
- * surfaces the wrong copy. (No-search-results, F-031, is ORG-002 — this
- * precedence stays open for that 3rd branch.)
+ * The no-search-results state (ORG-002, FR5, F-031) — unlike the three
+ * states above, its message interpolates the trimmed query, so it's a
+ * `query`-prop component rather than a zero-arg one (design-system.md →
+ * "ORG-002 — Search bar + no-results"). Reuses `EmptyState` verbatim.
  */
-function resolveEmptyComponent(hasTasks: boolean, filter: TaskFilter): () => React.JSX.Element {
+function NoResultsEmptyState({query}: {query: string}): React.JSX.Element {
+  return <EmptyState title="No results" message={`No tasks match "${query}".`} icon="search" />;
+}
+
+/**
+ * Binds the current trimmed query into a zero-arg `ListEmptyComponent`-
+ * shaped function, the same shape `resolveEmptyComponent`'s other branches
+ * return — keeps the FlatList prop's type uniform across all four states.
+ */
+function buildNoResultsEmptyState(query: string): () => React.JSX.Element {
+  return () => <NoResultsEmptyState query={query} />;
+}
+
+/**
+ * Resolves the FlatList `ListEmptyComponent` per FR5's 4-way precedence: (a)
+ * the raw store has zero tasks at all -> the unchanged "No tasks yet" state
+ * (TSK-001); (b) a non-empty (trimmed) search whose derived list is empty ->
+ * the no-results state (ORG-002, F-031) — this WINS over the filter-empty
+ * branch below even when a non-"all" filter is also active, since the search
+ * is the more specific, more recent user action; (c) tasks exist, search is
+ * empty (or matched but the filter narrowed it to zero) but the active
+ * filter matches none of them -> the filter-specific copy. `filter: 'all'`
+ * with an empty search never reaches (b)/(c) — it's a passthrough, so a
+ * non-empty raw list always yields a non-empty derived list under it;
+ * FlatList only renders whichever component this resolves to when the
+ * *derived* list is actually empty, so the `all` case never surfaces the
+ * wrong copy.
+ */
+function resolveEmptyComponent(
+  hasTasks: boolean,
+  filter: TaskFilter,
+  trimmedSearch: string,
+): () => React.JSX.Element {
   if (!hasTasks) {
     return TaskListEmptyState;
+  }
+  if (trimmedSearch !== '') {
+    return buildNoResultsEmptyState(trimmedSearch);
   }
   return filter === 'completed' ? CompletedFilterEmptyState : ActiveFilterEmptyState;
 }
@@ -187,6 +218,7 @@ export function HomeScreen(): React.JSX.Element {
   const setFilter = useTaskQueryStore(state => state.setFilter);
   const sort = useTaskQueryStore(state => state.sort);
   const search = useTaskQueryStore(state => state.search);
+  const setSearch = useTaskQueryStore(state => state.setSearch);
   const [profileName, setProfileName] = useState<string | undefined>(() => getProfile()?.name);
 
   useFocusEffect(
@@ -232,6 +264,13 @@ export function HomeScreen(): React.JSX.Element {
     [navigation],
   );
 
+  // ORG-002, FR1 — clears the in-memory search back to ''. Stable across
+  // renders for the same reason the other handlers above are (`setSearch` is
+  // itself a stable Zustand action reference, so this never thrashes).
+  const handleClearSearch = useCallback(() => {
+    setSearch('');
+  }, [setSearch]);
+
   // The shared TSK-004 lifecycle-action state machine — see
   // `useTaskActions`'s own doc comment. HomeScreen passes no
   // `onDeleteConfirmed`: a deleted row just leaves the list in place (no
@@ -262,10 +301,13 @@ export function HomeScreen(): React.JSX.Element {
     [tasks, search, filter, sort],
   );
 
-  // FR5 precedence — see `resolveEmptyComponent`'s own doc comment.
+  // FR5 precedence — see `resolveEmptyComponent`'s own doc comment. `search`
+  // is trimmed here (once) rather than inside the resolver, matching
+  // `selectVisibleTasks`'s own trim-then-compare convention.
+  const trimmedSearch = search.trim();
   const ListEmptyComponent = useMemo(
-    () => resolveEmptyComponent(tasks.length > 0, filter),
-    [tasks.length, filter],
+    () => resolveEmptyComponent(tasks.length > 0, filter, trimmedSearch),
+    [tasks.length, filter, trimmedSearch],
   );
 
   return (
@@ -275,13 +317,16 @@ export function HomeScreen(): React.JSX.Element {
           {profileName ? `Hi, ${profileName}` : 'Hi there'}
         </Text>
 
-        {/* Organize header (ORG-001) — pinned: a fixed sibling of the list,
-            never a FlatList `ListHeaderComponent`, so it never scrolls away
-            (design-system.md -> "ORG-001 — Organize header"). Slot 1
-            (search, ORG-002) and slot 3 (sort trigger, ORG-003) are
-            structurally reserved below without any layout this task ships. */}
+        {/* Organize header (ORG-001 + ORG-002) — pinned: a fixed sibling of
+            the list, never a FlatList `ListHeaderComponent`, so it never
+            scrolls away (design-system.md -> "ORG-001 — Organize header").
+            Slot 3 (sort trigger, ORG-003) stays structurally reserved below
+            without any layout this task ships. */}
         <View className="gap-3 pb-4">
-          {/* slot 1 — search (ORG-002 prepends a sibling row here) */}
+          {/* slot 1 — search (ORG-002, FR1/FR2) — bound directly to
+              `taskQueryStore.search`/`setSearch`; real-time, no submit. */}
+          <SearchBar value={search} onChangeText={setSearch} onClear={handleClearSearch} />
+
           <View className="flex-row items-center gap-3">
             <View className="flex-1">
               <SegmentedControl
