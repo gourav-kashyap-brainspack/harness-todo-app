@@ -604,4 +604,118 @@ describe('HomeScreen (TSK-001, FR2/FR3/FR4)', () => {
       expect(list.props.data).toEqual([MILK]);
     });
   });
+
+  describe('ORG-003 — sort (F-026-029)', () => {
+    const ALPHA_TASK: Task = {...TASK, id: '44edc52b-2918-4d71-9058-f7285e29d894', title: 'Zebra task'};
+    const BETA_TASK: Task = {...OTHER_TASK, id: '55edc52b-2918-4d71-9058-f7285e29d894', title: 'Apple task'};
+
+    it('renders the sort trigger, labeled for a11y/Maestro with the current sort ("created-desc" default)', () => {
+      const tree = renderScreen();
+
+      // Combine both props in one query — `IconButton`'s own composite JSX
+      // element also carries `accessibilityLabel` (its own prop), so
+      // querying on that label alone matches the composite first (react-
+      // test-renderer's default non-deep `find`); adding `accessibilityRole`
+      // (only set on the rendered host `Pressable`) pins the match to the
+      // actual button — same fix the `SegmentedControl`/`ActionSheet` tests
+      // above already apply for their own composite/host ambiguity.
+      const trigger = tree.root.findByProps({
+        accessibilityLabel: 'Sort tasks, currently Creation date',
+        accessibilityRole: 'button',
+      });
+      expect(trigger.props.accessibilityRole).toBe('button');
+    });
+
+    it('pressing the sort trigger opens the "Sort by" menu, listing all 4 options', () => {
+      const tree = renderScreen();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Sort tasks, currently Creation date'}).props.onPress();
+      });
+
+      expect(tree.root.findByProps({children: 'Sort by'})).toBeTruthy();
+      expect(tree.root.findByProps({accessibilityLabel: 'Due date', accessibilityRole: 'menuitem'})).toBeTruthy();
+      expect(
+        tree.root.findByProps({accessibilityLabel: 'Creation date', accessibilityRole: 'menuitem'}),
+      ).toBeTruthy();
+      expect(
+        tree.root.findByProps({accessibilityLabel: 'Alphabetical', accessibilityRole: 'menuitem'}),
+      ).toBeTruthy();
+      expect(
+        tree.root.findByProps({accessibilityLabel: 'Recently updated', accessibilityRole: 'menuitem'}),
+      ).toBeTruthy();
+    });
+
+    it('selecting "Alphabetical" calls setSort, persists, closes the menu, and re-derives the list order', () => {
+      useTaskStore.setState({tasks: [ALPHA_TASK, BETA_TASK]});
+      const tree = renderScreen();
+
+      // Default sort (created-desc) — both share the same `createdAt`, so
+      // the stable comparator keeps the store's own insertion order,
+      // ALPHA_TASK then BETA_TASK.
+      const list = tree.root.findByType(FlatList);
+      expect(list.props.data.map((t: Task) => t.id)).toEqual([ALPHA_TASK.id, BETA_TASK.id]);
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Sort tasks, currently Creation date'}).props.onPress();
+      });
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Alphabetical', accessibilityRole: 'menuitem'}).props.onPress();
+      });
+
+      expect(useTaskQueryStore.getState().sort).toBe('alpha');
+      // The sheet closes — its "Sort by" header no longer mounts.
+      expect(() => tree.root.findByProps({children: 'Sort by'})).toThrow();
+      // Re-derives: alphabetically, "Apple task" (BETA_TASK) sorts before
+      // "Zebra task" (ALPHA_TASK).
+      const reordered = tree.root.findByType(FlatList);
+      expect(reordered.props.data.map((t: Task) => t.id)).toEqual([BETA_TASK.id, ALPHA_TASK.id]);
+    });
+
+    it('the trigger\'s a11y label reflects the current sort after a selection', () => {
+      const tree = renderScreen();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Sort tasks, currently Creation date'}).props.onPress();
+      });
+      act(() => {
+        tree.root
+          .findByProps({accessibilityLabel: 'Recently updated', accessibilityRole: 'menuitem'})
+          .props.onPress();
+      });
+
+      expect(tree.root.findByProps({accessibilityLabel: 'Sort tasks, currently Recently updated'})).toBeTruthy();
+    });
+
+    it('marks the active sort option — its label carries the primary+semibold treatment, the others do not', () => {
+      const tree = renderScreen();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Sort tasks, currently Creation date'}).props.onPress();
+      });
+
+      const activeLabel = tree.root.findByProps({children: 'Creation date'});
+      expect(activeLabel.props.className).toEqual(expect.stringContaining('text-primary'));
+
+      const inactiveLabel = tree.root.findByProps({children: 'Due date'});
+      expect(inactiveLabel.props.className).not.toEqual(expect.stringContaining('text-primary'));
+    });
+
+    it('the chosen sort persists to the query store across a relaunch-equivalent re-hydrate', () => {
+      const tree = renderScreen();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Sort tasks, currently Creation date'}).props.onPress();
+      });
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Due date', accessibilityRole: 'menuitem'}).props.onPress();
+      });
+
+      // `setSort` persists via the typed storage service (ORG-001's
+      // `taskQueryStore`) before updating in-memory state — asserting the
+      // store's own state here is the same "survives relaunch" contract the
+      // ORG-001 filter-persistence test above already checks.
+      expect(useTaskQueryStore.getState().sort).toBe('due');
+    });
+  });
 });

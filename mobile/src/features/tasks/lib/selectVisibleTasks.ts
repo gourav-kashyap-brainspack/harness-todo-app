@@ -26,18 +26,59 @@ const FILTER_PREDICATES: Record<TaskFilter, (task: Task) => boolean> = {
 };
 
 /**
- * `sort` comparators, keyed by `TaskSortKey`. Only `created-desc` is
- * implemented this task (newest `createdAt` first); ORG-003 fills in
- * `due`/`alpha`/`updated` by adding entries here — no pipeline change
- * needed. An unrecognized/not-yet-wired key falls back to `created-desc`
- * (see `resolveComparator`) so a persisted `sort` value from a future
- * build never crashes an older-than-ORG-003 read.
+ * `sort` comparators, keyed by `TaskSortKey` (ORG-003, F-026–029). Every key
+ * declared on `TaskSortKey` has an entry now; `resolveComparator` keeps its
+ * `?? CREATED_DESC_COMPARATOR` fallback anyway (defensive symmetry with
+ * `FILTER_PREDICATES`' own fallback) so a persisted `sort` value from a
+ * FUTURE build (a key this build doesn't know about yet) still degrades
+ * gracefully instead of crashing.
  */
 const CREATED_DESC_COMPARATOR = (a: Task, b: Task): number => b.createdAt.localeCompare(a.createdAt);
 
+/**
+ * `due` (F-026) — ascending by `dueDate` (soonest first); `dueDate` is
+ * optional, so a task without one sorts LAST. Two no-`dueDate` tasks (or two
+ * equal `dueDate`s) compare equal — `Array.prototype.sort` is stable in
+ * every JS engine this app targets (ES2019+), so their relative order is
+ * preserved from the pre-sort (search+filter) slice rather than shuffled.
+ * ISO-8601 datetime strings (the schema's `dueDate` shape) compare lexically
+ * in the same order as chronologically, so a plain `localeCompare` is
+ * correct without parsing to `Date`.
+ */
+const DUE_COMPARATOR = (a: Task, b: Task): number => {
+  if (!a.dueDate && !b.dueDate) {
+    return 0;
+  }
+  if (!a.dueDate) {
+    return 1;
+  }
+  if (!b.dueDate) {
+    return -1;
+  }
+  return a.dueDate.localeCompare(b.dueDate);
+};
+
+/**
+ * `alpha` (F-028) — by `title`, case-insensitive A→Z. `localeCompare`'s
+ * `sensitivity: 'base'` option ignores case (and accents) so "milk" and
+ * "Milk" compare equal rather than one consistently sorting before the
+ * other by codepoint.
+ */
+const ALPHA_COMPARATOR = (a: Task, b: Task): number =>
+  a.title.localeCompare(b.title, undefined, {sensitivity: 'base'});
+
+/**
+ * `updated` (F-029) — descending by `updatedAt` (most recently changed
+ * first). Mirrors `CREATED_DESC_COMPARATOR`'s shape exactly, just on the
+ * other timestamp field.
+ */
+const UPDATED_DESC_COMPARATOR = (a: Task, b: Task): number => b.updatedAt.localeCompare(a.updatedAt);
+
 const SORT_COMPARATORS: Partial<Record<TaskSortKey, (a: Task, b: Task) => number>> = {
   'created-desc': CREATED_DESC_COMPARATOR,
-  // ORG-003 slots: due: …, alpha: …, updated: …
+  due: DUE_COMPARATOR,
+  alpha: ALPHA_COMPARATOR,
+  updated: UPDATED_DESC_COMPARATOR,
 };
 
 function resolveComparator(sort: TaskSortKey): (a: Task, b: Task) => number {
@@ -88,10 +129,12 @@ function matchesSearch(task: Task, search: string): boolean {
  * calls out), and `.slice()` before `.sort()` guards against `Array.sort`'s
  * in-place mutation.
  *
- * OQ-8: sorting is stable across a status toggle under `created-desc`
- * because `createdAt` never changes when `status` flips (`taskStore`'s
- * `toggleStatus` only bumps `updatedAt`) — the comparator has nothing new
- * to react to, so a toggled task never jumps position.
+ * OQ-8 (ORG-003, FR4): a status toggle must NOT reorder the list under
+ * `created-desc`/`due`/`alpha` — `toggleStatus` only bumps `updatedAt`, and
+ * none of those three comparators reads `updatedAt`, so a toggled task never
+ * jumps position under them. Under `updated` a toggled task legitimately
+ * moves (it now sorts by the very field the toggle just changed) — that's
+ * correct, not a violation.
  */
 export function selectVisibleTasks(tasks: Task[], query: TaskQuery): Task[] {
   const searched = query.search.trim() === '' ? tasks : tasks.filter(task => matchesSearch(task, query.search));

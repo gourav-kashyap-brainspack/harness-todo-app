@@ -21,6 +21,19 @@ export interface ActionSheetOption {
    * byte-for-byte unchanged.
    */
   icon?: FeatherIconName;
+  /**
+   * Marks the currently-selected choice in a single-select menu (ORG-003,
+   * F-026–029 — the sort menu's active sort key). Mirrors `destructive`'s
+   * own color+weight-pairing mechanism exactly: the option's icon color
+   * resolves to `primary` (a third resolved color alongside the existing
+   * `default`/`destructive` ones) and its label gains `font-semibold
+   * text-primary` in place of `text-text` — the icon glyph itself is NOT
+   * swapped to a checkmark, it keeps its own meaningful glyph. Optional and
+   * falsy by default — every existing call site (photo menu, row/Detail
+   * action menus, delete-confirm) omits it and renders byte-for-byte
+   * unchanged.
+   */
+  active?: boolean;
 }
 
 export interface ActionSheetProps {
@@ -59,6 +72,12 @@ const OPTION_ICON_SIZE = 20;
  * `title` (a header above the options, for a yes/no-style confirm) and
  * per-option `icon` (a leading Feather glyph). Neither is set by the
  * existing PRO-003 photo-action menu, so that call site renders unchanged.
+ *
+ * **ORG-003 extension:** one more optional per-option addition, also
+ * backward-compatible — `active` (marks the currently-selected choice in a
+ * single-select menu, e.g. the sort menu's active sort key). Mirrors
+ * `destructive`'s own color+weight-pairing mechanism; unset on every
+ * pre-existing call site, so none of them change.
  */
 export function ActionSheet({
   visible,
@@ -76,6 +95,11 @@ export function ActionSheet({
   const chrome = NATIVE_CHROME_RGB[resolvedScheme];
   const defaultIconColor = rgbFromTriplet(chrome.text);
   const destructiveIconColor = rgbFromTriplet(chrome.danger);
+  // ORG-003 — a third resolved icon color for the active-sort option,
+  // alongside the two above. `destructive` takes precedence over `active`
+  // in the (currently unreached) case an option sets both — a destructive
+  // action reads as more urgent than a selection indicator.
+  const activeIconColor = rgbFromTriplet(chrome.primary);
 
   return (
     <Modal transparent animationType="fade" visible onRequestClose={onClose} statusBarTranslucent>
@@ -112,11 +136,19 @@ export function ActionSheet({
                 <Feather
                   name={option.icon}
                   size={OPTION_ICON_SIZE}
-                  color={option.destructive ? destructiveIconColor : defaultIconColor}
+                  color={
+                    option.destructive ? destructiveIconColor : option.active ? activeIconColor : defaultIconColor
+                  }
                 />
               ) : null}
               <Text
-                className={`text-base ${option.destructive ? 'font-semibold text-danger' : 'text-text'}`}>
+                className={`text-base ${
+                  option.destructive
+                    ? 'font-semibold text-danger'
+                    : option.active
+                      ? 'font-semibold text-primary'
+                      : 'text-text'
+                }`}>
                 {option.label}
               </Text>
             </Pressable>
