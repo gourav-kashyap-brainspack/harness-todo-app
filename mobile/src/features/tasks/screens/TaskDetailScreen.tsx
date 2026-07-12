@@ -1,10 +1,11 @@
 import React, {useCallback} from 'react';
-import {Pressable, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 import {useNavigation, useRoute, type RouteProp} from '@react-navigation/native';
 import {format} from 'date-fns';
 import Feather from 'react-native-vector-icons/Feather';
 
-import {ActionSheet, Button, EmptyState, Screen} from '@/components/ui';
+import {ActionSheet, Button, EmptyState, IconButton, Screen} from '@/components/ui';
+import {formatDueDateFull} from '@/core/lib';
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
 
 import {useTaskActions} from '../hooks/useTaskActions';
@@ -31,18 +32,14 @@ type TaskDetailParamList = {TaskDetail: {taskId: string}};
 const STATUS_ICON_SIZE = 14;
 const DUE_DATE_ICON_SIZE = 16;
 const ACTION_ICON_SIZE = 20;
-// The action zone's Toggle/More icon-buttons (TSK-004) — a plain outlined
-// square, single-use today (see design-system.md's TSK-004 subsection —
-// "promote to `components/ui` on a second consumer", the same
-// watch-then-promote call the PRO-002 changelog made for the Cancel-text
-// pressable).
-const ICON_BUTTON_BASE_CLASSNAME = 'min-h-12 min-w-12 items-center justify-center rounded-md border border-border';
 // design-system.md -> TSK-003 screen spec -> Meta block: fixed format for
-// Created/Last updated. Due date's own value format isn't locked in yet
-// (TSK-005 confirms) — `task.dueDate` is always absent today, so this is a
-// defensive default for when it lands, per the spec's "recommend date-only".
+// Created/Last updated — a DIFFERENT semantic concern from the due-date
+// value below (record metadata vs. a user-set field), so it stays its own
+// constant even though TSK-005 gives due-date the identical literal format
+// string via the shared `formatDueDateFull` util (see that util's doc
+// comment for why the two stay separate names despite the same grammar).
+// Untouched by TSK-005 — out of scope, per that task's brief.
 const META_DATE_FORMAT = 'MMM d, yyyy · h:mm a';
-const DUE_DATE_FORMAT = 'MMM d, yyyy';
 
 // `primary-fg` is `255 255 255` in BOTH themes (design-system.md -> Color
 // tokens) — same literal-constant convention `TaskListItem`'s own check
@@ -52,10 +49,6 @@ const CHECK_ICON_COLOR = rgbFromTriplet('255 255 255');
 
 function formatMetaDate(iso: string): string {
   return format(new Date(iso), META_DATE_FORMAT);
-}
-
-function formatDueDate(iso: string): string {
-  return format(new Date(iso), DUE_DATE_FORMAT);
 }
 
 /**
@@ -125,7 +118,7 @@ export function TaskDetailScreen(): React.JSX.Element {
   const mutedIconColor = rgbFromTriplet(chrome.textMuted);
   const isCompleted = task.status === 'completed';
   const statusLabel = isCompleted ? 'Completed' : 'Active';
-  const dueDateLabel = task.dueDate ? formatDueDate(task.dueDate) : 'No due date';
+  const dueDateLabel = task.dueDate ? formatDueDateFull(task.dueDate) : 'No due date';
 
   return (
     <Screen scroll>
@@ -181,25 +174,22 @@ export function TaskDetailScreen(): React.JSX.Element {
         <View className="mt-6 flex-row items-center gap-3">
           <Button label="Edit task" onPress={handleEdit} fullWidth={false} />
 
-          <Pressable
+          <IconButton
             onPress={() => toggleStatus(task.id)}
-            accessibilityRole="button"
             accessibilityLabel={isCompleted ? 'Mark pending' : 'Mark complete'}
-            className={`${ICON_BUTTON_BASE_CLASSNAME} ${isCompleted ? 'bg-success/10' : ''}`}>
-            <Feather
-              name="check-circle"
-              size={ACTION_ICON_SIZE}
-              color={isCompleted ? rgbFromTriplet(chrome.success) : rgbFromTriplet(chrome.primary)}
-            />
-          </Pressable>
+            icon="check-circle"
+            iconSize={ACTION_ICON_SIZE}
+            iconColor={isCompleted ? rgbFromTriplet(chrome.success) : rgbFromTriplet(chrome.primary)}
+            className={isCompleted ? 'bg-success/10' : undefined}
+          />
 
-          <Pressable
+          <IconButton
             onPress={() => openMenu(task)}
-            accessibilityRole="button"
             accessibilityLabel="More actions"
-            className={ICON_BUTTON_BASE_CLASSNAME}>
-            <Feather name="more-horizontal" size={ACTION_ICON_SIZE} color={mutedIconColor} />
-          </Pressable>
+            icon="more-horizontal"
+            iconSize={ACTION_ICON_SIZE}
+            iconColor={mutedIconColor}
+          />
         </View>
       </View>
 

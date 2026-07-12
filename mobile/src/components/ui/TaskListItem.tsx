@@ -1,8 +1,8 @@
 import React from 'react';
 import {Pressable, Text, View} from 'react-native';
-import {format} from 'date-fns';
 import Feather from 'react-native-vector-icons/Feather';
 
+import {formatDueDateCompact} from '@/core/lib';
 import type {Task} from '@/core/types/task';
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
 
@@ -34,16 +34,11 @@ const ACTIONS_HIT_SLOP = {top: 12, right: 12, bottom: 12, left: 12};
 const CHECK_ICON_SIZE = 14;
 const DUE_DATE_ICON_SIZE = 12;
 const MORE_ACTIONS_ICON_SIZE = 20;
-const DUE_DATE_FORMAT = 'MMM d';
 
 // `primary-fg` is `255 255 255` in BOTH themes (design-system.md -> Color
 // tokens) — the same literal-constant pattern `Button.ACTIVITY_INDICATOR_COLOR`
 // establishes, reused here for the toggle's check glyph.
 const CHECK_ICON_COLOR = rgbFromTriplet('255 255 255');
-
-function formatDueDate(dueDate: string): string {
-  return format(new Date(dueDate), DUE_DATE_FORMAT);
-}
 
 function TaskListItemComponent({
   task,
@@ -74,7 +69,7 @@ function TaskListItemComponent({
       : {shadowOpacity: 0, elevation: 0};
 
   const mutedIconColor = rgbFromTriplet(chrome.textMuted);
-  const formattedDueDate = task.dueDate ? formatDueDate(task.dueDate) : undefined;
+  const formattedDueDate = task.dueDate ? formatDueDateCompact(task.dueDate) : undefined;
 
   // Whole-row a11y label per design-system.md -> `TaskListItem` -> "Whole-row
   // a11y" — title + status + (when set) humanized due date, all in one

@@ -2,6 +2,7 @@ import React from 'react';
 import {afterEach, describe, expect, it, jest} from '@jest/globals';
 import {act, create as createRenderer, type ReactTestRenderer} from 'react-test-renderer';
 
+import {formatDueDateCompact} from '@/core/lib';
 import {useThemeStore} from '@/core/store/themeStore';
 import type {Task} from '@/core/types/task';
 
@@ -13,7 +14,10 @@ const initialThemeState = useThemeStore.getState();
 // same calendar day ("Jul 15") regardless of which timezone this suite runs
 // in — any real-world UTC offset from -11:00 to +13:00 keeps noon UTC on
 // the same date, so this stays deterministic across a developer machine
-// (e.g. IST, UTC+5:30) and CI (typically UTC) alike.
+// (e.g. IST, UTC+5:30) and CI (typically UTC) alike. The exact rendered
+// caption (date-fns' compact format now also carries the time, TSK-005) is
+// computed via `formatDueDateCompact` below rather than hardcoded, so the
+// assertion stays correct regardless of the runner's local timezone offset.
 const TASK: Task = {
   id: '11edc52b-2918-4d71-9058-f7285e29d894',
   title: 'Buy milk',
@@ -26,8 +30,9 @@ const TASK: Task = {
 const TASK_WITHOUT_DUE_DATE: Task = {...TASK, dueDate: undefined};
 const COMPLETED_TASK: Task = {...TASK, status: 'completed'};
 
-const ROW_LABEL_ACTIVE = 'Buy milk, active, due Jul 15';
-const ROW_LABEL_COMPLETED = 'Buy milk, completed, due Jul 15';
+const FORMATTED_DUE_DATE = formatDueDateCompact(TASK.dueDate!);
+const ROW_LABEL_ACTIVE = `Buy milk, active, due ${FORMATTED_DUE_DATE}`;
+const ROW_LABEL_COMPLETED = `Buy milk, completed, due ${FORMATTED_DUE_DATE}`;
 const TOGGLE_LABEL_UNCHECKED = 'Mark "Buy milk" as complete';
 // TSK-004: corrected from "...as active" to "...as pending" (F-014 wording).
 const TOGGLE_LABEL_CHECKED = 'Mark "Buy milk" as pending';
@@ -65,17 +70,17 @@ describe('TaskListItem (TSK-001, F-008/FR5)', () => {
     expect(tree.root.findByProps({children: 'Buy milk'})).toBeTruthy();
   });
 
-  it('renders the due-date caption (Feather calendar + date-fns format) when dueDate is set', () => {
+  it('renders the due-date caption (Feather calendar + the shared formatDueDateCompact util) when dueDate is set', () => {
     const tree = renderItem({task: TASK, onPress: jest.fn()});
 
-    expect(tree.root.findByProps({children: 'Jul 15'})).toBeTruthy();
+    expect(tree.root.findByProps({children: FORMATTED_DUE_DATE})).toBeTruthy();
     expect(tree.root.findByProps({name: 'calendar'})).toBeTruthy();
   });
 
   it('renders no due-date caption when dueDate is absent', () => {
     const tree = renderItem({task: TASK_WITHOUT_DUE_DATE, onPress: jest.fn()});
 
-    expect(() => tree.root.findByProps({children: 'Jul 15'})).toThrow();
+    expect(() => tree.root.findByProps({children: FORMATTED_DUE_DATE})).toThrow();
     expect(() => tree.root.findByProps({name: 'calendar'})).toThrow();
   });
 

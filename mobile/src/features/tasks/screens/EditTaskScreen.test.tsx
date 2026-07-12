@@ -6,6 +6,7 @@ import {afterEach, beforeEach, describe, expect, it, jest} from '@jest/globals';
 import * as taskRepository from '@/core/services/taskRepository';
 import type {Task} from '@/core/types/task';
 
+import {DueDateField} from '../components/DueDateField';
 import {useTaskStore} from '../store/taskStore';
 import {EditTaskScreen} from './EditTaskScreen';
 
@@ -164,5 +165,52 @@ describe('EditTaskScreen (TSK-003, FR3/FR4/FR5)', () => {
     expect(
       tree.root.findAllByType(Text).filter(node => node.props.accessibilityLiveRegion === 'polite'),
     ).toHaveLength(0);
+  });
+
+  describe('TSK-005 — due date edit round-trip (FR2/FR3)', () => {
+    it("seeds the field with the task's existing dueDate", () => {
+      const tree = renderScreen(TASK.id);
+
+      expect(tree.root.findByType(DueDateField).props.value).toBe(TASK.dueDate);
+    });
+
+    it('changing the due date submits the NEW value (not the stale task.dueDate) as part of the full field set', async () => {
+      mockedUpsertTask.mockReturnValueOnce([]);
+      const tree = renderScreen(TASK.id);
+      const newDueDate = new Date('2026-09-20T18:00:00.000Z').toISOString();
+
+      act(() => {
+        tree.root.findByType(DueDateField).props.onChange(newDueDate);
+      });
+      pressSubmit(tree);
+      await flushSubmit();
+
+      expect(mockedUpsertTask).toHaveBeenCalledWith({
+        id: TASK.id,
+        title: TASK.title,
+        description: TASK.description,
+        status: TASK.status,
+        dueDate: newDueDate,
+      });
+    });
+
+    it('removing the due date (F-017) submits dueDate: undefined', async () => {
+      mockedUpsertTask.mockReturnValueOnce([]);
+      const tree = renderScreen(TASK.id);
+
+      act(() => {
+        tree.root.findByType(DueDateField).props.onChange(undefined);
+      });
+      pressSubmit(tree);
+      await flushSubmit();
+
+      expect(mockedUpsertTask).toHaveBeenCalledWith({
+        id: TASK.id,
+        title: TASK.title,
+        description: TASK.description,
+        status: TASK.status,
+        dueDate: undefined,
+      });
+    });
   });
 });
