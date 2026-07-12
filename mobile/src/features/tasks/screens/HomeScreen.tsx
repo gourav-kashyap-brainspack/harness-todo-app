@@ -1,15 +1,29 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {FlatList, Pressable, RefreshControl, Text, View, type ListRenderItemInfo} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 
-import {ActionSheet, EmptyState, Screen, TaskListItem, type ActionSheetOption} from '@/components/ui';
+import {ActionSheet, EmptyState, Screen, SegmentedControl, TaskListItem, type ActionSheetOption} from '@/components/ui';
 import {getProfile} from '@/core/services/profileRepository';
 import type {Task} from '@/core/types/task';
 import {NATIVE_CHROME_RGB, rgbFromTriplet, useTheme} from '@/theme';
 
 import {useTaskActions} from '../hooks/useTaskActions';
+import {selectVisibleTasks} from '../lib/selectVisibleTasks';
+import {useTaskQueryStore, type TaskFilter} from '../store/taskQueryStore';
 import {useTaskStore} from '../store/taskStore';
+
+/**
+ * Filter options for the organize header's `SegmentedControl` (ORG-001,
+ * F-023/F-024/F-025) — module-scope so the array isn't re-created every
+ * render (the primitive's `options` prop doesn't need referential stability
+ * for correctness, but there's no reason to rebuild a static literal).
+ */
+const FILTER_OPTIONS: {value: TaskFilter; label: string}[] = [
+  {value: 'all', label: 'All'},
+  {value: 'active', label: 'Active'},
+  {value: 'completed', label: 'Completed'},
+];
 
 const FAB_ICON_SIZE = 24;
 // `primary-fg` is `255 255 255` in BOTH themes (design-system.md -> Color
@@ -36,6 +50,45 @@ function TaskListEmptyState(): React.JSX.Element {
   return (
     <EmptyState title="No tasks yet" message="Tap the + button below to add your first task." icon="clipboard" />
   );
+}
+
+/**
+ * Stable module-scope component — the filtered-empty state for filter=
+ * `active` (ORG-001 FR5, design-system.md -> "ORG-001 — Organize header" ->
+ * Empty states table). Reuses `EmptyState` verbatim, never a fork. Icon
+ * echoes the same status concept as the row action that would resolve it
+ * (`buildRowMenuOptions` below already uses `check-circle` for "Mark
+ * complete").
+ */
+function ActiveFilterEmptyState(): React.JSX.Element {
+  return <EmptyState title="No active tasks" message="Everything's complete." icon="check-circle" />;
+}
+
+/**
+ * Stable module-scope component — the filtered-empty state for filter=
+ * `completed` (ORG-001 FR5). Icon mirrors `buildRowMenuOptions`'s `circle`
+ * for "Mark pending".
+ */
+function CompletedFilterEmptyState(): React.JSX.Element {
+  return <EmptyState title="No completed tasks" message="Complete a task to see it here." icon="circle" />;
+}
+
+/**
+ * Resolves the FlatList `ListEmptyComponent` per FR5's precedence: (a) the
+ * raw store has zero tasks at all -> the unchanged "No tasks yet" state
+ * (TSK-001); (b) tasks exist but the active filter matches none of them ->
+ * the filter-specific copy. `filter: 'all'` never reaches branch (b) — it's
+ * a passthrough, so a non-empty raw list always yields a non-empty derived
+ * list under it; FlatList only renders whichever component this resolves to
+ * when the *derived* list is actually empty, so the `all` case never
+ * surfaces the wrong copy. (No-search-results, F-031, is ORG-002 — this
+ * precedence stays open for that 3rd branch.)
+ */
+function resolveEmptyComponent(hasTasks: boolean, filter: TaskFilter): () => React.JSX.Element {
+  if (!hasTasks) {
+    return TaskListEmptyState;
+  }
+  return filter === 'completed' ? CompletedFilterEmptyState : ActiveFilterEmptyState;
 }
 
 /**
@@ -78,9 +131,17 @@ function buildRowMenuOptions(
 
 /**
  * HomeScreen (TSK-001, FR2/FR3/FR4) — replaces the FND-003 `Home` tab
- * placeholder. Renders all tasks (active + completed together, no
- * filtering — F-023 search/filter/sort is ORG's later module) from the
- * single `useTaskStore` (the TSK anchor store, FR1).
+ * placeholder. Renders tasks from the single `useTaskStore` (the TSK anchor
+ * store, FR1).
+ *
+ * **ORG-001 (F-023/F-024/F-025):** the raw `tasks` array is no longer
+ * rendered directly — a pinned organize header (a fixed sibling of the
+ * greeting, never a `FlatList` `ListHeaderComponent` — see design-system.md
+ * -> "ORG-001 — Organize header") hosts a `SegmentedControl` bound to
+ * `taskQueryStore.filter`/`setFilter`, and the list renders
+ * `selectVisibleTasks(tasks, query)` — the pure search/filter/sort pipeline
+ * `taskQueryStore`'s own module doc describes. `tasks` itself is never
+ * copied/reordered; the derived list is a view, recomputed via `useMemo`.
  *
  * **TSK-004 (F-011-F-015):** wires the row's toggle + "..." menu via
  * `useTaskActions` (shared verbatim with `TaskDetailScreen`) — see that
@@ -119,6 +180,13 @@ export function HomeScreen(): React.JSX.Element {
   const refresh = useTaskStore(state => state.refresh);
   const toggleStatus = useTaskStore(state => state.toggleStatus);
   const duplicateTask = useTaskStore(state => state.duplicateTask);
+  // ORG-001: individual primitive selectors (not one object selector) — each
+  // returns a primitive, so no `useShallow` wrapper is needed for referential
+  // stability (same style `useTaskStore`'s selects above already use).
+  const filter = useTaskQueryStore(state => state.filter);
+  const setFilter = useTaskQueryStore(state => state.setFilter);
+  const sort = useTaskQueryStore(state => state.sort);
+  const search = useTaskQueryStore(state => state.search);
   const [profileName, setProfileName] = useState<string | undefined>(() => getProfile()?.name);
 
   useFocusEffect(
@@ -185,6 +253,21 @@ export function HomeScreen(): React.JSX.Element {
 
   const keyExtractor = useCallback((item: Task) => item.id, []);
 
+  // ORG-001 FR4 — the derived, filtered/sorted view over `tasks`; `tasks`
+  // itself is never touched. Recomputed only when one of the four inputs
+  // actually changes (unrelated re-renders, e.g. the greeting re-reading on
+  // focus, don't re-run the pipeline).
+  const visibleTasks = useMemo(
+    () => selectVisibleTasks(tasks, {search, filter, sort}),
+    [tasks, search, filter, sort],
+  );
+
+  // FR5 precedence — see `resolveEmptyComponent`'s own doc comment.
+  const ListEmptyComponent = useMemo(
+    () => resolveEmptyComponent(tasks.length > 0, filter),
+    [tasks.length, filter],
+  );
+
   return (
     <Screen>
       <View className="flex-1">
@@ -192,13 +275,33 @@ export function HomeScreen(): React.JSX.Element {
           {profileName ? `Hi, ${profileName}` : 'Hi there'}
         </Text>
 
+        {/* Organize header (ORG-001) — pinned: a fixed sibling of the list,
+            never a FlatList `ListHeaderComponent`, so it never scrolls away
+            (design-system.md -> "ORG-001 — Organize header"). Slot 1
+            (search, ORG-002) and slot 3 (sort trigger, ORG-003) are
+            structurally reserved below without any layout this task ships. */}
+        <View className="gap-3 pb-4">
+          {/* slot 1 — search (ORG-002 prepends a sibling row here) */}
+          <View className="flex-row items-center gap-3">
+            <View className="flex-1">
+              <SegmentedControl
+                options={FILTER_OPTIONS}
+                value={filter}
+                onChange={setFilter}
+                accessibilityLabel="Filter tasks"
+              />
+            </View>
+            {/* slot 3 — sort trigger (ORG-003 appends an IconButton here) */}
+          </View>
+        </View>
+
         <FlatList
           className="flex-1"
-          data={tasks}
+          data={visibleTasks}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
           ItemSeparatorComponent={TaskRowSeparator}
-          ListEmptyComponent={TaskListEmptyState}
+          ListEmptyComponent={ListEmptyComponent}
           // `pb-24` (96dp) clears the FAB (56dp tall + 24dp bottom margin)
           // so the last row is never hidden behind it; `flex-grow` lets
           // `ListEmptyComponent` fill the available height so `EmptyState`'s

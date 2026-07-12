@@ -8,6 +8,7 @@ import * as taskRepository from '@/core/services/taskRepository';
 import {useThemeStore} from '@/core/store/themeStore';
 import type {Task} from '@/core/types/task';
 
+import {useTaskQueryStore} from '../store/taskQueryStore';
 import {useTaskStore} from '../store/taskStore';
 import {HomeScreen} from './HomeScreen';
 
@@ -77,6 +78,7 @@ const OTHER_TASK: Task = {
 // restored to the real implementation for every other test.
 const initialTaskState = useTaskStore.getState();
 const initialThemeState = useThemeStore.getState();
+const initialTaskQueryState = useTaskQueryStore.getState();
 
 let activeTree: ReactTestRenderer | undefined;
 
@@ -91,6 +93,7 @@ describe('HomeScreen (TSK-001, FR2/FR3/FR4)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useTaskStore.setState(initialTaskState, true);
+    useTaskQueryStore.setState(initialTaskQueryState, true);
   });
 
   afterEach(() => {
@@ -369,6 +372,14 @@ describe('HomeScreen (TSK-001, FR2/FR3/FR4)', () => {
 
     it('confirming Delete calls removeTask(id) — no navigation, the row just leaves the list in place', () => {
       useTaskStore.setState({tasks: [TASK]});
+      // The repository mock has no default return (`removeTask: jest.fn()`),
+      // but the real `taskRepository.removeTask` always resolves to a
+      // `Task[]` (`[]` here, the only task removed) — never `undefined`.
+      // `taskStore.removeTask` sets that return straight into `tasks`, and
+      // ORG-001's derived pipeline (`selectVisibleTasks`) now reads
+      // `tasks.filter(...)` on every render, so an unmocked `undefined`
+      // return would crash a path production can never hit.
+      mockedRemoveTask.mockReturnValueOnce([]);
       const tree = renderScreen();
 
       act(() => {
@@ -385,6 +396,111 @@ describe('HomeScreen (TSK-001, FR2/FR3/FR4)', () => {
 
       expect(mockedRemoveTask).toHaveBeenCalledWith(TASK.id);
       expect(mockNavigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('ORG-001 — organize header + filter (F-023/F-024/F-025)', () => {
+    const COMPLETED_TASK: Task = {
+      ...TASK,
+      id: '33edc52b-2918-4d71-9058-f7285e29d894',
+      title: 'Pay bills',
+      status: 'completed',
+    };
+
+    it('renders the filter SegmentedControl, labeled for a11y/Maestro', () => {
+      const tree = renderScreen();
+
+      // Combine both props in one query — the composite `<SegmentedControl>`
+      // element itself also carries `accessibilityLabel="Filter tasks"` (its
+      // own JSX prop), so querying on that label alone is ambiguous; adding
+      // `accessibilityRole` (only set on the rendered host `View`) pins the
+      // match to the actual tablist container.
+      expect(tree.root.findByProps({accessibilityLabel: 'Filter tasks', accessibilityRole: 'tablist'})).toBeTruthy();
+      expect(tree.root.findByProps({accessibilityLabel: 'All', accessibilityRole: 'tab'})).toBeTruthy();
+      expect(tree.root.findByProps({accessibilityLabel: 'Active', accessibilityRole: 'tab'})).toBeTruthy();
+      expect(tree.root.findByProps({accessibilityLabel: 'Completed', accessibilityRole: 'tab'})).toBeTruthy();
+    });
+
+    it('changing the segment re-derives the list to only the matching tasks (FR3/FR4)', () => {
+      useTaskStore.setState({tasks: [TASK, COMPLETED_TASK]});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'Buy milk'})).toBeTruthy();
+      expect(tree.root.findByProps({children: 'Pay bills'})).toBeTruthy();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Completed', accessibilityRole: 'tab'}).props.onPress();
+      });
+
+      expect(tree.root.findByProps({children: 'Pay bills'})).toBeTruthy();
+      expect(() => tree.root.findByProps({children: 'Buy milk'})).toThrow();
+    });
+
+    it('the derived list also persists the chosen filter to the store (FR6 — survives relaunch)', () => {
+      const tree = renderScreen();
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Active', accessibilityRole: 'tab'}).props.onPress();
+      });
+
+      expect(useTaskQueryStore.getState().filter).toBe('active');
+    });
+
+    it('tasks-but-none-match-filter shows the filter-specific empty copy, not "No tasks yet" (FR5)', () => {
+      useTaskStore.setState({tasks: [COMPLETED_TASK]});
+      useTaskQueryStore.setState({filter: 'active'});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'No active tasks'})).toBeTruthy();
+      expect(tree.root.findByProps({children: "Everything's complete."})).toBeTruthy();
+      expect(() => tree.root.findByProps({children: 'No tasks yet'})).toThrow();
+    });
+
+    it('the "completed" filter with none completed shows its own empty copy (FR5)', () => {
+      useTaskStore.setState({tasks: [TASK]});
+      useTaskQueryStore.setState({filter: 'completed'});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'No completed tasks'})).toBeTruthy();
+      expect(tree.root.findByProps({children: 'Complete a task to see it here.'})).toBeTruthy();
+    });
+
+    it('zero tasks at all still shows "No tasks yet", even under a non-"all" filter (FR5 precedence)', () => {
+      useTaskQueryStore.setState({filter: 'completed'});
+      const tree = renderScreen();
+
+      expect(tree.root.findByProps({children: 'No tasks yet'})).toBeTruthy();
+    });
+
+    it('the derived FlatList data stays referentially stable across an unrelated re-render (memoization intact)', () => {
+      useTaskStore.setState({tasks: [TASK]});
+      const tree = renderScreen();
+
+      const firstData = tree.root.findByType(FlatList).props.data;
+
+      // Trigger a re-render with none of the memo's own inputs (tasks,
+      // filter, sort, search) changed — re-firing the focus callback is the
+      // same "unrelated state churn" the existing focus test above uses.
+      act(() => {
+        mockFocusEffectCallback?.();
+      });
+
+      const secondData = tree.root.findByType(FlatList).props.data;
+      expect(secondData).toBe(firstData);
+    });
+
+    it('the derived FlatList data is recomputed (a new reference) when the filter actually changes', () => {
+      useTaskStore.setState({tasks: [TASK, COMPLETED_TASK]});
+      const tree = renderScreen();
+
+      const firstData = tree.root.findByType(FlatList).props.data;
+
+      act(() => {
+        tree.root.findByProps({accessibilityLabel: 'Active', accessibilityRole: 'tab'}).props.onPress();
+      });
+
+      const secondData = tree.root.findByType(FlatList).props.data;
+      expect(secondData).not.toBe(firstData);
     });
   });
 });
