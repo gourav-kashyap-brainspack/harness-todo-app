@@ -66,8 +66,8 @@
 |---|---|---|---|---|---|---|---|
 | **TSK-001** ⚓ | Tasks store + Home list (FlatList · empty · FAB · pull-refresh) | F-008, F-042 | L | 8h | — | — | 🟢 done — PR #13 merged 2026-07-12 |
 | **TSK-002** | Create task (Add screen + shared TaskForm · title-req · dup-guard) | F-007, F-034, F-035 | M | 4h | TSK-001 ✅ | — | 🟢 done — PR #14 merged (275edbc) 2026-07-12 |
-| **TSK-003** | Task detail + edit (dates · nav · reuse TaskForm) | F-009/010/018/019/040/041 | L | 8h | TSK-002 ✅ | — | 🟡 review — PR #15, gates green, awaiting human merge-go |
-| **TSK-004** | Lifecycle actions (complete/pending · delete+confirm · duplicate) | F-011/012/013/014/015 | M | 4h | TSK-003 | — | ⚪ blocked — unblocks on TSK-003 merge |
+| **TSK-003** | Task detail + edit (dates · nav · reuse TaskForm) | F-009/010/018/019/040/041 | L | 8h | TSK-002 ✅ | — | 🟢 done — PR #15 merged (99ddb8f) 2026-07-12 |
+| **TSK-004** | Lifecycle actions (complete/pending · delete+confirm · duplicate) | F-011/012/013/014/015 | M | 4h | TSK-003 ✅ | — | 🟡 in-progress — branch feat/TSK-TSK-004 |
 | **TSK-005** | Due date field (date+time picker) — assign + remove | F-016, F-017 | M | 4h | TSK-002 ✅ | TSK-pg1 | 🔵 ready — shares `TaskForm` w/ TSK-003 (coordinate) |
 
 **Critical path:** TSK-001 → 002 → 003 → 004 (≈24h). **TSK-005 parallel** with 003/004 after 002 (shares `TaskForm` — coordinate). **Runnable now:** 🔵 **TSK-005** (due-date, group TSK-pg1) — unblocked by the TSK-002 merge, shares `TaskForm.tsx` with TSK-003 so coordinate merge ordering (parallel-integration) or serialize. TSK-003 is 🟡 **review** (PR #15) awaiting human merge-go; TSK-004 unblocks the moment it merges. **TSK total:** ≈28h.
