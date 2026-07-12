@@ -2,7 +2,7 @@
 
 > Live board. The **orchestrator** updates it on each gate; the **librarian** finalizes it on task done.
 
-**Project:** Todo App · **Updated:** 2026-07-11 · **Phase:** FND + STG + PRO done. **TSK planned** (5 tasks, specs `ready`) — the product's core (18 features). Next: `/build TSK-001`.
+**Project:** Todo App · **Updated:** 2026-07-12 · **Phase:** FND + STG + PRO done. **TSK in progress** — TSK-001 `review` (PR #13, gates green, awaiting human merge-go); TSK-002–005 blocked-on-TSK-001-merge.
 
 ## Legend
 🟢 done · 🟡 in-progress · 🔵 ready · ⚪ blocked · 🔴 gates-red · ⛔ escalated
@@ -18,7 +18,7 @@
 | 1 | **FND** — Foundation & App Shell (⚓) | 9 | 5 (5 done) | — | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 2 | **STG** — Local Persistence (⚓) | 4 | 2 (2 done) | FND ✅ | 🟢 **done** — coherence PASS, E2E deferred, human integration go 2026-07-11 |
 | 3 | **PRO** — Profile | 6 | 3 (3 done) | FND ✅, STG ✅ | 🟢 **done** — coherence PASS, E2E deferred (disk pressure), human integration go 2026-07-11 |
-| 4 | **TSK** — Task Management | 18 | 5 planned | FND ✅, STG ✅ | 🔵 **ready to build** — `/build TSK-001` |
+| 4 | **TSK** — Task Management | 18 | 5 (1 review) | FND ✅, STG ✅ | 🟡 **in progress** — TSK-001 review (PR #13) |
 | 5 | **ORG** — Search, Filter, Sort | 11 | — | TSK | ⚪ blocked |
 
 ## FND tasks
@@ -64,8 +64,8 @@
 
 | Task | Title | Feat. | Cplx | Est | blockedBy | Group | Status |
 |---|---|---|---|---|---|---|---|
-| **TSK-001** ⚓ | Tasks store + Home list (FlatList · empty · FAB · pull-refresh) | F-008, F-042 | L | 8h | — | — | 🔵 ready |
-| **TSK-002** | Create task (Add screen + shared TaskForm · title-req · dup-guard) | F-007, F-034, F-035 | M | 4h | TSK-001 | — | ⚪ blocked |
+| **TSK-001** ⚓ | Tasks store + Home list (FlatList · empty · FAB · pull-refresh) | F-008, F-042 | L | 8h | — | — | 🟡 review — PR #13, gates green, awaiting human merge-go |
+| **TSK-002** | Create task (Add screen + shared TaskForm · title-req · dup-guard) | F-007, F-034, F-035 | M | 4h | TSK-001 | — | ⚪ blocked-on-TSK-001-merge |
 | **TSK-003** | Task detail + edit (dates · nav · reuse TaskForm) | F-009/010/018/019/040/041 | L | 8h | TSK-002 | — | ⚪ blocked |
 | **TSK-004** | Lifecycle actions (complete/pending · delete+confirm · duplicate) | F-011/012/013/014/015 | M | 4h | TSK-003 | — | ⚪ blocked |
 | **TSK-005** | Due date field (date+time picker) — assign + remove | F-016, F-017 | M | 4h | TSK-002 | TSK-pg1 | ⚪ blocked |
@@ -73,4 +73,4 @@
 **Critical path:** TSK-001 → 002 → 003 → 004 (≈24h). **TSK-005 parallel** with 003/004 after 002 (shares `TaskForm` — coordinate). **First runnable:** 🔵 **TSK-001** (the Tasks store anchor). **TSK total:** ≈28h.
 **TSK decisions:** all-tasks list, completed shown in-place (OQ-8) · greeting uses profile name · duplicate = copy fields + reset status/timestamps · due date = @react-native-community/datetimepicker (date+time) · search/filter/sort deferred to ORG. **Applies spec-gaps:** reuse the RHF+Zod form anchor (no 2nd pattern); `upsertTask` wholesale-replace → edit submits ALL fields; `dueDate` `.toISOString()` full ISO-8601; reuse `ActionSheet` for delete-confirm (F-012). TSK-005 is native-surface (datetimepicker → `MERGE_WAIT_FOR_CI=on`).
 
-**Next:** `/build TSK-001`.
+**Next:** human merge-go on PR #13, then `/build TSK-002` (blocked-on-TSK-001-merge).
