@@ -201,7 +201,9 @@
       ],
       "clickupListId": "901615807768",
       "status": "in-progress",
-      "architectureNote": "ORG is an orchestration grouping, not a feature folder — all ORG code lives in features/tasks. Resolved decisions (/module ORG 2026-07-12): on-Home (not a separate screen); search+filter+sort compose in one pipeline; filter+sort persist via the typed storage service as one envelope, search in-memory; default sort created-desc; sort via ActionSheet, filter via SegmentedControl. ORG-001 (anchor) done, PR #18 review."
+      "architectureNote": "ORG is an orchestration grouping, not a feature folder — all ORG code lives in features/tasks. Resolved decisions (/module ORG 2026-07-12): on-Home (not a separate screen); search+filter+sort compose in one pipeline; filter+sort persist via the typed storage service as one envelope, search in-memory; default sort created-desc; sort via ActionSheet, filter via SegmentedControl. ORG-001 (anchor) done, PR #18 review.",
+      "coherenceStatus": "pass",
+      "e2eStatus": "deferred"
     }
   ],
   "tasks": [
